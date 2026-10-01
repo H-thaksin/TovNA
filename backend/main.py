@@ -7,6 +7,7 @@ from routers.tours import router as tours_router
 from routers.activities import router as activities_router
 from routers.transportations import router as transportations_router
 from routers.itineraries import router as itineraries_router
+from routers.bookings import router as bookings_router
 
 app = FastAPI()
 
@@ -29,3 +30,4 @@ app.include_router(tours_router)
 app.include_router(activities_router)
 app.include_router(transportations_router)  
 app.include_router(itineraries_router)
+app.include_router(bookings_router)
