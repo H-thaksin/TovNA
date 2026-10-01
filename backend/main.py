@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers.destinations import router as destinations_router
+from routers.hotels import router as hotels_router
 
 app = FastAPI()
 
@@ -19,3 +20,4 @@ def root():
         "message": "Welcome to TovNa API"
     }
 app.include_router(destinations_router)
+app.include_router(hotels_router)
