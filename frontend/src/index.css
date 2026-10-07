@@ -1,111 +1,639 @@
+/* =========================================================
+   TovNa - modern Cambodian travel platform
+   Works on top of Bootstrap 5 (import Bootstrap before this file)
+   ========================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+/* ---------- Design tokens ---------- */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --tovna-primary: #0f766e;
+  --tovna-primary-dark: #115e59;
+  --tovna-primary-soft: #e6f4f1;
+  --tovna-accent: #f59e0b;
+  --tovna-accent-dark: #b45309; /* amber text that stays readable on white */
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --tovna-text: #17202a;
+  --tovna-muted: #5b6573;
+  --tovna-bg: #f8faf9;
+  --tovna-white: #ffffff;
+  --tovna-border: #e5e7eb;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  --tovna-radius-sm: 10px;
+  --tovna-radius: 16px;
+  --tovna-radius-lg: 24px;
+  --tovna-shadow-sm: 0 1px 2px rgba(23, 32, 42, 0.06);
+  --tovna-shadow: 0 8px 24px rgba(23, 32, 42, 0.08);
+  --tovna-shadow-lg: 0 16px 40px rgba(23, 32, 42, 0.14);
+
+  /* Motion: fast start, long soft landing */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Bootstrap overrides */
+  --bs-primary: var(--tovna-primary);
+  --bs-primary-rgb: 15, 118, 110;
+  --bs-link-color: var(--tovna-primary);
+  --bs-link-hover-color: var(--tovna-primary-dark);
+  --bs-body-color: var(--tovna-text);
+  --bs-body-bg: var(--tovna-bg);
+  --bs-border-color: var(--tovna-border);
+  --bs-border-radius: var(--tovna-radius-sm);
+
+  font-family:
+    Inter,
+    "Noto Sans Khmer",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  color: var(--tovna-text);
+  background: var(--tovna-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* ---------- Base ---------- */
+* {
+  box-sizing: border-box;
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* clears the sticky navbar */
 }
 
 body {
   margin: 0;
+  min-width: 320px;
+  background: var(--tovna-bg);
+  line-height: 1.6;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+button,
+a {
+  font-family: inherit;
+}
+a {
+  color: var(--tovna-primary);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--tovna-primary-dark);
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
+h2,
+h3 {
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  border-radius: 999px;
+  font-weight: 600;
+  padding-inline: 1.4rem;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--tovna-primary);
+  --bs-btn-border-color: var(--tovna-primary);
+  --bs-btn-hover-bg: var(--tovna-primary-dark);
+  --bs-btn-hover-border-color: var(--tovna-primary-dark);
+  --bs-btn-active-bg: var(--tovna-primary-dark);
+  --bs-btn-active-border-color: var(--tovna-primary-dark);
+  --bs-btn-disabled-bg: var(--tovna-primary);
+  --bs-btn-disabled-border-color: var(--tovna-primary);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--tovna-primary);
+  --bs-btn-border-color: var(--tovna-primary);
+  --bs-btn-hover-bg: var(--tovna-primary);
+  --bs-btn-hover-border-color: var(--tovna-primary);
+  --bs-btn-active-bg: var(--tovna-primary-dark);
+  --bs-btn-active-border-color: var(--tovna-primary-dark);
+}
+
+/* Gold button for the main action on dark scenes */
+.btn-accent {
+  --bs-btn-color: var(--tovna-text);
+  --bs-btn-bg: var(--tovna-accent);
+  --bs-btn-border-color: var(--tovna-accent);
+  --bs-btn-hover-color: var(--tovna-text);
+  --bs-btn-hover-bg: #d98a06;
+  --bs-btn-hover-border-color: #d98a06;
+  --bs-btn-active-color: var(--tovna-text);
+  --bs-btn-active-bg: #d98a06;
+  --bs-btn-active-border-color: #d98a06;
+}
+
+/* ---------- Navbar ---------- */
+.tovna-header {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--tovna-border);
+}
+
+.tovna-header .navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.tovna-header .nav-link {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  color: var(--tovna-text);
   font-weight: 500;
-  color: var(--text-h);
+}
+.tovna-header .nav-link:hover,
+.tovna-header .nav-link.active {
+  color: var(--tovna-primary);
+  background: var(--tovna-primary-soft);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+.tovna-header .navbar-toggler {
+  border: 1px solid var(--tovna-border);
+  border-radius: var(--tovna-radius-sm);
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+.tovna-header .navbar-toggler:focus {
+  box-shadow: none;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
+@media (max-width: 991.98px) {
+  .tovna-header .navbar-collapse {
+    padding: 0.75rem 0 1rem;
+  }
+  .tovna-header .nav-auth {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--tovna-border);
+  }
+  .tovna-header .nav-auth .btn {
+    flex: 1;
+  }
+}
+
+/* ---------- Layout helpers ---------- */
+.section {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+/* Tinted sections fade in and out instead of ending on a hard line */
+.section.bg-white {
+  background-image: linear-gradient(
+    to bottom,
+    var(--tovna-bg),
+    transparent 120px,
+    transparent calc(100% - 120px),
+    var(--tovna-bg)
+  );
+}
+
+.section-title {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+.section-subtitle {
+  color: var(--tovna-muted);
+}
+
+/* ---------- Scene 1: hero ---------- */
+.scene-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: clamp(560px, calc(100svh - 72px), 820px);
+  overflow: hidden;
+  color: #fff;
+  background: #0b2321;
+}
+
+.scene-bg,
+.scene-shade,
+.scene-fade {
+  position: absolute;
+  inset: 0;
+}
+
+/* Slow drift and zoom on the wrapper; scroll parallax on the image inside */
+.scene-bg {
+  z-index: 0;
+  animation: kenburns 28s var(--ease-inout) infinite alternate;
+}
+.scene-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate3d(0, calc(var(--p, 0) * 80px), 0) scale(1.12);
+  will-change: transform;
+}
+
+.scene-shade {
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(6, 28, 26, 0.82) 0%,
+      rgba(6, 28, 26, 0.5) 45%,
+      rgba(6, 28, 26, 0.12) 100%
+    ),
+    linear-gradient(to bottom, rgba(6, 28, 26, 0.35), transparent 30%);
+}
+
+/* Dissolves the photo into the page so the next scene doesn't start with a hard edge */
+.scene-fade {
+  z-index: 1;
+  top: auto;
+  height: 30%;
+  background: linear-gradient(to bottom, transparent, var(--tovna-bg));
+}
+
+.scene-fg {
+  position: relative;
+  z-index: 3;
+  padding-block: 4rem 6.5rem;
+  transform: translate3d(0, calc(var(--p, 0) * -48px), 0);
+  opacity: calc(1 - var(--p, 0) * 1.5);
+}
+
+.hero-copy {
+  max-width: 640px;
+}
+.hero-title {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2.6rem, 6.5vw, 4.75rem);
+  font-weight: 800;
+}
+.hero-accent {
+  color: var(--tovna-accent);
+}
+.hero-lead {
+  max-width: 48ch;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+}
+
+/* The tag reads clearly on a dark photo */
+.scene-hero .badge-highlight {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fcd34d;
+}
+
+/* Midground: two photos float and drift at different speeds */
+.scene-mid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.float-wrap {
+  position: absolute;
+  animation: float 9s var(--ease-inout) infinite alternate;
+}
+.float-wrap--a {
+  top: 12%;
+  right: 7%;
+  width: min(22vw, 270px);
+}
+.float-wrap--b {
+  right: 21%;
+  bottom: 16%;
+  width: min(17vw, 210px);
+  animation-delay: -4.5s;
+}
+
+.float-card {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  border-radius: var(--tovna-radius);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+  object-fit: cover;
+  will-change: transform;
+}
+.float-card--a {
+  transform: translate3d(0, calc(var(--p, 0) * -90px), 0) rotate(3deg);
+}
+.float-card--b {
+  transform: translate3d(0, calc(var(--p, 0) * -40px), 0) rotate(-4deg);
+}
+
+.scroll-cue {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 1.75rem;
+  width: 26px;
+  height: 42px;
+  border: 2px solid var(--tovna-primary);
+  border-radius: 14px;
+  transform: translateX(-50%);
+}
+.scroll-cue span {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 3px;
+  height: 8px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--tovna-primary);
+  animation: cue 2.2s var(--ease-inout) infinite;
+}
+
+/* Hero text arrives one line at a time */
+.rise {
+  opacity: 0;
+  animation: rise 1.1s var(--ease) calc(var(--d, 0) * 1ms + 150ms) forwards;
+}
+
+@keyframes kenburns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.07) translate3d(-1.2%, -1%, 0);
+  }
+}
+@keyframes float {
+  from {
+    transform: translate3d(0, -7px, 0);
+  }
+  to {
+    transform: translate3d(0, 9px, 0);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes cue {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* ---------- Scene 3: story band ---------- */
+.scene-band {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  min-height: clamp(380px, 70vh, 620px);
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 16%,
+    #000 84%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 16%,
+    #000 84%,
+    transparent
+  );
+}
+.band-bg {
+  position: absolute;
+  inset: -14% 0;
+  z-index: -2;
+  background: #0b2321;
+}
+.band-bg > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate3d(0, calc((var(--p, 0.5) - 0.5) * -90px), 0) scale(1.05);
+  will-change: transform;
+}
+.band-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(6, 28, 26, 0.45),
+    rgba(6, 28, 26, 0.82)
+  );
+}
+.band-content {
+  max-width: 720px;
+  padding-block: 5rem;
+}
+.band-content h2 {
+  margin-bottom: 1rem;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 800;
+}
+.band-content p {
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 1.1rem;
+}
+
+/* ---------- Scroll reveals ---------- */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 32px, 0) scale(0.985);
+  transition:
+    opacity 900ms var(--ease) calc(var(--d, 0) * 1ms),
+    transform 1000ms var(--ease) calc(var(--d, 0) * 1ms),
+    filter 900ms var(--ease) calc(var(--d, 0) * 1ms);
+  will-change: opacity, transform;
+}
+.reveal--blur {
+  filter: blur(8px);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  will-change: auto;
+}
+
+/* Photos settle from a slight zoom as their card appears */
+.card-photo {
+  transform: scale(1.1);
+  transition: transform 1600ms var(--ease) calc(var(--d, 0) * 1ms + 150ms);
+}
+.is-visible .card-photo {
+  transform: scale(1);
+}
+
+/* ---------- Mobile: same feeling, far less movement ---------- */
+@media (max-width: 767.98px) {
+  .scene-mid,
+  .scroll-cue {
+    display: none;
+  }
+  .scene-bg {
+    animation: none;
+  }
+  .scene-bg-img,
+  .band-bg > * {
+    transform: scale(1.08);
+  }
+  .scene-fg {
+    padding-block: 3rem 5.5rem;
+    transform: none;
+    opacity: 1;
+  }
+  .scene-shade {
+    background: linear-gradient(
+      to bottom,
+      rgba(6, 28, 26, 0.55),
+      rgba(6, 28, 26, 0.8)
+    );
+  }
+}
+
+/* ---------- Cards ---------- */
+.tovna-card {
+  overflow: hidden;
+  background: var(--tovna-white);
+  border: 1px solid var(--tovna-border);
+  border-radius: var(--tovna-radius);
+  box-shadow: var(--tovna-shadow-sm);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.tovna-card:hover {
+  box-shadow: var(--tovna-shadow);
+  transform: translateY(-3px);
+}
+
+/* Large panels (modals) shouldn't lift on hover */
+.tovna-card--static:hover {
+  box-shadow: var(--tovna-shadow-sm);
+  transform: none;
+}
+
+/* Feature cards with a soft icon */
+.feature-card {
+  padding: 1.75rem 1.5rem;
+  background: var(--tovna-white);
+  border: 1px solid var(--tovna-border);
+  border-radius: var(--tovna-radius);
+  box-shadow: var(--tovna-shadow-sm);
+}
+.feature-icon {
   display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  border-radius: 14px;
+  background: var(--tovna-primary-soft);
+  color: var(--tovna-primary);
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* ---------- Accent details ---------- */
+.price {
+  color: var(--tovna-accent-dark);
+  font-weight: 800;
+}
+
+.badge-highlight {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.16);
+  color: var(--tovna-accent-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ---------- Modal ---------- */
+.modal:focus {
+  outline: none;
+}
+
+/* ---------- Forms ---------- */
+.form-control,
+.form-select {
+  padding: 0.7rem 0.9rem;
+  border-color: var(--tovna-border);
+  border-radius: var(--tovna-radius-sm);
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--tovna-primary);
+  box-shadow: 0 0 0 0.25rem rgba(15, 118, 110, 0.18);
+}
+
+/* ---------- Accessibility: no motion for people who ask for none ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .reveal,
+  .rise {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .scene-bg-img,
+  .band-bg > *,
+  .float-card,
+  .card-photo {
+    transform: none !important;
+  }
+  .scene-fg {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .tovna-card:hover {
+    transform: none;
+  }
 }
