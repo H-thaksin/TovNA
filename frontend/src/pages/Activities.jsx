@@ -7,10 +7,23 @@ import { ActivityCards } from "../components/cards";
 export default function Activities() {
   const { data, status, retry } = useApiList("/activities/");
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
 
-  const filteredActivities = data.filter((activity) =>
-    activity.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const categories = [
+    "All",
+    ...new Set(data.map((activity) => activity.category).filter(Boolean)),
+  ];
+
+  const filteredActivities = data.filter((activity) => {
+    const matchesSearch = activity.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesCategory =
+      category === "All" || activity.category === category;
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <>
@@ -20,13 +33,31 @@ export default function Activities() {
       />
 
       <div className="container mb-4">
-        <input
-          type="text"
-          className="form-control form-control-lg"
-          placeholder="Search activities by name..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
+        <div className="row g-3">
+          <div className="col-md-8">
+            <input
+              type="text"
+              className="form-control form-control-lg"
+              placeholder="Search activities by name..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+
+          <div className="col-md-4">
+            <select
+              className="form-select form-select-lg"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+            >
+              {categories.map((item) => (
+                <option key={item} value={item}>
+                  {item === "All" ? "All categories" : item}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       <Section
@@ -39,13 +70,18 @@ export default function Activities() {
         ) : status === "ready" ? (
           <div className="col-12 text-center py-5">
             <h3 className="h5 fw-bold">No activities found</h3>
-            <p className="text-secondary">Try another search term.</p>
+            <p className="text-secondary">
+              Try another search or choose a different category.
+            </p>
             <button
               type="button"
               className="btn btn-outline-primary"
-              onClick={() => setSearch("")}
+              onClick={() => {
+                setSearch("");
+                setCategory("All");
+              }}
             >
-              Clear search
+              Clear filters
             </button>
           </div>
         ) : null}
