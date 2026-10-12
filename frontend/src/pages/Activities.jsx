@@ -8,6 +8,7 @@ export default function Activities() {
   const { data, status, retry } = useApiList("/activities/");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [maxPrice, setMaxPrice] = useState("All");
 
   const categories = [
     "All",
@@ -22,7 +23,10 @@ export default function Activities() {
     const matchesCategory =
       category === "All" || activity.category === category;
 
-    return matchesSearch && matchesCategory;
+    const matchesPrice =
+      maxPrice === "All" || Number(activity.price) <= Number(maxPrice);
+
+    return matchesSearch && matchesCategory && matchesPrice;
   });
 
   return (
@@ -34,7 +38,7 @@ export default function Activities() {
 
       <div className="container mb-4">
         <div className="row g-3">
-          <div className="col-md-8">
+          <div className="col-md-6">
             <input
               type="text"
               className="form-control form-control-lg"
@@ -44,7 +48,7 @@ export default function Activities() {
             />
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-3">
             <select
               className="form-select form-select-lg"
               value={category}
@@ -55,6 +59,20 @@ export default function Activities() {
                   {item === "All" ? "All categories" : item}
                 </option>
               ))}
+            </select>
+          </div>
+
+          <div className="col-md-3">
+            <select
+              className="form-select form-select-lg"
+              value={maxPrice}
+              onChange={(event) => setMaxPrice(event.target.value)}
+            >
+              <option value="All">Any price</option>
+              <option value="10">Up to $10</option>
+              <option value="25">Up to $25</option>
+              <option value="50">Up to $50</option>
+              <option value="100">Up to $100</option>
             </select>
           </div>
         </div>
@@ -71,7 +89,7 @@ export default function Activities() {
           <div className="col-12 text-center py-5">
             <h3 className="h5 fw-bold">No activities found</h3>
             <p className="text-secondary">
-              Try another search or choose a different category.
+              Try another search or adjust your filters.
             </p>
             <button
               type="button"
@@ -79,6 +97,7 @@ export default function Activities() {
               onClick={() => {
                 setSearch("");
                 setCategory("All");
+                setMaxPrice("All");
               }}
             >
               Clear filters
