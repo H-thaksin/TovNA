@@ -8,7 +8,8 @@ import Home from "./pages/Home";
 import Destinations from "./pages/Destinations";
 import Tours from "./pages/Tours";
 import Activities from "./pages/Activities";
-
+import ArticlePage from "./pages/ArticlePage";
+import Articles from "./pages/Articles";
 // Every new page starts at the top.
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -68,7 +69,10 @@ export default function App() {
           <Route path="/destinations" element={<Destinations />} />
           <Route path="/tours" element={<Tours />} />
           <Route path="/activities" element={<Activities />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />{" "}
+          <Route path="/articles" element={<Articles />} />
+          <Route path="/articles/:type" element={<Articles />} />
+          <Route path="/articles/:type/:id" element={<ArticlePage />} />
         </Routes>
       </main>
 

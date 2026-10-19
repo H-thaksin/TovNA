@@ -551,45 +551,692 @@ main {
 }
 
 /* ---------- Cards ---------- */
-.tovna-card {
-  overflow: hidden;
-  background: var(--tovna-white);
-  border: 1px solid var(--tovna-border);
+/* Builds on the global TovNa tokens (--tovna-*, --ease). No :root overrides. */
+
+/* Reading font for the article column only; the rest of the site stays Inter */
+.tovna-article,
+.tovna-quote-inline {
+  --tv-serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+}
+
+/* ---------- Card (extends your .tovna-card) ---------- */
+article.tovna-card {
   border-radius: var(--tovna-radius);
-  box-shadow: var(--tovna-shadow-sm);
   transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    transform 0.35s var(--ease),
+    box-shadow 0.35s var(--ease);
 }
-.tovna-card:hover {
-  box-shadow: var(--tovna-shadow);
-  transform: translateY(-3px);
+article.tovna-card:hover,
+article.tovna-card:focus-within {
+  transform: translateY(-6px);
+  box-shadow: var(--tovna-shadow-lg);
+}
+.tovna-card-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--tovna-primary-soft);
+}
+.tovna-card-media .card-photo {
+  position: absolute;
+  inset: 0;
+}
+/* Your .card-photo already settles from 1.1 → 1 on reveal; hover zooms after that */
+article.tovna-card:hover .card-photo,
+article.tovna-card:focus-within .card-photo {
+  transform: scale(1.08);
+  transition-duration: 900ms;
+  transition-delay: 0s;
+}
+.tovna-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--tovna-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.tovna-card-body {
+  padding: 1.25rem 1.4rem 1.4rem;
+}
+.tovna-meta {
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+  color: var(--tovna-muted);
+}
+.tovna-card-title {
+  margin: 0 0 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.tovna-card-title a,
+.tovna-card-title a:hover {
+  color: var(--tovna-text);
+}
+.tovna-card-title a:hover {
+  color: var(--tovna-primary);
+}
+.tovna-excerpt {
+  margin-bottom: 1rem;
+  color: var(--tovna-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.tovna-card-footer {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--tovna-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+.tovna-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--tovna-primary);
+}
+.tovna-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-/* Large panels (modals) shouldn't lift on hover */
-.tovna-card--static:hover {
-  box-shadow: var(--tovna-shadow-sm);
-  transform: none;
+/* ---------- Hotel card ---------- */
+.tovna-hotel {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.tovna-hotel .tovna-card-media {
+  aspect-ratio: 16 / 10;
+}
+.tovna-hotel-price {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.4rem 1.4rem;
+  border-top: 1px solid var(--tovna-border);
+  background: var(--tovna-bg);
+}
+@media (min-width: 992px) {
+  .tovna-hotel {
+    grid-template-columns: 300px 1fr 280px;
+  }
+  .tovna-hotel .tovna-card-media {
+    aspect-ratio: auto;
+    min-height: 100%;
+  }
+  .tovna-hotel-price {
+    border-top: 0;
+    border-left: 1px solid var(--tovna-border);
+  }
+}
+.tovna-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+.tovna-chips li {
+  padding: 4px 10px;
+  border: 1px solid var(--tovna-border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+.tovna-chips em {
+  margin-left: 6px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--tovna-primary);
+}
+.tovna-score {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.4rem;
+}
+.tovna-score strong {
+  padding: 6px 10px;
+  border-radius: 10px 10px 10px 2px;
+  background: var(--tovna-primary);
+  color: #fff;
+  font-size: 1.1rem;
+}
+.tovna-score span {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.tovna-score small {
+  font-weight: 400;
+  color: var(--tovna-muted);
+}
+.tovna-quote-inline {
+  margin-bottom: 1rem;
+  font-family: var(--tv-serif);
+  font-style: italic;
+  color: var(--tovna-muted);
+}
+.tovna-subhead {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.tovna-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+.tovna-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--tovna-border);
+}
+.tovna-list-plain li {
+  justify-content: flex-start;
+  padding: 2px 0;
+  border: 0;
+  color: var(--tovna-muted);
+}
+.tovna-list .tovna-sub {
+  padding-left: 1rem;
+  font-size: 0.85rem;
+  color: var(--tovna-muted);
+}
+.tovna-list .tovna-total {
+  border-bottom: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
-/* Feature cards with a soft icon */
-.feature-card {
-  padding: 1.75rem 1.5rem;
+/* ---------- Booking ---------- */
+.tovna-booking {
+  max-width: 640px;
+  margin: 2rem auto;
+  padding: 1.75rem;
   background: var(--tovna-white);
   border: 1px solid var(--tovna-border);
   border-radius: var(--tovna-radius);
   box-shadow: var(--tovna-shadow-sm);
 }
-.feature-icon {
+
+/* ========================================
+   TovNa — Travel magazine article page
+======================================== */
+
+.tovna-article {
+  background: var(--tovna-white, #fff);
+  min-height: 60vh;
+}
+
+.tovna-hero {
+  position: relative;
+  min-height: 560px;
+  height: min(76vh, 760px);
+  overflow: hidden;
+  isolation: isolate;
+  background: #173b36;
+  color: #fff;
+}
+
+.tovna-hero-img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  animation: tovna-hero-arrive 0.8s ease-out both;
+}
+
+.tovna-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    rgba(8, 24, 22, 0.76) 0%,
+    rgba(8, 24, 22, 0.43) 55%,
+    rgba(8, 24, 22, 0.12) 100%
+  );
+}
+
+.tovna-hero-content {
+  position: absolute;
+  left: max(6%, calc((100% - 1160px) / 2));
+  right: 6%;
+  bottom: clamp(40px, 8vw, 100px);
+  max-width: 820px;
+}
+
+.tovna-hero-back {
+  display: inline-block;
+  margin-bottom: 30px;
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+.tovna-hero-back:hover {
+  color: #fff;
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.tovna-hero-kicker {
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.tovna-badge-static {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 7px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.8rem;
+  backdrop-filter: blur(8px);
+}
+
+.tovna-hero-content h1 {
+  max-width: 800px;
+  margin: 0;
+  color: #fff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.tovna-hero-meta {
+  margin: 22px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1rem;
+}
+
+.tovna-article-column {
+  width: min(100% - 40px, 760px);
+  margin: 0 auto;
+  padding: 42px 0 90px;
+}
+
+.tovna-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+  color: #77817f;
+  font-size: 0.86rem;
+}
+
+.tovna-breadcrumb a {
+  color: var(--tovna-primary, #0f766e);
+  text-decoration: none;
+}
+
+.tovna-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.tovna-lede {
+  margin: 0;
+  color: #35413e;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.tovna-article-price {
+  margin-top: 32px;
+  padding: 24px 26px;
+  border: 1px solid #e5ece8;
+  border-radius: 16px;
+  background: #f7faf8;
+}
+
+.tovna-price-label {
+  color: #6b7772;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tovna-article-price p {
+  margin: 6px 0 0;
+}
+
+.tovna-article-price strong {
+  color: var(--tovna-primary, #0f766e);
+  font-size: 1.8rem;
+}
+
+.tovna-article-price span:not(.tovna-price-label) {
+  margin-left: 8px;
+  color: #6b7772;
+  font-size: 0.9rem;
+}
+
+.tovna-article-divider {
+  height: 1px;
+  margin: 44px 0 32px;
+  background: #e5ece8;
+}
+
+.tovna-article-footer p {
+  margin-bottom: 16px;
+  color: #34413d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+}
+
+@keyframes tovna-hero-arrive {
+  from {
+    transform: scale(1.04);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .tovna-hero {
+    min-height: 500px;
+    height: 70vh;
+    max-height: 680px;
+  }
+
+  .tovna-hero-overlay {
+    background: linear-gradient(
+      0deg,
+      rgba(8, 24, 22, 0.83) 0%,
+      rgba(8, 24, 22, 0.35) 65%,
+      rgba(8, 24, 22, 0.12) 100%
+    );
+  }
+
+  .tovna-hero-content {
+    left: 24px;
+    right: 24px;
+    bottom: 42px;
+  }
+
+  .tovna-hero-back {
+    margin-bottom: 24px;
+  }
+
+  .tovna-article-column {
+    width: calc(100% - 40px);
+    padding-top: 28px;
+    padding-bottom: 60px;
+  }
+
+  .tovna-breadcrumb {
+    gap: 7px;
+    margin-bottom: 26px;
+  }
+}
+
+/* TovNa Travel Stories */
+.tovna-stories-page {
+  padding-bottom: 72px;
+}
+
+.tovna-stories-section {
+  padding-top: 52px;
+}
+
+.tovna-stories-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.tovna-section-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--tovna-primary, #27856b);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.tovna-stories-intro h2 {
+  max-width: 620px;
+  margin: 0 0 12px;
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+
+.tovna-stories-intro p {
+  max-width: 600px;
+  margin: 0;
+  color: var(--bs-secondary-color, #6c757d);
+  line-height: 1.8;
+}
+
+.tovna-stories-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 50%;
+}
+
+.tovna-stories-count span {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.tovna-stories-count small {
+  margin-top: 5px;
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.tovna-category-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.tovna-filter-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 1rem;
-  border-radius: 14px;
-  background: var(--tovna-primary-soft);
-  color: var(--tovna-primary);
+  min-height: 44px;
+  padding: 10px 19px;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 999px;
+  color: var(--bs-body-color, #212529);
+  background: var(--bs-body-bg, #fff);
+  font-size: 0.9rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.tovna-filter-chip:hover {
+  border-color: var(--tovna-primary, #27856b);
+  color: var(--tovna-primary, #27856b);
+  transform: translateY(-2px);
+}
+
+.tovna-filter-chip.is-active {
+  border-color: var(--tovna-primary, #27856b);
+  color: #fff;
+  background: var(--tovna-primary, #27856b);
+}
+
+.tovna-stories-page .tovna-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-height: 1.7;
+}
+
+.tovna-stories-page .tovna-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 750;
+  transition: gap 180ms ease;
+}
+
+.tovna-stories-page .card:hover .tovna-link {
+  gap: 13px;
+}
+
+.tovna-stories-empty {
+  padding: 72px 20px;
+  border: 1px dashed var(--bs-border-color, #dee2e6);
+  border-radius: 24px;
+  text-align: center;
+}
+
+.tovna-stories-empty h2 {
+  margin-bottom: 12px;
+  font-weight: 800;
+}
+
+.tovna-stories-empty p {
+  color: var(--bs-secondary-color, #6c757d);
+}
+
+@media (max-width: 767px) {
+  .tovna-stories-section {
+    padding-top: 32px;
+  }
+
+  .tovna-stories-intro {
+    align-items: start;
+    gap: 14px;
+  }
+
+  .tovna-stories-count {
+    width: 66px;
+    height: 66px;
+  }
+
+  .tovna-stories-count span {
+    font-size: 1.4rem;
+  }
+
+  .tovna-stories-count small {
+    font-size: 0.52rem;
+  }
+
+  .tovna-category-filters {
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .tovna-filter-chip {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tovna-filter-chip,
+  .tovna-stories-page .tovna-link {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tovna-hero-img {
+    animation: none;
+  }
+}
+
+/* ---------- Activity card polish ---------- */
+.tovna-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.tovna-card-media::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(6, 28, 26, 0.45), transparent);
+  pointer-events: none;
+}
+.tovna-chip-overlay {
+  position: absolute;
+  z-index: 1;
+  right: 12px;
+  bottom: 12px;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(6, 28, 26, 0.62);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.tovna-badge {
+  z-index: 1;
+}
+.tovna-price-block {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.tovna-price-block small {
+  margin-top: 2px;
+  color: var(--tovna-muted);
+  font-size: 0.75rem;
+}
+.tovna-link .arrow {
+  display: inline-block;
+  transition: transform 0.3s var(--ease);
+}
+article.tovna-card:hover .tovna-link .arrow {
+  transform: translateX(4px);
 }
 
 /* ---------- Accent details ---------- */
