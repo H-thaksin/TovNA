@@ -4,9 +4,12 @@ import { Link, NavLink } from "react-router-dom";
 const NAV_LINKS = [
   { label: "Home", to: "/", end: true },
   { label: "Articles", to: "/articles" },
+  { label: "Hotels", to: "/hotels" },
   { label: "Destinations", to: "/destinations" },
   { label: "Tours", to: "/tours" },
   { label: "Activities", to: "/activities" },
+  { label: "Transportation", to: "/transportation" },
+  { label: "My Bookings", to: "/my-bookings" },
 ];
 
 export default function Navbar({ user, onLogin, onSignup, onLogout }) {

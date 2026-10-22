@@ -10,6 +10,12 @@ import Tours from "./pages/Tours";
 import Activities from "./pages/Activities";
 import ArticlePage from "./pages/ArticlePage";
 import Articles from "./pages/Articles";
+import Hotels from "./pages/Hotels";
+import HotelDetail from "./pages/Hoteldetail";
+import HotelBooking from "./pages/Hotelbooking";
+import MyBookings from "./pages/MyBookings";
+import BookingDetails from "./pages/BookingDetails";
+import Transportation from "./pages/Transportation";
 // Every new page starts at the top.
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -73,6 +79,17 @@ export default function App() {
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:type" element={<Articles />} />
           <Route path="/articles/:type/:id" element={<ArticlePage />} />
+          <Route path="/hotels" element={<Hotels />} />
+          <Route path="/transportation" element={<Transportation />} />
+          <Route path="/hotels/:id" element={<HotelDetail />} />
+          <Route
+            path="/hotels/:id/booking"
+            element={<HotelBooking onLogin={() => setAuthMode("login")} />}
+          />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/my-bookings/:id" element={<BookingDetails />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
         </Routes>
       </main>
 

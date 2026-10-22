@@ -1,0 +1,405 @@
+/* =========================================================
+   TovNa - Transportation page
+   Same class names as before, now using the TovNa green and gold
+   so it matches the rest of the site.
+   ========================================================= */
+
+.transport-page {
+  min-height: 70vh;
+  padding-bottom: 64px;
+  background: var(--tovna-bg, #f8faf9);
+}
+
+.transport-hero {
+  padding: 64px 0 72px;
+  color: #fff;
+  background:
+    radial-gradient(
+      ellipse 60% 120% at 85% 0%,
+      rgba(245, 158, 11, 0.18),
+      transparent 60%
+    ),
+    linear-gradient(120deg, #0b2321, #0f766e);
+}
+
+.transport-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #fcd34d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.transport-hero h1 {
+  max-width: 720px;
+  margin-bottom: 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.transport-hero p {
+  max-width: 650px;
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+}
+
+.transport-content {
+  padding-top: 36px;
+}
+
+.transport-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.transport-heading h2 {
+  margin-bottom: 6px;
+  color: var(--tovna-text, #17202a);
+  font-size: 1.6rem;
+  font-weight: 750;
+}
+.transport-heading p {
+  margin-bottom: 0;
+  color: var(--tovna-muted, #5b6573);
+}
+
+.transport-count {
+  white-space: nowrap;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary-dark, #115e59);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+/* ---------- Filters ---------- */
+.transport-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid var(--tovna-border, #e5e7eb);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(23, 32, 42, 0.05);
+}
+
+.transport-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.transport-field label,
+.transport-label {
+  color: var(--tovna-text, #17202a);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.transport-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.transport-field select,
+.transport-field input[type="date"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 10px;
+  border: 1px solid var(--tovna-border, #e5e7eb);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--tovna-text, #17202a);
+}
+.transport-field select:focus,
+.transport-field input:focus {
+  border-color: var(--tovna-primary, #0f766e);
+  outline: 3px solid rgba(15, 118, 110, 0.18);
+}
+
+.transport-swap {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tovna-primary, #0f766e);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.transport-swap:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.transport-swap:disabled {
+  color: #9ca3af;
+}
+
+/* Passenger counter */
+.transport-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  border: 1px solid var(--tovna-border, #e5e7eb);
+  border-radius: 10px;
+  background: #fff;
+}
+.transport-stepper output {
+  min-width: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+.transport-stepper button {
+  width: 44px;
+  height: 42px;
+  border: 0;
+  background: none;
+  color: var(--tovna-primary, #0f766e);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.transport-stepper button:hover:not(:disabled) {
+  background: var(--tovna-primary-soft, #e6f4f1);
+}
+.transport-stepper button:disabled {
+  color: #c3c9cf;
+}
+
+.transport-reset {
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid var(--tovna-border, #e5e7eb);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--tovna-text, #17202a);
+  font-weight: 600;
+}
+.transport-reset:hover:not(:disabled) {
+  border-color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0f766e);
+}
+.transport-reset:disabled {
+  color: #9ca3af;
+}
+
+.transport-field select:focus-visible,
+.transport-stepper button:focus-visible,
+.transport-reset:focus-visible,
+.transport-swap:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+.transport-summary {
+  margin: -8px 0 20px;
+  color: var(--tovna-muted, #5b6573);
+}
+.transport-summary strong {
+  color: var(--tovna-text, #17202a);
+}
+
+/* ---------- Results ---------- */
+.transport-list {
+  display: grid;
+  gap: 16px;
+}
+
+.transport-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--tovna-border, #e5e7eb);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(23, 32, 42, 0.05);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    border-color 0.3s ease;
+}
+.transport-card:hover {
+  border-color: rgba(15, 118, 110, 0.35);
+  box-shadow: 0 12px 30px rgba(23, 32, 42, 0.1);
+  transform: translateY(-2px);
+}
+
+.transport-card-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.transport-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: var(--tovna-primary-soft, #e6f4f1);
+  font-size: 1.6rem;
+}
+
+.transport-route {
+  min-width: 0;
+}
+.transport-route-label {
+  color: var(--tovna-text, #17202a);
+  font-size: 1.15rem;
+  font-weight: 750;
+}
+
+.transport-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.transport-meta span {
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 0.82rem;
+}
+
+.transport-badge {
+  font-weight: 700;
+}
+.transport-meta .transport-badge--price {
+  background: #dcfce7;
+  color: #166534;
+}
+.transport-meta .transport-badge--fast {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.transport-description {
+  margin: 10px 0 0;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.transport-price {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.transport-price span,
+.transport-price small {
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.82rem;
+}
+.transport-price strong {
+  color: var(--tovna-primary, #0f766e);
+  font-size: 1.65rem;
+  font-weight: 800;
+}
+
+/* ---------- Messages and loading ---------- */
+.transport-message {
+  padding: 40px 20px;
+  border: 1px dashed #d1d5db;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--tovna-muted, #5b6573);
+  text-align: center;
+}
+.transport-message h3 {
+  color: var(--tovna-text, #17202a);
+  font-weight: 700;
+}
+.transport-error button {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tovna-primary, #0f766e);
+  color: #fff;
+  font-weight: 600;
+}
+
+.transport-skeleton {
+  height: 128px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #eef1ef 25%, #f7f9f8 50%, #eef1ef 75%);
+  background-size: 200% 100%;
+  animation: transport-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes transport-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .transport-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .transport-reset {
+    width: fit-content;
+  }
+}
+
+@media (max-width: 600px) {
+  .transport-hero {
+    padding: 44px 0;
+  }
+  .transport-content {
+    padding-top: 26px;
+  }
+  .transport-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .transport-filters {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  .transport-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 20px;
+    padding: 18px;
+  }
+  .transport-card-main {
+    gap: 12px;
+  }
+  .transport-route-label {
+    font-size: 1rem;
+  }
+  .transport-price {
+    align-items: flex-start;
+    padding-top: 14px;
+    border-top: 1px solid var(--tovna-border, #e5e7eb);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transport-card {
+    transition: none;
+  }
+  .transport-card:hover {
+    transform: none;
+  }
+  .transport-skeleton {
+    animation: none;
+  }
+}
