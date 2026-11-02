@@ -132,6 +132,7 @@ CREATE TABLE booking_items (
     hotel_id INTEGER REFERENCES hotels(id),
     tour_id INTEGER REFERENCES tours(id),
     activity_id INTEGER REFERENCES activities(id),
+    transportation_id INTEGER REFERENCES transportations(id),
     quantity INTEGER NOT NULL DEFAULT 1,
     unit_price DECIMAL(10, 2) NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL

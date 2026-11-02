@@ -58,6 +58,17 @@ const PRICE_ITEMS = [
   ["Service charge", "Service charge"],
 ];
 
+const TYPE_ICONS = {
+  bus: "🚌",
+  van: "🚐",
+  minivan: "🚐",
+  boat: "⛴️",
+  ferry: "⛴️",
+  taxi: "🚕",
+  train: "🚆",
+  flight: "✈️",
+};
+
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
 
@@ -82,6 +93,9 @@ function CopyButton({ text }) {
     </button>
   );
 }
+
+const titleCase = (text) =>
+  String(text || "").replace(/^\w/, (c) => c.toUpperCase());
 
 function Message({ children }) {
   return (
@@ -182,17 +196,29 @@ export default function BookingDetails({ user, onLogin }) {
 
   const details = useMemo(() => {
     if (!booking) return null;
+    const isTransportation = booking.transportation_id != null;
     const checkIn = booking.check_in || getNoteValue(notes, "Check-in");
     const checkOut = booking.check_out || getNoteValue(notes, "Check-out");
-    const start = parseDate(checkIn);
+    const travelDate = getNoteValue(notes, "Travel date");
+    const passengers = Number(getNoteValue(notes, "Passengers")) || 0;
+    const unitPrice = Number(booking.transport_unit_price);
+    const start = parseDate(isTransportation ? travelDate : checkIn);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const daysToGo = start ? Math.round((start - today) / 86400000) : null;
 
     return {
+      isTransportation,
       checkIn,
       checkOut,
+      travelDate,
+      passengers,
+      unitPrice: Number.isFinite(unitPrice) ? unitPrice : null,
+      transportKind: String(booking.transport_type || "").toLowerCase(),
+      title: isTransportation
+        ? `${booking.from_destination || "Departure"} → ${booking.to_destination || "Destination"}`
+        : booking.hotel_name || "Travel booking",
       // `||` (not `??`) because a missing note gives "" rather than null.
       rooms: booking.rooms || getNoteValue(notes, "Rooms") || "1",
       nights: booking.nights || getNoteValue(notes, "Nights") || "—",
@@ -331,16 +357,22 @@ export default function BookingDetails({ user, onLogin }) {
     );
   }
 
-  const { statusKey, daysToGo, prices } = details;
-  const hasBreakdown = prices.some(([, amount]) => amount !== null);
+  const { statusKey, daysToGo, prices, isTransportation } = details;
+  const hasBreakdown = isTransportation
+    ? details.unitPrice !== null && details.passengers > 0
+    : prices.some(([, amount]) => amount !== null);
   const countdown =
     statusKey === "cancelled" || daysToGo == null || daysToGo < 0
       ? null
       : daysToGo === 0
-        ? "Check-in is today"
+        ? isTransportation
+          ? "You travel today"
+          : "Check-in is today"
         : daysToGo === 1
-          ? "Check-in is tomorrow"
-          : `Check-in in ${daysToGo} days`;
+          ? isTransportation
+            ? "You travel tomorrow"
+            : "Check-in is tomorrow"
+          : `${isTransportation ? "Departure" : "Check-in"} in ${daysToGo} days`;
 
   return (
     <section className="section booking-detail-page">
@@ -369,18 +401,24 @@ export default function BookingDetails({ user, onLogin }) {
 
           {/* Hotel */}
           <div className="booking-detail-hotel">
-            <SafeImage
-              src={booking.hotel_image}
-              alt={booking.hotel_name || "Booked hotel"}
-            />
+            {isTransportation ? (
+              <div className="booking-detail-transport-icon" aria-hidden="true">
+                {TYPE_ICONS[details.transportKind] ?? "🚌"}
+              </div>
+            ) : (
+              <SafeImage
+                src={booking.hotel_image}
+                alt={booking.hotel_name || "Booked hotel"}
+              />
+            )}
             <div>
               <h2>
-                {booking.hotel_id != null ? (
+                {!isTransportation && booking.hotel_id != null ? (
                   <Link to={`/hotels/${booking.hotel_id}`}>
-                    {booking.hotel_name || "Travel booking"}
+                    {details.title}
                   </Link>
                 ) : (
-                  booking.hotel_name || "Travel booking"
+                  details.title
                 )}
               </h2>
               {countdown && (
@@ -401,22 +439,45 @@ export default function BookingDetails({ user, onLogin }) {
               <span>Booking ID</span>
               <strong>{booking.id}</strong>
             </div>
-            <div>
-              <span>Check-in</span>
-              <strong>{formatDate(details.checkIn)}</strong>
-            </div>
-            <div>
-              <span>Check-out</span>
-              <strong>{formatDate(details.checkOut)}</strong>
-            </div>
-            <div>
-              <span>Rooms</span>
-              <strong>{details.rooms}</strong>
-            </div>
-            <div>
-              <span>Nights</span>
-              <strong>{details.nights}</strong>
-            </div>
+            {isTransportation ? (
+              <>
+                <div>
+                  <span>Travel date</span>
+                  <strong>{formatDate(details.travelDate)}</strong>
+                </div>
+                <div>
+                  <span>Passengers</span>
+                  <strong>{details.passengers || "—"}</strong>
+                </div>
+                <div>
+                  <span>Transport</span>
+                  <strong>{titleCase(booking.transport_type) || "—"}</strong>
+                </div>
+                <div>
+                  <span>Provider</span>
+                  <strong>{booking.transport_provider || "—"}</strong>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <span>Check-in</span>
+                  <strong>{formatDate(details.checkIn)}</strong>
+                </div>
+                <div>
+                  <span>Check-out</span>
+                  <strong>{formatDate(details.checkOut)}</strong>
+                </div>
+                <div>
+                  <span>Rooms</span>
+                  <strong>{details.rooms}</strong>
+                </div>
+                <div>
+                  <span>Nights</span>
+                  <strong>{details.nights}</strong>
+                </div>
+              </>
+            )}
             <div>
               <span>Booking date</span>
               <strong>{formatDate(booking.booking_date)}</strong>
@@ -457,7 +518,21 @@ export default function BookingDetails({ user, onLogin }) {
           {/* Price breakdown */}
           <h2>Price breakdown</h2>
 
-          {hasBreakdown ? (
+          {isTransportation ? (
+            hasBreakdown ? (
+              <div className="booking-price-row">
+                <span>
+                  {usd(details.unitPrice)} × {details.passengers}{" "}
+                  {details.passengers === 1 ? "passenger" : "passengers"}
+                </span>
+                <span>{usd(details.unitPrice * details.passengers)}</span>
+              </div>
+            ) : (
+              <p className="text-secondary small">
+                A detailed breakdown isn't available for this booking.
+              </p>
+            )
+          ) : hasBreakdown ? (
             prices.map(([label, amount]) => (
               <div className="booking-price-row" key={label}>
                 <span>{label}</span>
@@ -484,12 +559,17 @@ export default function BookingDetails({ user, onLogin }) {
           )}
 
           <div className="booking-detail-actions no-print">
-            {booking.hotel_id != null && (
+            {!isTransportation && booking.hotel_id != null && (
               <Link
                 to={`/hotels/${booking.hotel_id}`}
                 className="btn btn-outline-primary"
               >
                 View hotel
+              </Link>
+            )}
+            {isTransportation && (
+              <Link to="/transportation" className="btn btn-outline-primary">
+                Find more transport
               </Link>
             )}
             <button
@@ -510,9 +590,8 @@ export default function BookingDetails({ user, onLogin }) {
             <h2 className="h4 fw-bold">Cancel this booking?</h2>
 
             <p className="mt-3">
-              Are you sure you want to cancel your booking at{" "}
-              <strong>{booking.hotel_name || "this hotel"}</strong>? This can't
-              be undone.
+              Are you sure you want to cancel your booking for{" "}
+              <strong>{details.title}</strong>? This can't be undone.
             </p>
 
             <p className="text-secondary small mb-0">
