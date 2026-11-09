@@ -11,10 +11,12 @@ export function useApiList(path) {
     const controller = new AbortController();
 
     setStatus("loading");
+    setData([]); // don't show the previous path's items
 
     fetchJson(path, controller.signal)
       .then((items) => {
-        setData(items);
+        // The API may return a message object instead of a list.
+        setData(Array.isArray(items) ? items : []);
         setStatus("ready");
       })
       .catch((error) => {
@@ -109,13 +111,13 @@ export function useDetails() {
         fetchJson("/activities/"),
       ]);
 
-      const destinationTours = tours.filter(
+      const destinationTours = (Array.isArray(tours) ? tours : []).filter(
         (tour) => Number(tour.destination_id) === Number(id),
       );
 
-      const destinationActivities = activities.filter(
-        (activity) => Number(activity.destination_id) === Number(id),
-      );
+      const destinationActivities = (
+        Array.isArray(activities) ? activities : []
+      ).filter((activity) => Number(activity.destination_id) === Number(id));
 
       setSelected({
         kind: "destination",
@@ -127,7 +129,6 @@ export function useDetails() {
       });
     } catch (error) {
       console.error("Error fetching destination details:", error);
-
       setNotice("We couldn't load that destination. Please try again.");
     } finally {
       setLoadingId(null);
@@ -136,11 +137,7 @@ export function useDetails() {
 
   // Open tour details.
   function viewTour(data) {
-    setSelected({
-      kind: "tour",
-      data,
-    });
-
+    setSelected({ kind: "tour", data });
     setNotice("");
   }
 
@@ -150,12 +147,5 @@ export function useDetails() {
     setNotice("");
   }
 
-  return {
-    selected,
-    loadingId,
-    notice,
-    viewDestination,
-    viewTour,
-    close,
-  };
+  return { selected, loadingId, notice, viewDestination, viewTour, close };
 }

@@ -151,6 +151,59 @@ export default function BookingDetail({ user, onLogin }) {
       </Message>
     );
   }
+  // Load the payment associated with this booking.
+  useEffect(() => {
+    if (!booking?.id) return;
+
+    const token = localStorage.getItem(TOKEN_KEY);
+
+    if (!token) {
+      setPayment(null);
+      setPaymentLoadStatus("error");
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function loadPayment() {
+      setPayment(null);
+      setPaymentError("");
+      setPaymentLoadStatus("loading");
+
+      try {
+        const response = await fetch(`${API_URL}/payments/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          signal: controller.signal,
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(readError(data));
+        }
+
+        const paymentList = Array.isArray(data) ? data : data.payments || [];
+
+        const matchingPayment = paymentList.find(
+          (item) => Number(item.booking_id) === Number(booking.id),
+        );
+
+        setPayment(matchingPayment || null);
+        setPaymentLoadStatus("ready");
+      } catch (err) {
+        if (err.name === "AbortError") return;
+
+        setPaymentError(err.message || "Unable to load payment information.");
+        setPaymentLoadStatus("error");
+      }
+    }
+
+    loadPayment();
+
+    return () => controller.abort();
+  }, [booking?.id, user, attempt]);
 
   const b = state.booking;
   const { base, accommodationTax, vat, service } = b.breakdown;

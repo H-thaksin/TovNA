@@ -1,0 +1,97 @@
+@import "./AdminTours.css";
+
+/* Transportation-specific adjustments */
+
+.admin-transportation-page .hotel-table {
+  min-width: 1050px;
+}
+
+.admin-transportation-page .hotel-table td {
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.admin-transportation-page .hotel-filters {
+  flex-wrap: wrap;
+}
+
+.admin-transportation-page .hotel-filters select {
+  min-width: 130px;
+}
+
+.transportation-route-cell {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 210px;
+}
+
+.transportation-route-cell strong {
+  color: #263448;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.transportation-route-cell small {
+  flex-basis: 100%;
+  color: #8b95a5;
+  font-size: 11px;
+}
+
+.transportation-route-arrow {
+  color: #8b95a5;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.transportation-provider-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 130px;
+}
+
+.transportation-provider-cell strong {
+  color: #263448;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.transportation-provider-cell span {
+  color: #8791a1;
+  font-size: 12px;
+}
+
+.admin-transportation-page .hotel-modal {
+  max-width: 680px;
+}
+
+.admin-transportation-page .hotel-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-transportation-page .hotel-form-grid label {
+  min-width: 0;
+}
+
+.admin-transportation-page .hotel-form-grid input,
+.admin-transportation-page .hotel-form-grid select,
+.admin-transportation-page .hotel-form-grid textarea {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .admin-transportation-page .hotel-table {
+    min-width: 1000px;
+  }
+
+  .admin-transportation-page .hotel-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-transportation-page .hotel-form-full {
+    grid-column: auto;
+  }
+}

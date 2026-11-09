@@ -1,0 +1,33 @@
+@import "./AdminHotels.css";
+
+/* Activity-specific adjustments */
+
+.admin-activities-page .hotel-name-cell {
+  min-width: 190px;
+}
+
+.admin-activities-page .hotel-table {
+  min-width: 1120px;
+}
+
+.admin-activities-page .hotel-table td {
+  white-space: normal;
+}
+
+.admin-activities-page .hotel-name-cell span {
+  max-width: 220px;
+}
+
+.admin-activities-page .hotel-filters {
+  flex-wrap: wrap;
+}
+
+.admin-activities-page .hotel-filters select {
+  min-width: 135px;
+}
+
+@media (max-width: 768px) {
+  .admin-activities-page .hotel-table {
+    min-width: 1050px;
+  }
+}

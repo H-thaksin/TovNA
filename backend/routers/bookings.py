@@ -247,6 +247,9 @@ def booking_to_dict(row) -> dict:
     booking = {
         "id": data["id"],
         "user_id": data["user_id"],
+        "customer_first_name": data["customer_first_name"],
+        "customer_last_name": data["customer_last_name"],
+        "customer_email": data["customer_email"],
         "booking_reference": data["booking_reference"],
         "booking_date": data["booking_date"],
         "total_amount": str(data["total_amount"]),
@@ -304,6 +307,9 @@ BOOKING_SELECT_SQL = """
     SELECT
         b.id,
         b.user_id,
+        u.first_name AS customer_first_name,
+        u.last_name AS customer_last_name,
+        u.email AS customer_email,
         b.booking_reference,
         b.booking_date,
         b.total_amount,
@@ -362,6 +368,8 @@ BOOKING_SELECT_SQL = """
         ) AS items
 
     FROM bookings AS b
+    LEFT JOIN users AS u
+        ON u.id = b.user_id
 
     LEFT JOIN booking_items AS bi
         ON bi.booking_id = b.id
@@ -413,7 +421,7 @@ def fetch_bookings(
             f"""
             {BOOKING_SELECT_SQL}
             {where}
-            GROUP BY b.id
+            GROUP BY b.id, u.id
             ORDER BY b.id DESC
             LIMIT :limit OFFSET :offset
             """
@@ -436,7 +444,7 @@ def get_booking_or_404(connection, booking_id: int, user_id: Optional[int] = Non
         query += " AND b.user_id = :user_id"
         params["user_id"] = user_id
 
-    query += " GROUP BY b.id"
+    query += " GROUP BY b.id, u.id"
 
     row = connection.execute(text(query), params).fetchone()
 

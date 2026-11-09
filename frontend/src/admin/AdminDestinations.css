@@ -1,0 +1,24 @@
+@import "./AdminHotels.css";
+
+/* Destination-specific adjustments */
+
+.admin-destinations-page .hotel-table {
+  min-width: 960px;
+}
+
+.admin-destinations-page .hotel-table td {
+  white-space: normal;
+}
+
+.admin-destinations-page .hotel-name-cell {
+  min-width: 180px;
+}
+
+.admin-destinations-page .hotel-table a.hotel-link-btn {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.admin-destinations-page .hotel-filters select {
+  min-width: 135px;
+}

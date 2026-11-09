@@ -11,31 +11,57 @@ export default function Destinations() {
   const [search, setSearch] = useState("");
   const [province, setProvince] = useState("All");
 
-  // Province list for the dropdown, built from the data and sorted A to Z.
-  const provinces = useMemo(
-    () => [
-      "All",
-      ...[...new Set(data.map((d) => d.province).filter(Boolean))].sort(),
-    ],
+  // Only show active destinations to customers.
+  const activeDestinations = useMemo(
+    () => data.filter((destination) => destination.is_active !== false),
     [data],
   );
 
-  // Matches the name or the province, ignoring capital letters and extra spaces.
+  // Build province options from active destinations.
+  const provinces = useMemo(
+    () => [
+      "All",
+      ...[
+        ...new Set(
+          activeDestinations
+            .map((destination) => destination.province)
+            .filter(Boolean),
+        ),
+      ].sort(),
+    ],
+    [activeDestinations],
+  );
+
+  // Search by name, province, description, and best time.
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return data.filter((d) => {
-      const matchesSearch =
-        !query ||
-        d.name?.toLowerCase().includes(query) ||
-        d.province?.toLowerCase().includes(query);
-      const matchesProvince = province === "All" || d.province === province;
+
+    return activeDestinations.filter((destination) => {
+      const searchableText = [
+        destination.name,
+        destination.province,
+        destination.description,
+        destination.best_time,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch = !query || searchableText.includes(query);
+
+      const matchesProvince =
+        province === "All" || destination.province === province;
+
       return matchesSearch && matchesProvince;
     });
-  }, [data, search, province]);
+  }, [activeDestinations, search, province]);
 
   const isFiltering = search.trim() !== "" || province !== "All";
+
   const noMatches =
-    status === "ready" && data.length > 0 && filtered.length === 0;
+    status === "ready" &&
+    activeDestinations.length > 0 &&
+    filtered.length === 0;
 
   const clearFilters = () => {
     setSearch("");
@@ -55,11 +81,12 @@ export default function Destinations() {
             <label htmlFor="destination-search" className="visually-hidden">
               Search destinations
             </label>
+
             <input
               id="destination-search"
               type="search"
               className="form-control form-control-lg"
-              placeholder="Search destinations..."
+              placeholder="Search destinations, provinces..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -69,6 +96,7 @@ export default function Destinations() {
             <label htmlFor="destination-province" className="visually-hidden">
               Filter by province
             </label>
+
             <select
               id="destination-province"
               className="form-select form-select-lg"
@@ -84,22 +112,23 @@ export default function Destinations() {
           </div>
         </div>
 
-        {status === "ready" && data.length > 0 && (
-          <p className="text-secondary small mt-3 mb-0" aria-live="polite">
-            Showing {filtered.length} of {data.length} destinations
+        {status === "ready" && (
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+            <p className="text-secondary small mb-0" aria-live="polite">
+              Showing {filtered.length} of {activeDestinations.length}{" "}
+              destinations
+            </p>
+
             {isFiltering && (
-              <>
-                {" · "}
-                <button
-                  type="button"
-                  className="btn btn-link p-0 align-baseline small"
-                  onClick={clearFilters}
-                >
-                  Clear filters
-                </button>
-              </>
+              <button
+                type="button"
+                className="btn btn-link p-0 small"
+                onClick={clearFilters}
+              >
+                Clear filters
+              </button>
             )}
-          </p>
+          </div>
         )}
       </div>
 
@@ -115,7 +144,11 @@ export default function Destinations() {
         <section className="section text-center">
           <div className="container">
             <p className="fs-5 mb-1">No destinations match your search.</p>
-            <p className="text-secondary">Try a different word or province.</p>
+
+            <p className="text-secondary">
+              Try another destination name or province.
+            </p>
+
             <button
               type="button"
               className="btn btn-primary"

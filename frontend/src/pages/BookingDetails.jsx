@@ -41,13 +41,32 @@ function formatDate(value) {
     month: "short",
     day: "numeric",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(date);
+}
+
+function getBookingType(b) {
+  if (b.transportation_id != null) return "transportation";
+  if (b.tour_id != null) return "tour";
+  if (b.activity_id != null) return "activity";
+  return "hotel";
+}
+
+function getServicePath(b, type) {
+  if (type === "hotel" && b.hotel_id != null) return `/hotels/${b.hotel_id}`;
+  if (type === "tour" && b.tour_id != null)
+    return `/articles/tours/${b.tour_id}`;
+  if (type === "activity" && b.activity_id != null)
+    return `/articles/activities/${b.activity_id}`;
+  return null;
 }
 
 const STATUS_TEXT = {
   pending: "Your booking has been received and is waiting for confirmation.",
   confirmed: "Your reservation is confirmed. We look forward to welcoming you.",
-  completed: "This stay is complete. Thank you for travelling with TovNa.",
+  rejected: "This booking could not be confirmed.",
+  completed: "This booking is complete. Thank you for travelling with TovNa.",
   cancelled: "This booking was cancelled.",
 };
 
@@ -114,6 +133,11 @@ export default function BookingDetails({ user, onLogin }) {
   const [status, setStatus] = useState("loading"); // loading | ready | login | notfound | error
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
+
+  //Payment state. This is separate from the booking because the payment may not exist yet.
+  const [payment, setPayment] = useState(null);
+  const [paymentLoadStatus, setPaymentLoadStatus] = useState("idle");
+  const [paymentError, setPaymentError] = useState("");
 
   // Cancellation state.
   const [cancelling, setCancelling] = useState(false);
@@ -196,29 +220,55 @@ export default function BookingDetails({ user, onLogin }) {
 
   const details = useMemo(() => {
     if (!booking) return null;
-    const isTransportation = booking.transportation_id != null;
-    const checkIn = booking.check_in || getNoteValue(notes, "Check-in");
+
+    const bookingType = getBookingType(booking);
+    const isTransportation = bookingType === "transportation";
+    const isExperience = bookingType === "tour" || bookingType === "activity";
+    const item = booking.items?.[0] || {};
+
+    const serviceDate = item.service_date || "";
+    const checkIn =
+      booking.check_in ||
+      getNoteValue(notes, "Check-in") ||
+      (bookingType === "hotel" ? serviceDate : "");
     const checkOut = booking.check_out || getNoteValue(notes, "Check-out");
     const travelDate = getNoteValue(notes, "Travel date");
     const passengers = Number(getNoteValue(notes, "Passengers")) || 0;
-    const unitPrice = Number(booking.transport_unit_price);
-    const start = parseDate(isTransportation ? travelDate : checkIn);
+    const participants = Number(booking.participants) || 0;
+    const unitPrice = Number(
+      isTransportation ? booking.transport_unit_price : item.unit_price,
+    );
+    const start = parseDate(
+      isTransportation ? travelDate : isExperience ? serviceDate : checkIn,
+    );
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const daysToGo = start ? Math.round((start - today) / 86400000) : null;
 
+    const titles = {
+      transportation: `${booking.from_destination || "Departure"} → ${booking.to_destination || "Destination"}`,
+      tour: booking.tour_name || "Tour booking",
+      activity: booking.activity_name || "Activity booking",
+      hotel: booking.hotel_name || "Travel booking",
+    };
+
     return {
+      bookingType,
       isTransportation,
+      isExperience,
       checkIn,
       checkOut,
       travelDate,
+      serviceDate,
       passengers,
+      participants,
       unitPrice: Number.isFinite(unitPrice) ? unitPrice : null,
       transportKind: String(booking.transport_type || "").toLowerCase(),
-      title: isTransportation
-        ? `${booking.from_destination || "Departure"} → ${booking.to_destination || "Destination"}`
-        : booking.hotel_name || "Travel booking",
+      title: titles[bookingType],
+      image:
+        booking.hotel_image || booking.tour_image || booking.activity_image,
+      servicePath: getServicePath(booking, bookingType),
       // `||` (not `??`) because a missing note gives "" rather than null.
       rooms: booking.rooms || getNoteValue(notes, "Rooms") || "1",
       nights: booking.nights || getNoteValue(notes, "Nights") || "—",
@@ -259,11 +309,10 @@ export default function BookingDetails({ user, onLogin }) {
       }
       if (!response.ok) throw new Error(readError(data));
 
-      // Update the page with what the backend sent back.
+      // The cancel endpoint returns only { booking_id, status }, so merge just the status.
       const updated = data.booking ?? data;
       setBooking((current) => ({
         ...current,
-        ...updated,
         status: updated.status || "cancelled",
       }));
       setCancelMessage("Booking cancelled successfully.");
@@ -357,22 +406,40 @@ export default function BookingDetails({ user, onLogin }) {
     );
   }
 
-  const { statusKey, daysToGo, prices, isTransportation } = details;
-  const hasBreakdown = isTransportation
-    ? details.unitPrice !== null && details.passengers > 0
+  const { statusKey, daysToGo, prices, isTransportation, isExperience } =
+    details;
+
+  const perUnit = isTransportation || isExperience;
+  const quantity = isTransportation ? details.passengers : details.participants;
+  const unitNoun = isTransportation
+    ? quantity === 1
+      ? "passenger"
+      : "passengers"
+    : quantity === 1
+      ? "participant"
+      : "participants";
+
+  const hasBreakdown = perUnit
+    ? details.unitPrice !== null && quantity > 0
     : prices.some(([, amount]) => amount !== null);
+
+  const startWord = isTransportation
+    ? "Departure"
+    : isExperience
+      ? "Starts"
+      : "Check-in";
+
   const countdown =
-    statusKey === "cancelled" || daysToGo == null || daysToGo < 0
+    statusKey === "cancelled" ||
+    statusKey === "rejected" ||
+    daysToGo == null ||
+    daysToGo < 0
       ? null
       : daysToGo === 0
-        ? isTransportation
-          ? "You travel today"
-          : "Check-in is today"
+        ? `${startWord} today`
         : daysToGo === 1
-          ? isTransportation
-            ? "You travel tomorrow"
-            : "Check-in is tomorrow"
-          : `${isTransportation ? "Departure" : "Check-in"} in ${daysToGo} days`;
+          ? `${startWord} tomorrow`
+          : `${startWord} in ${daysToGo} days`;
 
   return (
     <section className="section booking-detail-page">
@@ -399,24 +466,19 @@ export default function BookingDetails({ user, onLogin }) {
             </span>
           </div>
 
-          {/* Hotel */}
+          {/* Service summary */}
           <div className="booking-detail-hotel">
             {isTransportation ? (
               <div className="booking-detail-transport-icon" aria-hidden="true">
                 {TYPE_ICONS[details.transportKind] ?? "🚌"}
               </div>
             ) : (
-              <SafeImage
-                src={booking.hotel_image}
-                alt={booking.hotel_name || "Booked hotel"}
-              />
+              <SafeImage src={details.image} alt={details.title} />
             )}
             <div>
               <h2>
-                {!isTransportation && booking.hotel_id != null ? (
-                  <Link to={`/hotels/${booking.hotel_id}`}>
-                    {details.title}
-                  </Link>
+                {details.servicePath ? (
+                  <Link to={details.servicePath}>{details.title}</Link>
                 ) : (
                   details.title
                 )}
@@ -439,6 +501,7 @@ export default function BookingDetails({ user, onLogin }) {
               <span>Booking ID</span>
               <strong>{booking.id}</strong>
             </div>
+
             {isTransportation ? (
               <>
                 <div>
@@ -456,6 +519,25 @@ export default function BookingDetails({ user, onLogin }) {
                 <div>
                   <span>Provider</span>
                   <strong>{booking.transport_provider || "—"}</strong>
+                </div>
+              </>
+            ) : isExperience ? (
+              <>
+                <div>
+                  <span>
+                    {details.bookingType === "tour"
+                      ? "Tour date"
+                      : "Activity date"}
+                  </span>
+                  <strong>{formatDate(details.serviceDate)}</strong>
+                </div>
+                <div>
+                  <span>
+                    {details.bookingType === "tour"
+                      ? "Travelers"
+                      : "Participants"}
+                  </span>
+                  <strong>{details.participants || "—"}</strong>
                 </div>
               </>
             ) : (
@@ -478,6 +560,7 @@ export default function BookingDetails({ user, onLogin }) {
                 </div>
               </>
             )}
+
             <div>
               <span>Booking date</span>
               <strong>{formatDate(booking.booking_date)}</strong>
@@ -518,14 +601,13 @@ export default function BookingDetails({ user, onLogin }) {
           {/* Price breakdown */}
           <h2>Price breakdown</h2>
 
-          {isTransportation ? (
+          {perUnit ? (
             hasBreakdown ? (
               <div className="booking-price-row">
                 <span>
-                  {usd(details.unitPrice)} × {details.passengers}{" "}
-                  {details.passengers === 1 ? "passenger" : "passengers"}
+                  {usd(details.unitPrice)} × {quantity} {unitNoun}
                 </span>
-                <span>{usd(details.unitPrice * details.passengers)}</span>
+                <span>{usd(details.unitPrice * quantity)}</span>
               </div>
             ) : (
               <p className="text-secondary small">
@@ -559,12 +641,12 @@ export default function BookingDetails({ user, onLogin }) {
           )}
 
           <div className="booking-detail-actions no-print">
-            {!isTransportation && booking.hotel_id != null && (
+            {details.servicePath && (
               <Link
-                to={`/hotels/${booking.hotel_id}`}
+                to={details.servicePath}
                 className="btn btn-outline-primary"
               >
-                View hotel
+                View {details.bookingType}
               </Link>
             )}
             {isTransportation && (
@@ -582,6 +664,154 @@ export default function BookingDetails({ user, onLogin }) {
           </div>
         </div>
       </div>
+      <hr />
+
+      <h2>Booking progress</h2>
+
+      {["cancelled", "rejected"].includes(statusKey) ? (
+        <div className="alert alert-secondary mt-3">
+          This booking is {statusKey}. The normal booking progress has stopped.
+        </div>
+      ) : (
+        <div className="booking-timeline">
+          {[
+            {
+              title: "Booking submitted",
+              description: "Your reservation has been received.",
+              done: Boolean(booking.booking_date),
+              current: statusKey === "pending",
+            },
+            {
+              title: "Booking confirmed",
+              description: "The agency has approved your reservation.",
+              done: ["confirmed", "completed"].includes(statusKey),
+              current: false,
+            },
+            {
+              title: "Payment completed",
+              description:
+                payment?.status?.toLowerCase() === "paid"
+                  ? "Your payment has been verified."
+                  : payment
+                    ? `Payment status: ${titleCase(payment.status)}.`
+                    : "Complete payment after your booking is confirmed.",
+              done: payment?.status?.toLowerCase() === "paid",
+              current:
+                statusKey === "confirmed" &&
+                payment?.status?.toLowerCase() !== "paid",
+            },
+            {
+              title: "Trip completed",
+              description: "Enjoy your experience with TovNa!",
+              done: statusKey === "completed",
+              current: false,
+            },
+          ].map((step, index) => (
+            <div
+              className={`booking-timeline-step ${
+                step.done ? "is-done" : ""
+              } ${step.current ? "is-current" : ""}`}
+              key={step.title}
+            >
+              <div className="booking-timeline-marker">
+                {step.done ? "✓" : index + 1}
+              </div>
+
+              <div className="booking-timeline-content">
+                <strong>{step.title}</strong>
+                <p>{step.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <hr />
+
+      <h2>Payment information</h2>
+
+      {paymentLoadStatus === "loading" && (
+        <p className="text-secondary">Loading payment information...</p>
+      )}
+
+      {paymentLoadStatus === "error" && (
+        <div className="alert alert-warning">
+          {paymentError || "Payment information is temporarily unavailable."}
+        </div>
+      )}
+
+      {paymentLoadStatus === "ready" && !payment && (
+        <div className="booking-payment-empty">
+          <p className="mb-2">
+            No payment has been created for this booking yet.
+          </p>
+
+          {statusKey === "confirmed" ? (
+            <>
+              <p className="text-secondary small">
+                Your booking is confirmed. You can proceed with payment from My
+                Bookings.
+              </p>
+
+              <Link to="/my-bookings" className="btn btn-primary no-print">
+                Go to My Bookings to Pay
+              </Link>
+            </>
+          ) : (
+            <p className="text-secondary small mb-0">
+              Payment will become available after your booking is confirmed.
+            </p>
+          )}
+        </div>
+      )}
+
+      {paymentLoadStatus === "ready" && payment && (
+        <div className="booking-payment-card">
+          <div className="booking-payment-header">
+            <div>
+              <span>Payment ID</span>
+              <strong>#{payment.id}</strong>
+            </div>
+
+            <span
+              className={`booking-status ${String(
+                payment.status || "pending",
+              ).toLowerCase()}`}
+            >
+              {titleCase(payment.status)}
+            </span>
+          </div>
+
+          <div className="booking-detail-grid">
+            <div>
+              <span>Payment amount</span>
+              <strong>{usd(payment.amount)}</strong>
+            </div>
+
+            <div>
+              <span>Payment method</span>
+              <strong>{payment.method || "—"}</strong>
+            </div>
+
+            <div>
+              <span>Transaction reference</span>
+              <strong>
+                {payment.transaction_reference || "Not submitted"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Payment date</span>
+              <strong>{formatDateTime(payment.paid_at)}</strong>
+            </div>
+          </div>
+
+          {payment.status?.toLowerCase() === "pending" && (
+            <p className="text-warning small mb-0">
+              Your payment is waiting for verification by the TovNa team.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Cancellation confirmation. Uses the same pop-up as the rest of the site (Escape and outside click close it). */}
       {showCancelDialog && (

@@ -1,0 +1,19 @@
+@import "./AdminHotels.css";
+
+/* Tours-specific adjustments */
+
+.admin-hotels-page .hotel-name-cell {
+  min-width: 190px;
+}
+
+.admin-hotels-page .hotel-table {
+  min-width: 1100px;
+}
+
+.admin-hotels-page .hotel-table td {
+  white-space: normal;
+}
+
+.admin-hotels-page .hotel-name-cell span {
+  max-width: 220px;
+}

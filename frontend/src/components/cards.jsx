@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { Modal, Reveal, SafeImage, clampThree, money } from "./ui";
 
-/* Adjust this one function if your article route differs. */
-export const articlePath = (type, item) =>
-  `/articles/${type}/${item.slug || item.id}`;
+/* Always use the numeric id: the article page loads data and books by id. */
+export const articlePath = (type, item) => `/articles/${type}/${item.id}`;
 
 const formatDate = (value) =>
   value
@@ -77,7 +76,7 @@ export function DestinationCards({ items, loadingId, onView }) {
       </p>
       <div className="tovna-card-footer">
         <Link to={articlePath("destinations", d)} className="tovna-link">
-          Read the story
+          Tours &amp; activities
         </Link>
         <button
           type="button"
@@ -99,7 +98,7 @@ export function TourCards({ items, onView }) {
       index={i}
       key={t.id}
       to={articlePath("tours", t)}
-      badge={`${t.duration_days} days`}
+      badge={t.duration_days != null ? `${t.duration_days} days` : undefined}
       meta={formatDate(t.published_at)}
     >
       <p className="tovna-excerpt" style={clampThree}>
@@ -107,13 +106,21 @@ export function TourCards({ items, onView }) {
       </p>
       <div className="tovna-card-footer">
         <span className="price fs-5">{money(t.price)}</span>
-        <button
-          type="button"
-          className="btn btn-outline-primary btn-sm"
-          onClick={() => onView(t)}
-        >
-          View tour
-        </button>
+        <div className="d-flex gap-2">
+          <button
+            type="button"
+            className="btn btn-outline-primary btn-sm"
+            onClick={() => onView(t)}
+          >
+            Quick view
+          </button>
+          <Link
+            to={`${articlePath("tours", t)}#booking`}
+            className="btn btn-primary btn-sm"
+          >
+            Book
+          </Link>
+        </div>
       </div>
     </Card>
   ));
@@ -127,16 +134,27 @@ export function ActivityCards({ items }) {
       key={a.id}
       to={articlePath("activities", a)}
       badge={a.category}
-      meta={`${a.duration_hours} hours`}
+      meta={a.duration_hours != null ? `${a.duration_hours} hours` : undefined}
     >
       <p className="tovna-excerpt" style={clampThree}>
         {a.description}
       </p>
       <div className="tovna-card-footer">
         <span className="price fs-5">{money(a.price)}</span>
-        <Link to={articlePath("activities", a)} className="tovna-link">
-          Read more
-        </Link>
+        <div className="d-flex gap-2">
+          <Link
+            to={articlePath("activities", a)}
+            className="btn btn-outline-primary btn-sm"
+          >
+            Details
+          </Link>
+          <Link
+            to={`${articlePath("activities", a)}#booking`}
+            className="btn btn-primary btn-sm"
+          >
+            Book
+          </Link>
+        </div>
       </div>
     </Card>
   ));
@@ -402,66 +420,144 @@ export function BookingSummary({ booking = SAMPLE_BOOKING }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Existing details modal (unchanged behaviour)                        */
+/* Details modal (destination quick view and tour quick view)          */
 /* ------------------------------------------------------------------ */
 export function DetailsModal({ selected, onClose }) {
   const { kind, data } = selected;
   const hasCoordinates = data.latitude != null && data.longitude != null;
 
+  const tours = data.tours || [];
+  const activities = data.activities || [];
+  const query = `?destination=${encodeURIComponent(data.id)}`;
+
   return (
     <Modal title={data.name} onClose={onClose}>
-      <div className="row g-0">
-        <div className="col-lg-5">
-          <SafeImage
-            src={data.image_url}
-            alt={data.name}
-            className="w-100 h-100"
-            style={{ objectFit: "cover", minHeight: 260 }}
-          />
-        </div>
-        <div className="col-lg-7 p-4 p-lg-5">
-          <h2 className="fw-bold h3 pe-4">{data.name}</h2>
+      <div className="modal-body p-0">
+        <div className="row g-0">
+          <div className="col-lg-5">
+            <SafeImage
+              src={data.image_url}
+              alt={data.name}
+              className="w-100 h-100"
+              style={{ objectFit: "cover", minHeight: 240 }}
+            />
+          </div>
 
-          {kind === "destination" ? (
-            <>
-              <p className="text-secondary">📍 {data.province}</p>
-              <p className="mt-3">{data.description}</p>
-              <p>
-                <span className="badge-highlight me-2">Best time to visit</span>
-                {data.best_time}
-              </p>
-              <div className="d-flex gap-2 mt-2">
-                {hasCoordinates && (
-                  <a
-                    className="btn btn-primary"
-                    href={`https://www.google.com/maps?q=${data.latitude},${data.longitude}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    View on map
-                  </a>
+          <div className="col-lg-7 p-4 p-lg-5">
+            <h2 className="fw-bold h3 pe-4">{data.name}</h2>
+
+            {kind === "destination" ? (
+              <>
+                <p className="text-secondary mb-2">📍 {data.province}</p>
+
+                {data.best_time && (
+                  <p className="mb-2">
+                    <span className="badge-highlight me-2">
+                      Best time to visit
+                    </span>
+                    {data.best_time}
+                  </p>
                 )}
-                <Link
-                  className="btn btn-outline-primary"
-                  to={articlePath(
-                    kind === "destination" ? "destinations" : "tours",
-                    data,
+
+                <p className="mt-3">
+                  {data.description || "More details are coming soon."}
+                </p>
+
+                {(tours.length > 0 || activities.length > 0) && (
+                  <div className="mb-3">
+                    {tours.length > 0 && (
+                      <>
+                        <h3 className="h6 mb-2">Tours here ({tours.length})</h3>
+                        <ul className="tovna-list mb-3">
+                          {tours.slice(0, 3).map((tour) => (
+                            <li key={tour.id}>
+                              <span>
+                                <Link to={articlePath("tours", tour)}>
+                                  {tour.name}
+                                </Link>
+                                {tour.duration_days
+                                  ? ` · ${tour.duration_days} days`
+                                  : ""}
+                              </span>
+                              <span className="price">{money(tour.price)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+
+                    {activities.length > 0 && (
+                      <p className="text-secondary small mb-0">
+                        {activities.length} activit
+                        {activities.length === 1 ? "y" : "ies"} available
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="d-flex flex-wrap gap-2 mt-2">
+                  <Link
+                    className="btn btn-primary"
+                    to={`${articlePath("destinations", data)}#things-to-do`}
+                  >
+                    Tours &amp; activities
+                  </Link>
+                  <Link
+                    className="btn btn-outline-primary"
+                    to={`/hotels${query}`}
+                  >
+                    Find hotels
+                  </Link>
+                  {hasCoordinates && (
+                    <a
+                      className="btn btn-outline-secondary"
+                      href={`https://www.google.com/maps?q=${data.latitude},${data.longitude}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View on map
+                    </a>
                   )}
-                >
-                  Read the story
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-secondary">🗓️ {data.duration_days} days</p>
-              <p className="mt-3">{data.description}</p>
-              <p className="fs-4 mb-0">
-                <span className="price">{money(data.price)}</span>{" "}
-                <small className="text-secondary fs-6">per person</small>
-              </p>
-            </>
-          )}
+                  <Link
+                    className="btn btn-link"
+                    to={articlePath("destinations", data)}
+                  >
+                    Read the story
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-secondary mb-1">
+                  {data.duration_days != null
+                    ? `🗓️ ${data.duration_days} days`
+                    : ""}
+                  {data.max_people != null
+                    ? `${data.duration_days != null ? " · " : ""}👥 up to ${data.max_people} travelers`
+                    : ""}
+                </p>
+                <p className="mt-3">{data.description}</p>
+                <p className="fs-4 mb-3">
+                  <span className="price">{money(data.price)}</span>{" "}
+                  <small className="text-secondary fs-6">per person</small>
+                </p>
+                <div className="d-flex flex-wrap gap-2">
+                  <Link
+                    className="btn btn-primary"
+                    to={`${articlePath("tours", data)}#booking`}
+                  >
+                    Book this tour
+                  </Link>
+                  <Link
+                    className="btn btn-outline-primary"
+                    to={articlePath("tours", data)}
+                  >
+                    Full details
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </Modal>

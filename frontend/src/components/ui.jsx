@@ -62,14 +62,17 @@ export function SafeImage({ src, alt, style, className, eager = false }) {
       <div
         role="img"
         aria-label={alt}
-        className={`d-flex align-items-center justify-content-center fs-1 ${className ?? ""}`}
+        className={`d-flex flex-column align-items-center justify-content-center text-center px-3 ${className ?? ""}`}
         style={{
           background: "linear-gradient(135deg, #0f766e, #134e4a)",
-          color: "rgba(255,255,255,.85)",
+          color: "rgba(255,255,255,.9)",
           ...style,
         }}
       >
-        🌿
+        <span className="fs-1" aria-hidden="true">
+          🏞️
+        </span>
+        {alt && <small className="mt-2 fw-semibold">{alt}</small>}
       </div>
     );
   }

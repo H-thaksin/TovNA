@@ -1,27 +1,72 @@
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
+
 export const TOKEN_KEY = "access_token";
 
+// =========================================================
+// Fetch JSON
+// =========================================================
+
 export async function fetchJson(path, signal) {
-  const response = await fetch(`${API_URL}${path}`, { signal });
-  if (!response.ok)
-    throw new Error(`Request failed (${response.status}) for ${path}`);
-  return response.json();
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "GET",
+    signal,
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(readError(data));
+  }
+
+  return data;
 }
 
-// FastAPI returns `detail` as a string, or as a list of objects for validation errors.
+// =========================================================
+// Read API Error
+// =========================================================
+
 export const readError = (data) =>
   Array.isArray(data?.detail)
-    ? data.detail.map((d) => d.msg).join(". ")
+    ? data.detail.map((d) => d.msg || "Invalid input").join(". ")
     : data?.detail || "Something went wrong. Please try again.";
 
+// =========================================================
+// Fetch Current User
+// GET /auth/me
+// =========================================================
+
 export async function fetchCurrentUser(token) {
+  if (!token) {
+    throw new Error("Authentication token is missing.");
+  }
+
   const response = await fetch(`${API_URL}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
   });
+
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(readError(data));
+
+  if (!response.ok) {
+    throw new Error(readError(data));
+  }
+
   const name = [data.first_name, data.last_name]
     .filter((n) => n && n !== "-")
     .join(" ");
-  return { name: name || data.email, email: data.email };
+
+  return {
+    id: data.id,
+    name: name || data.email || "User",
+    email: data.email,
+    role: data.role,
+    role_id: data.role_id,
+    is_active: data.is_active,
+  };
 }

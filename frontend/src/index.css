@@ -2,27 +2,30 @@
    TovNa - modern Cambodian travel platform
    Works on top of Bootstrap 5 (import Bootstrap before this file)
    ========================================================= */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap");
 
 /* ---------- Design tokens ---------- */
 :root {
-  --tovna-primary: #0f766e;
-  --tovna-primary-dark: #115e59;
+  --tovna-primary: #0b6b63;
+  --tovna-primary-dark: #084f49;
   --tovna-primary-soft: #e6f4f1;
   --tovna-accent: #f59e0b;
   --tovna-accent-dark: #b45309; /* amber text that stays readable on white */
 
+  --tovna-ink: #0e1b1a;
   --tovna-text: #17202a;
   --tovna-muted: #5b6573;
-  --tovna-bg: #f8faf9;
+  --tovna-bg: #f6f8f7;
   --tovna-white: #ffffff;
-  --tovna-border: #e5e7eb;
+  --tovna-border: #e3e9e6;
+
+  --tovna-display: "Fraunces", Georgia, "Times New Roman", serif;
 
   --tovna-radius-sm: 10px;
   --tovna-radius: 16px;
   --tovna-radius-lg: 24px;
   --tovna-shadow-sm: 0 1px 2px rgba(23, 32, 42, 0.06);
-  --tovna-shadow: 0 8px 24px rgba(23, 32, 42, 0.08);
+  --tovna-shadow: 0 10px 30px rgba(14, 27, 26, 0.08);
   --tovna-shadow-lg: 0 16px 40px rgba(23, 32, 42, 0.14);
 
   /* Motion: fast start, long soft landing */
@@ -31,7 +34,7 @@
 
   /* Bootstrap overrides */
   --bs-primary: var(--tovna-primary);
-  --bs-primary-rgb: 15, 118, 110;
+  --bs-primary-rgb: 11, 107, 99;
   --bs-link-color: var(--tovna-primary);
   --bs-link-hover-color: var(--tovna-primary-dark);
   --bs-body-color: var(--tovna-text);
@@ -93,9 +96,30 @@ h3 {
   line-height: 1.15;
 }
 
+/* One display font for the main headings */
+h1,
+h2,
+.section-title,
+.page-hero h1,
+.hero-title,
+.band-content h2,
+.hotel-head h1,
+.hotel-card-title,
+.my-bookings > h1,
+.booking-group-title,
+.tovna-hero-content h1,
+.tovna-stories-intro h2 {
+  font-family: var(--tovna-display);
+  font-weight: 600;
+}
+
 :focus-visible {
   outline: 3px solid rgba(245, 158, 11, 0.7);
   outline-offset: 2px;
+}
+
+main {
+  min-height: 60vh;
 }
 
 /* ---------- Buttons ---------- */
@@ -103,9 +127,16 @@ h3 {
   border-radius: 999px;
   font-weight: 600;
   padding-inline: 1.4rem;
+  padding-block: 0.65rem;
+  letter-spacing: 0.01em;
   transition:
     background-color 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease,
+    transform 0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
+}
+.btn-sm {
+  padding-block: 0.35rem;
 }
 
 .btn-primary {
@@ -117,6 +148,7 @@ h3 {
   --bs-btn-active-border-color: var(--tovna-primary-dark);
   --bs-btn-disabled-bg: var(--tovna-primary);
   --bs-btn-disabled-border-color: var(--tovna-primary);
+  box-shadow: 0 6px 16px rgba(11, 107, 99, 0.22);
 }
 
 .btn-outline-primary {
@@ -139,57 +171,192 @@ h3 {
   --bs-btn-active-color: var(--tovna-text);
   --bs-btn-active-bg: #d98a06;
   --bs-btn-active-border-color: #d98a06;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
+}
+
+.btn-primary:hover,
+.btn-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(11, 107, 99, 0.28);
 }
 
 /* ---------- Navbar ---------- */
-.tovna-header {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--tovna-border);
-}
-
-.tovna-header .navbar-brand {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.tovna-header .nav-link {
-  padding: 0.5rem 0.9rem;
-  border-radius: 999px;
-  color: var(--tovna-text);
+/* Main links */
+.tovna-nav-link.nav-link {
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  color: #475569;
   font-weight: 500;
-}
-.tovna-header .nav-link:hover,
-.tovna-header .nav-link.active {
-  color: var(--tovna-primary);
-  background: var(--tovna-primary-soft);
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
-.tovna-header .navbar-toggler {
-  border: 1px solid var(--tovna-border);
-  border-radius: var(--tovna-radius-sm);
-}
-.tovna-header .navbar-toggler:focus {
-  box-shadow: none;
+.tovna-nav-link.nav-link:hover {
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
+.tovna-nav-link.nav-link.active {
+  background: rgba(37, 99, 235, 0.09);
+  color: var(--bs-primary, #2563eb);
+}
+
+/* User menu */
+.nav-user {
+  position: relative;
+}
+
+.nav-user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 100%;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.nav-user-trigger:hover,
+.nav-user-trigger.is-open {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.nav-user-trigger:focus-visible,
+.nav-user-item:focus-visible {
+  outline: 2px solid var(--bs-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+.nav-user-avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bs-primary, #2563eb);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nav-user-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-user-caret {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.nav-user-menu {
+  position: absolute;
+  z-index: 1050;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 230px;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+}
+
+.nav-user-menu-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 6px;
+}
+
+.nav-user-menu-header strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.nav-user-menu-header span {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-user-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #334155;
+  font-size: 14px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-user-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.nav-user-item.is-danger {
+  color: #b42318;
+}
+
+.nav-user-item.is-danger:hover {
+  background: #fff0f0;
+}
+
+.nav-user-divider {
+  height: 1px;
+  margin: 6px 0;
+  background: #f1f5f9;
+}
+
+/* Phones and tablets: the menu opens inline inside the collapsed navbar */
 @media (max-width: 991.98px) {
-  .tovna-header .navbar-collapse {
-    padding: 0.75rem 0 1rem;
-  }
-  .tovna-header .nav-auth {
+  .nav-auth {
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--tovna-border);
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
   }
-  .tovna-header .nav-auth .btn {
+
+  .nav-user-trigger {
+    width: 100%;
+  }
+
+  .nav-user-name {
     flex: 1;
+    max-width: none;
+    text-align: left;
+  }
+
+  .nav-user-menu {
+    position: static;
+    margin-top: 8px;
+    box-shadow: none;
   }
 }
-
 /* ---------- Layout helpers ---------- */
 .section {
   padding-block: clamp(2.5rem, 6vw, 4.5rem);
@@ -207,12 +374,86 @@ h3 {
 }
 
 .section-title {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
-  font-weight: 800;
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
   margin-bottom: 0.4rem;
 }
+.section-title::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 3px;
+  margin: 0.8rem auto 0;
+  border-radius: 3px;
+  background: var(--tovna-accent);
+}
 .section-subtitle {
+  max-width: 56ch;
+  margin-inline: auto;
   color: var(--tovna-muted);
+  font-size: 1.05rem;
+}
+
+/* ---------- Inner page header ---------- */
+.page-hero {
+  padding: clamp(2.5rem, 6vw, 4.5rem) 0 2rem;
+  background: radial-gradient(
+    60% 120% at 50% 0%,
+    rgba(11, 107, 99, 0.09),
+    transparent 70%
+  );
+}
+.page-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  margin-bottom: 0.5rem;
+}
+.page-hero p {
+  max-width: 52ch;
+  margin: 0 auto;
+  color: var(--tovna-muted);
+  font-size: 1.1rem;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes float {
+  from {
+    transform: translate3d(0, -7px, 0);
+  }
+  to {
+    transform: translate3d(0, 9px, 0);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes cue {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes kenburns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.07) translate3d(-1.2%, -1%, 0);
+  }
 }
 
 /* ---------- Scene 1: hero ---------- */
@@ -237,9 +478,11 @@ h3 {
 /* Slow drift and zoom on the wrapper; scroll parallax on the image inside */
 .scene-bg {
   z-index: 0;
+  overflow: hidden;
   animation: kenburns 28s var(--ease-inout) infinite alternate;
 }
 .scene-bg-img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -270,6 +513,7 @@ h3 {
 .scene-fg {
   position: relative;
   z-index: 3;
+  width: 100%;
   padding-block: 4rem 6.5rem;
   transform: translate3d(0, calc(var(--p, 0) * -48px), 0);
   opacity: calc(1 - var(--p, 0) * 1.5);
@@ -281,7 +525,8 @@ h3 {
 .hero-title {
   margin-bottom: 1.25rem;
   font-size: clamp(2.6rem, 6.5vw, 4.75rem);
-  font-weight: 800;
+  line-height: 1.05;
+  text-wrap: balance;
 }
 .hero-accent {
   color: var(--tovna-accent);
@@ -298,6 +543,10 @@ h3 {
   background: rgba(245, 158, 11, 0.2);
   border: 1px solid rgba(245, 158, 11, 0.45);
   color: #fcd34d;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
 }
 
 /* Midground: two photos float and drift at different speeds */
@@ -347,7 +596,7 @@ h3 {
   bottom: 1.75rem;
   width: 26px;
   height: 42px;
-  border: 2px solid var(--tovna-primary);
+  border: 2px solid rgba(255, 255, 255, 0.85);
   border-radius: 14px;
   transform: translateX(-50%);
 }
@@ -359,7 +608,7 @@ h3 {
   height: 8px;
   margin-left: -1.5px;
   border-radius: 2px;
-  background: var(--tovna-primary);
+  background: #fff;
   animation: cue 2.2s var(--ease-inout) infinite;
 }
 
@@ -367,68 +616,6 @@ h3 {
 .rise {
   opacity: 0;
   animation: rise 1.1s var(--ease) calc(var(--d, 0) * 1ms + 150ms) forwards;
-}
-
-@keyframes kenburns {
-  from {
-    transform: scale(1) translate3d(0, 0, 0);
-  }
-  to {
-    transform: scale(1.07) translate3d(-1.2%, -1%, 0);
-  }
-}
-@keyframes float {
-  from {
-    transform: translate3d(0, -7px, 0);
-  }
-  to {
-    transform: translate3d(0, 9px, 0);
-  }
-}
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 34px, 0);
-    filter: blur(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-}
-@keyframes cue {
-  0% {
-    opacity: 0;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-}
-
-/* ---------- Inner page header ---------- */
-.page-hero {
-  padding: clamp(2.5rem, 6vw, 4.5rem) 0 0.5rem;
-}
-.page-hero h1 {
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-}
-.page-hero p {
-  max-width: 52ch;
-  margin: 0 auto;
-  color: var(--tovna-muted);
-  font-size: 1.1rem;
-}
-
-main {
-  min-height: 60vh;
 }
 
 /* ---------- Scene 3: story band ---------- */
@@ -463,6 +650,7 @@ main {
   background: #0b2321;
 }
 .band-bg > * {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -486,12 +674,31 @@ main {
 .band-content h2 {
   margin-bottom: 1rem;
   font-size: clamp(2rem, 5vw, 3.4rem);
-  font-weight: 800;
 }
 .band-content p {
   margin-bottom: 2rem;
   color: rgba(255, 255, 255, 0.86);
   font-size: 1.1rem;
+}
+
+/* ---------- Home feature cards ---------- */
+.feature-card {
+  padding: 1.75rem 1.5rem;
+  background: #fff;
+  border: 1px solid var(--tovna-border);
+  border-radius: 20px;
+  box-shadow: var(--tovna-shadow-sm);
+}
+.feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  border-radius: 14px;
+  background: var(--tovna-primary-soft);
+  color: var(--tovna-primary);
 }
 
 /* ---------- Scroll reveals ---------- */
@@ -551,17 +758,22 @@ main {
 }
 
 /* ---------- Cards ---------- */
-/* Builds on the global TovNa tokens (--tovna-*, --ease). No :root overrides. */
-
-/* Reading font for the article column only; the rest of the site stays Inter */
 .tovna-article,
 .tovna-quote-inline {
   --tv-serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
 }
 
-/* ---------- Card (extends your .tovna-card) ---------- */
+.card,
+.tovna-card,
+article.tovna-card,
+.hotel-card {
+  background: #fff;
+  border: 1px solid var(--tovna-border);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(14, 27, 26, 0.04);
+  overflow: hidden;
+}
 article.tovna-card {
-  border-radius: var(--tovna-radius);
   transition:
     transform 0.35s var(--ease),
     box-shadow 0.35s var(--ease);
@@ -571,6 +783,9 @@ article.tovna-card:focus-within {
   transform: translateY(-6px);
   box-shadow: var(--tovna-shadow-lg);
 }
+.tovna-card--static {
+  transform: none !important;
+}
 .tovna-card-media {
   position: relative;
   display: block;
@@ -578,11 +793,18 @@ article.tovna-card:focus-within {
   overflow: hidden;
   background: var(--tovna-primary-soft);
 }
+.tovna-card-media::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(6, 28, 26, 0.45), transparent);
+  pointer-events: none;
+}
 .tovna-card-media .card-photo {
   position: absolute;
   inset: 0;
 }
-/* Your .card-photo already settles from 1.1 → 1 on reveal; hover zooms after that */
 article.tovna-card:hover .card-photo,
 article.tovna-card:focus-within .card-photo {
   transform: scale(1.08);
@@ -591,14 +813,33 @@ article.tovna-card:focus-within .card-photo {
 }
 .tovna-badge {
   position: absolute;
+  z-index: 1;
   top: 14px;
   left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   color: var(--tovna-primary-dark);
   font-size: 0.78rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.tovna-chip-overlay {
+  position: absolute;
+  z-index: 1;
+  right: 12px;
+  bottom: 12px;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(6, 28, 26, 0.62);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 .tovna-card-body {
   padding: 1.25rem 1.4rem 1.4rem;
@@ -610,8 +851,9 @@ article.tovna-card:focus-within .card-photo {
 }
 .tovna-card-title {
   margin: 0 0 0.6rem;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--tovna-display);
+  font-size: 1.3rem;
+  font-weight: 600;
   line-height: 1.25;
 }
 .tovna-card-title a,
@@ -645,8 +887,25 @@ article.tovna-card:focus-within .card-photo {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.tovna-link .arrow {
+  display: inline-block;
+  transition: transform 0.3s var(--ease);
+}
+article.tovna-card:hover .tovna-link .arrow {
+  transform: translateX(4px);
+}
+.tovna-price-block {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.tovna-price-block small {
+  margin-top: 2px;
+  color: var(--tovna-muted);
+  font-size: 0.75rem;
+}
 
-/* ---------- Hotel card ---------- */
+/* ---------- Hotel list card (older layout) ---------- */
 .tovna-hotel {
   display: grid;
   grid-template-columns: 1fr;
@@ -758,7 +1017,7 @@ article.tovna-card:focus-within .card-photo {
   font-weight: 700;
 }
 
-/* ---------- Booking ---------- */
+/* ---------- Booking (simple) ---------- */
 .tovna-booking {
   max-width: 640px;
   margin: 2rem auto;
@@ -770,9 +1029,8 @@ article.tovna-card:focus-within .card-photo {
 }
 
 /* ========================================
-   TovNa — Travel magazine article page
+   TovNa - travel magazine article page
 ======================================== */
-
 .tovna-article {
   background: var(--tovna-white, #fff);
   min-height: 60vh;
@@ -787,7 +1045,6 @@ article.tovna-card:focus-within .card-photo {
   background: #173b36;
   color: #fff;
 }
-
 .tovna-hero-img {
   position: absolute;
   inset: 0;
@@ -798,7 +1055,6 @@ article.tovna-card:focus-within .card-photo {
   object-position: center;
   animation: tovna-hero-arrive 0.8s ease-out both;
 }
-
 .tovna-hero-overlay {
   position: absolute;
   inset: 0;
@@ -810,7 +1066,6 @@ article.tovna-card:focus-within .card-photo {
     rgba(8, 24, 22, 0.12) 100%
   );
 }
-
 .tovna-hero-content {
   position: absolute;
   left: max(6%, calc((100% - 1160px) / 2));
@@ -818,7 +1073,6 @@ article.tovna-card:focus-within .card-photo {
   bottom: clamp(40px, 8vw, 100px);
   max-width: 820px;
 }
-
 .tovna-hero-back {
   display: inline-block;
   margin-bottom: 30px;
@@ -826,13 +1080,11 @@ article.tovna-card:focus-within .card-photo {
   text-decoration: none;
   opacity: 0.9;
 }
-
 .tovna-hero-back:hover {
   color: #fff;
   opacity: 1;
   text-decoration: underline;
 }
-
 .tovna-hero-kicker {
   margin-bottom: 14px;
   font-size: 0.78rem;
@@ -841,7 +1093,6 @@ article.tovna-card:focus-within .card-photo {
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.85);
 }
-
 .tovna-badge-static {
   display: inline-flex;
   align-items: center;
@@ -854,19 +1105,16 @@ article.tovna-card:focus-within .card-photo {
   font-size: 0.8rem;
   backdrop-filter: blur(8px);
 }
-
 .tovna-hero-content h1 {
   max-width: 800px;
   margin: 0;
   color: #fff;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2.6rem, 6vw, 5.5rem);
   font-weight: 500;
   line-height: 1.04;
   letter-spacing: -0.035em;
   text-wrap: balance;
 }
-
 .tovna-hero-meta {
   margin: 22px 0 0;
   color: rgba(255, 255, 255, 0.88);
@@ -878,7 +1126,6 @@ article.tovna-card:focus-within .card-photo {
   margin: 0 auto;
   padding: 42px 0 90px;
 }
-
 .tovna-breadcrumb {
   display: flex;
   flex-wrap: wrap;
@@ -888,16 +1135,13 @@ article.tovna-card:focus-within .card-photo {
   color: #77817f;
   font-size: 0.86rem;
 }
-
 .tovna-breadcrumb a {
-  color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0b6b63);
   text-decoration: none;
 }
-
 .tovna-breadcrumb a:hover {
   text-decoration: underline;
 }
-
 .tovna-lede {
   margin: 0;
   color: #35413e;
@@ -906,7 +1150,6 @@ article.tovna-card:focus-within .card-photo {
   line-height: 1.8;
   white-space: pre-line;
 }
-
 .tovna-article-price {
   margin-top: 32px;
   padding: 24px 26px;
@@ -914,7 +1157,6 @@ article.tovna-card:focus-within .card-photo {
   border-radius: 16px;
   background: #f7faf8;
 }
-
 .tovna-price-label {
   color: #6b7772;
   font-size: 0.82rem;
@@ -922,28 +1164,23 @@ article.tovna-card:focus-within .card-photo {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
-
 .tovna-article-price p {
   margin: 6px 0 0;
 }
-
 .tovna-article-price strong {
-  color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0b6b63);
   font-size: 1.8rem;
 }
-
 .tovna-article-price span:not(.tovna-price-label) {
   margin-left: 8px;
   color: #6b7772;
   font-size: 0.9rem;
 }
-
 .tovna-article-divider {
   height: 1px;
   margin: 44px 0 32px;
   background: #e5ece8;
 }
-
 .tovna-article-footer p {
   margin-bottom: 16px;
   color: #34413d;
@@ -968,7 +1205,6 @@ article.tovna-card:focus-within .card-photo {
     height: 70vh;
     max-height: 680px;
   }
-
   .tovna-hero-overlay {
     background: linear-gradient(
       0deg,
@@ -977,38 +1213,240 @@ article.tovna-card:focus-within .card-photo {
       rgba(8, 24, 22, 0.12) 100%
     );
   }
-
   .tovna-hero-content {
     left: 24px;
     right: 24px;
     bottom: 42px;
   }
-
   .tovna-hero-back {
     margin-bottom: 24px;
   }
-
   .tovna-article-column {
     width: calc(100% - 40px);
     padding-top: 28px;
     padding-bottom: 60px;
   }
-
   .tovna-breadcrumb {
     gap: 7px;
     margin-bottom: 26px;
   }
 }
 
-/* TovNa Travel Stories */
+/* ========================================
+   Related tours and activities
+======================================== */
+.tovna-related-section,
+.tovna-booking-section {
+  margin-top: 64px;
+}
+.tovna-related-heading,
+.tovna-booking-heading {
+  margin-bottom: 26px;
+}
+.tovna-section-kicker {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--tovna-primary, #0b6b63);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.tovna-related-heading h2,
+.tovna-booking-heading h2 {
+  margin-bottom: 10px;
+  color: #243b35;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 500;
+}
+.tovna-related-heading > p,
+.tovna-booking-heading > p {
+  color: #718078;
+  line-height: 1.7;
+}
+.tovna-related-group {
+  margin-top: 32px;
+}
+.tovna-related-group > h3 {
+  margin-bottom: 18px;
+  color: #34413d;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.tovna-related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.tovna-related-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e5ece8;
+  border-radius: 16px;
+  background: #fff;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.tovna-related-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(23, 59, 54, 0.1);
+}
+.tovna-related-image-link {
+  display: block;
+  height: 190px;
+  overflow: hidden;
+  background: #f1f5f3;
+}
+.tovna-related-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.tovna-related-card:hover .tovna-related-image {
+  transform: scale(1.04);
+}
+.tovna-related-body {
+  padding: 20px;
+}
+.tovna-related-type {
+  color: var(--tovna-primary, #0b6b63);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tovna-related-body h3 {
+  margin: 9px 0;
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+.tovna-related-body h3 a {
+  color: #263c35;
+  text-decoration: none;
+}
+.tovna-related-body h3 a:hover {
+  color: var(--tovna-primary, #0b6b63);
+}
+.tovna-related-duration {
+  margin-bottom: 10px;
+  color: #718078;
+  font-size: 0.85rem;
+}
+.tovna-related-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-bottom: 18px;
+  color: #66736d;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.tovna-related-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #edf1ef;
+}
+.tovna-related-bottom strong {
+  color: var(--tovna-primary, #0b6b63);
+  font-size: 1.15rem;
+}
+
+/* ========================================
+   Tour and activity booking
+======================================== */
+.tovna-booking-card {
+  padding: 28px;
+  border: 1px solid #e3ebe6;
+  border-radius: 18px;
+  background: #f8faf9;
+}
+.tovna-booking-card .form-label {
+  color: #34413d;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.tovna-booking-total {
+  display: grid;
+  gap: 15px;
+  margin: 28px 0 22px;
+  padding-top: 22px;
+  border-top: 1px solid #e1e9e4;
+}
+.tovna-booking-total > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  color: #68766f;
+  font-size: 0.92rem;
+}
+.tovna-booking-total strong {
+  color: #34413d;
+}
+.tovna-booking-total .tovna-booking-grand-total {
+  margin-top: 5px;
+  padding-top: 18px;
+  border-top: 1px solid #dce6e0;
+  color: #263c35;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.tovna-booking-grand-total strong {
+  color: var(--tovna-primary, #0b6b63);
+  font-size: 1.5rem;
+}
+.tovna-booking-confirmation {
+  margin-top: 20px;
+  padding: 24px;
+  border: 1px solid #b9dfc8;
+  border-radius: 16px;
+  background: #f0faf3;
+}
+.tovna-booking-confirmation h3 {
+  margin-bottom: 18px;
+  color: #24623d;
+  font-size: 1.25rem;
+}
+.tovna-booking-confirmation p {
+  margin-bottom: 9px;
+  color: #40564a;
+}
+.tovna-booking-confirmation .btn {
+  margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .tovna-related-grid {
+    grid-template-columns: 1fr;
+  }
+  .tovna-related-image-link {
+    height: 210px;
+  }
+  .tovna-booking-card {
+    padding: 20px;
+  }
+  .tovna-related-section,
+  .tovna-booking-section {
+    margin-top: 46px;
+  }
+}
+
+/* ========================================
+   TovNa travel stories
+======================================== */
 .tovna-stories-page {
   padding-bottom: 72px;
 }
-
 .tovna-stories-section {
   padding-top: 52px;
 }
-
 .tovna-stories-intro {
   display: flex;
   align-items: end;
@@ -1016,32 +1454,27 @@ article.tovna-card:focus-within .card-photo {
   gap: 24px;
   margin-bottom: 32px;
 }
-
 .tovna-section-eyebrow {
   display: inline-block;
   margin-bottom: 12px;
-  color: var(--tovna-primary, #27856b);
+  color: var(--tovna-primary, #0b6b63);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.16em;
 }
-
 .tovna-stories-intro h2 {
   max-width: 620px;
   margin: 0 0 12px;
   font-size: clamp(1.8rem, 3vw, 2.7rem);
-  font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 1.15;
 }
-
 .tovna-stories-intro p {
   max-width: 600px;
   margin: 0;
   color: var(--bs-secondary-color, #6c757d);
   line-height: 1.8;
 }
-
 .tovna-stories-count {
   display: flex;
   flex-direction: column;
@@ -1053,13 +1486,11 @@ article.tovna-card:focus-within .card-photo {
   border: 1px solid var(--bs-border-color, #dee2e6);
   border-radius: 50%;
 }
-
 .tovna-stories-count span {
   font-size: 1.8rem;
   font-weight: 800;
   line-height: 1.1;
 }
-
 .tovna-stories-count small {
   margin-top: 5px;
   color: var(--bs-secondary-color, #6c757d);
@@ -1067,14 +1498,12 @@ article.tovna-card:focus-within .card-photo {
   font-weight: 700;
   letter-spacing: 0.1em;
 }
-
 .tovna-category-filters {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 32px;
 }
-
 .tovna-filter-chip {
   display: inline-flex;
   align-items: center;
@@ -1084,7 +1513,7 @@ article.tovna-card:focus-within .card-photo {
   border: 1px solid var(--bs-border-color, #dee2e6);
   border-radius: 999px;
   color: var(--bs-body-color, #212529);
-  background: var(--bs-body-bg, #fff);
+  background: #fff;
   font-size: 0.9rem;
   font-weight: 650;
   text-decoration: none;
@@ -1094,19 +1523,16 @@ article.tovna-card:focus-within .card-photo {
     border-color 180ms ease,
     transform 180ms ease;
 }
-
 .tovna-filter-chip:hover {
-  border-color: var(--tovna-primary, #27856b);
-  color: var(--tovna-primary, #27856b);
+  border-color: var(--tovna-primary, #0b6b63);
+  color: var(--tovna-primary, #0b6b63);
   transform: translateY(-2px);
 }
-
 .tovna-filter-chip.is-active {
-  border-color: var(--tovna-primary, #27856b);
+  border-color: var(--tovna-primary, #0b6b63);
   color: #fff;
-  background: var(--tovna-primary, #27856b);
+  background: var(--tovna-primary, #0b6b63);
 }
-
 .tovna-stories-page .tovna-excerpt {
   display: -webkit-box;
   overflow: hidden;
@@ -1114,7 +1540,6 @@ article.tovna-card:focus-within .card-photo {
   -webkit-line-clamp: 3;
   line-height: 1.7;
 }
-
 .tovna-stories-page .tovna-link {
   display: inline-flex;
   align-items: center;
@@ -1122,23 +1547,18 @@ article.tovna-card:focus-within .card-photo {
   font-weight: 750;
   transition: gap 180ms ease;
 }
-
 .tovna-stories-page .card:hover .tovna-link {
   gap: 13px;
 }
-
 .tovna-stories-empty {
   padding: 72px 20px;
   border: 1px dashed var(--bs-border-color, #dee2e6);
   border-radius: 24px;
   text-align: center;
 }
-
 .tovna-stories-empty h2 {
   margin-bottom: 12px;
-  font-weight: 800;
 }
-
 .tovna-stories-empty p {
   color: var(--bs-secondary-color, #6c757d);
 }
@@ -1147,30 +1567,24 @@ article.tovna-card:focus-within .card-photo {
   .tovna-stories-section {
     padding-top: 32px;
   }
-
   .tovna-stories-intro {
     align-items: start;
     gap: 14px;
   }
-
   .tovna-stories-count {
     width: 66px;
     height: 66px;
   }
-
   .tovna-stories-count span {
     font-size: 1.4rem;
   }
-
   .tovna-stories-count small {
     font-size: 0.52rem;
   }
-
   .tovna-category-filters {
     gap: 8px;
     margin-bottom: 24px;
   }
-
   .tovna-filter-chip {
     min-height: 40px;
     padding: 8px 14px;
@@ -1178,44 +1592,23 @@ article.tovna-card:focus-within .card-photo {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .tovna-filter-chip,
-  .tovna-stories-page .tovna-link {
-    transition: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tovna-hero-img {
-    animation: none;
-  }
-}
-
 /* =========================================================
    TovNa - hotels (list cards, hotel page, booking page)
-   Paste at the END of your CSS file. Uses your existing colors and variables.
    ========================================================= */
-
-/* ---------- Hotel cards ---------- */
 .hotel-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  background: #fff;
-  border: 1px solid var(--tovna-border, #e5e7eb);
   border-radius: 18px;
-  box-shadow: 0 1px 2px rgba(23, 32, 42, 0.05);
   transition:
-    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 0.5s var(--ease),
+    box-shadow 0.5s var(--ease);
 }
 .hotel-card:hover,
 .hotel-card:focus-within {
   transform: translateY(-6px);
   box-shadow: 0 18px 40px rgba(23, 32, 42, 0.14);
 }
-
 .hotel-card-media {
   position: relative;
   aspect-ratio: 4 / 3;
@@ -1227,18 +1620,17 @@ article.tovna-card:focus-within .card-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 1.1s var(--ease);
 }
 .hotel-card:hover .hotel-card-media > * {
   transform: scale(1.07);
 }
-
 .hotel-score {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.6rem;
   border-radius: 8px 8px 8px 2px;
-  background: var(--tovna-primary, #0f766e);
+  background: var(--tovna-primary, #0b6b63);
   color: #fff;
   font-size: 0.85rem;
   font-weight: 800;
@@ -1249,7 +1641,6 @@ article.tovna-card:focus-within .card-photo {
   right: 14px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
-
 .hotel-card-body {
   display: flex;
   flex: 1;
@@ -1258,9 +1649,7 @@ article.tovna-card:focus-within .card-photo {
 }
 .hotel-card-title {
   margin: 0 0 0.5rem;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.35rem;
-  font-weight: 600;
   line-height: 1.25;
 }
 .hotel-card-title a {
@@ -1295,12 +1684,12 @@ article.tovna-card:focus-within .card-photo {
   gap: 1rem;
   margin-top: auto;
   padding-top: 1rem;
-  border-top: 1px solid var(--tovna-border, #e5e7eb);
+  border-top: 1px solid var(--tovna-border, #e3e9e6);
 }
 .hotel-link {
   display: inline-flex;
   gap: 8px;
-  color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0b6b63);
   font-weight: 700;
   transition: gap 0.2s ease;
 }
@@ -1312,6 +1701,14 @@ article.tovna-card:focus-within .card-photo {
 .hotel-page {
   padding-block: 2rem 4.5rem;
 }
+.hotel-page--padded {
+  padding-bottom: 6.5rem; /* room for the sticky bar on phones */
+}
+@media (min-width: 992px) {
+  .hotel-page--padded {
+    padding-bottom: 4.5rem;
+  }
+}
 .hotel-head {
   display: flex;
   flex-wrap: wrap;
@@ -1322,15 +1719,12 @@ article.tovna-card:focus-within .card-photo {
 }
 .hotel-head h1 {
   margin: 0 0 0.4rem;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.9rem, 4vw, 2.8rem);
-  font-weight: 600;
 }
 .hotel-address {
   margin: 0;
   color: var(--tovna-muted, #5b6573);
 }
-
 .hotel-rating {
   display: flex;
   align-items: center;
@@ -1348,13 +1742,12 @@ article.tovna-card:focus-within .card-photo {
   font-size: 1.3rem;
   border-radius: 10px 10px 10px 2px;
 }
-
 .hotel-photo {
   overflow: hidden;
   margin-bottom: 2rem;
   border-radius: 20px;
   background: #0b2321;
-  box-shadow: var(--tovna-shadow, 0 8px 24px rgba(23, 32, 42, 0.08));
+  box-shadow: var(--tovna-shadow);
 }
 .hotel-photo > img,
 .hotel-photo > div {
@@ -1363,22 +1756,18 @@ article.tovna-card:focus-within .card-photo {
   aspect-ratio: 16 / 7;
   object-fit: cover;
 }
-
 .hotel-block {
   margin-bottom: 2.25rem;
 }
 .hotel-block h2,
 .hotel-panel h2 {
   margin-bottom: 1rem;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.5rem;
-  font-weight: 600;
 }
 .hotel-block p {
   color: #3b4642;
   line-height: 1.85;
 }
-
 .hotel-amenities {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -1396,7 +1785,7 @@ article.tovna-card:focus-within .card-photo {
   content: "✓";
   position: absolute;
   left: 0;
-  color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0b6b63);
   font-weight: 800;
 }
 
@@ -1406,10 +1795,10 @@ article.tovna-card:focus-within .card-photo {
   top: 90px;
   padding: 1.6rem;
   background: #fff;
-  border: 1px solid var(--tovna-border, #e5e7eb);
+  border: 1px solid var(--tovna-border, #e3e9e6);
   border-left: 4px solid var(--tovna-accent, #f59e0b);
   border-radius: 16px;
-  box-shadow: var(--tovna-shadow-sm, 0 1px 2px rgba(23, 32, 42, 0.06));
+  box-shadow: var(--tovna-shadow-sm);
 }
 .hotel-price {
   margin: 0.75rem 0 0.25rem;
@@ -1423,122 +1812,7 @@ article.tovna-card:focus-within .card-photo {
   font-weight: 500;
 }
 
-/* ---------- Booking page ---------- */
-.hotel-booking-title {
-  margin-bottom: 1.75rem;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: 600;
-}
-.hotel-panel {
-  margin-bottom: 1.5rem;
-  padding: 1.6rem;
-  background: #fff;
-  border: 1px solid var(--tovna-border, #e5e7eb);
-  border-radius: 16px;
-}
-.hotel-panel.hotel-price-card {
-  margin-bottom: 0;
-}
-.hotel-summary {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-}
-.hotel-summary > img,
-.hotel-summary > div:first-child {
-  flex: 0 0 140px;
-  width: 140px;
-  height: 105px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-.hotel-summary h2 {
-  margin-bottom: 0.35rem;
-  font-size: 1.3rem;
-}
-.hotel-dates {
-  margin: 1.25rem 0 0;
-  font-weight: 600;
-}
-
-.hotel-rows {
-  margin: 0 0 1.5rem;
-}
-.hotel-rows > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.45rem 0;
-}
-.hotel-rows dt {
-  font-weight: 500;
-}
-.hotel-rows dd {
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-}
-.hotel-row-sub {
-  color: var(--tovna-muted, #5b6573);
-  font-size: 0.88rem;
-}
-.hotel-row-sub dt {
-  padding-left: 1rem;
-  font-weight: 400;
-}
-.hotel-row-total {
-  margin-top: 0.5rem;
-  padding-top: 0.9rem !important;
-  border-top: 1px solid var(--tovna-border, #e5e7eb);
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-@media (max-width: 991.98px) {
-  .hotel-price-card {
-    position: static;
-  }
-}
-@media (max-width: 575.98px) {
-  .hotel-summary {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .hotel-summary > img,
-  .hotel-summary > div:first-child {
-    width: 100%;
-    height: auto;
-    flex-basis: auto;
-    aspect-ratio: 16 / 10;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hotel-card,
-  .hotel-card-media > *,
-  .hotel-link {
-    transition: none;
-  }
-  .hotel-card:hover,
-  .hotel-card:hover .hotel-card-media > * {
-    transform: none;
-  }
-}
-/* =========================================================
-   TovNa - hotel page additions. Paste at the END of your CSS file,
-   after tovna-hotels.css.
-   ========================================================= */
-
-/* Extra room at the bottom on phones so the sticky bar never covers content */
-.hotel-page--padded {
-  padding-bottom: 6.5rem;
-}
-@media (min-width: 992px) {
-  .hotel-page--padded {
-    padding-bottom: 4.5rem;
-  }
-}
-
-/* Photo thumbnails */
+/* Thumbnails */
 .hotel-thumbs {
   display: flex;
   gap: 0.6rem;
@@ -1573,12 +1847,8 @@ article.tovna-card:focus-within .card-photo {
   opacity: 1;
 }
 .hotel-thumb.is-active {
-  border-color: var(--tovna-primary, #0f766e);
+  border-color: var(--tovna-primary, #0b6b63);
   opacity: 1;
-}
-.hotel-thumb:focus-visible {
-  outline: 3px solid rgba(245, 158, 11, 0.7);
-  outline-offset: 2px;
 }
 
 /* Highlight chips */
@@ -1592,14 +1862,14 @@ article.tovna-card:focus-within .card-photo {
 }
 .hotel-chips li {
   padding: 0.35rem 0.85rem;
-  border: 1px solid var(--tovna-border, #e5e7eb);
+  border: 1px solid var(--tovna-border, #e3e9e6);
   border-radius: 999px;
   background: #fff;
   font-size: 0.85rem;
   font-weight: 600;
 }
 .hotel-chips a {
-  color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0b6b63);
 }
 #amenities {
   scroll-margin-top: 90px;
@@ -1649,14 +1919,14 @@ article.tovna-card:focus-within .card-photo {
   content: "•";
   position: absolute;
   left: 0.3rem;
-  color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0b6b63);
   font-weight: 800;
 }
 
 /* Map */
 .hotel-map {
   overflow: hidden;
-  border: 1px solid var(--tovna-border, #e5e7eb);
+  border: 1px solid var(--tovna-border, #e3e9e6);
   border-radius: 16px;
   background: #eef1ef;
 }
@@ -1667,7 +1937,7 @@ article.tovna-card:focus-within .card-photo {
   border: 0;
 }
 
-/* Date and night pickers inside the price card */
+/* Pickers inside the price card */
 .hotel-picker {
   display: grid;
   grid-template-columns: 1fr 90px;
@@ -1687,12 +1957,10 @@ article.tovna-card:focus-within .card-photo {
 .hotel-more {
   margin-top: 4rem;
   padding-top: 2.5rem;
-  border-top: 1px solid var(--tovna-border, #e5e7eb);
+  border-top: 1px solid var(--tovna-border, #e3e9e6);
 }
 .hotel-more h2 {
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.6rem;
-  font-weight: 600;
 }
 
 /* Phone-only sticky booking bar */
@@ -1709,13 +1977,88 @@ article.tovna-card:focus-within .card-photo {
   padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(10px);
-  border-top: 1px solid var(--tovna-border, #e5e7eb);
+  border-top: 1px solid var(--tovna-border, #e3e9e6);
   box-shadow: 0 -8px 24px rgba(23, 32, 42, 0.08);
 }
 .hotel-sticky-bar small {
   color: var(--tovna-muted, #5b6573);
 }
 
+/* ---------- Hotel booking page ---------- */
+.hotel-booking-title {
+  margin-bottom: 1.75rem;
+  font-family: var(--tovna-display);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 600;
+}
+.hotel-panel {
+  margin-bottom: 1.5rem;
+  padding: 1.6rem;
+  background: #fff;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 16px;
+}
+.hotel-panel.hotel-price-card {
+  margin-bottom: 0;
+}
+.hotel-summary {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+.hotel-summary > img,
+.hotel-summary > div:first-child {
+  flex: 0 0 140px;
+  width: 140px;
+  height: 105px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.hotel-summary h2 {
+  margin-bottom: 0.35rem;
+  font-size: 1.3rem;
+}
+.hotel-dates {
+  margin: 1.25rem 0 0;
+  font-weight: 600;
+}
+.hotel-rows {
+  margin: 0 0 1.5rem;
+}
+.hotel-rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+}
+.hotel-rows dt {
+  font-weight: 500;
+}
+.hotel-rows dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.hotel-row-sub {
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.88rem;
+}
+.hotel-row-sub dt {
+  padding-left: 1rem;
+  font-weight: 400;
+}
+.hotel-row-total {
+  margin-top: 0.5rem;
+  padding-top: 0.9rem !important;
+  border-top: 1px solid var(--tovna-border, #e3e9e6);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+@media (max-width: 991.98px) {
+  .hotel-price-card {
+    position: static;
+  }
+}
 @media (max-width: 575.98px) {
   .hotel-map iframe {
     height: 240px;
@@ -1724,39 +2067,37 @@ article.tovna-card:focus-within .card-photo {
     flex-basis: 80px;
     height: 58px;
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hotel-thumb {
-    transition: none;
+  .hotel-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hotel-summary > img,
+  .hotel-summary > div:first-child {
+    width: 100%;
+    height: auto;
+    flex-basis: auto;
+    aspect-ratio: 16 / 10;
   }
 }
+
 /* =========================================================
    TovNa - My Bookings page
-   REPLACES your current .my-bookings CSS block. All of your class names are kept
-   (.my-bookings, .booking-list, .booking-card, .booking-hotel-image,
-   .booking-card-content, .booking-status); the new ones are added below.
    ========================================================= */
-
 .my-bookings {
   max-width: 1000px;
   margin: 0 auto;
   padding: 40px 20px 72px;
 }
-
 .my-bookings > h1 {
   margin-bottom: 8px;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 600;
   letter-spacing: -0.02em;
 }
-
 .my-bookings-intro {
   margin-bottom: 28px;
   color: #5b6573;
 }
 
-/* ---------- Summary and filters ---------- */
 .bookings-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -1765,7 +2106,6 @@ article.tovna-card:focus-within .card-photo {
   gap: 12px 16px;
   margin-bottom: 28px;
 }
-
 .bookings-summary {
   margin: 0;
   color: #5b6573;
@@ -1773,20 +2113,18 @@ article.tovna-card:focus-within .card-photo {
 .bookings-summary strong {
   color: #17202a;
 }
-
 .bookings-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-
 .booking-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-height: 38px;
   padding: 6px 14px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e3e9e6;
   border-radius: 999px;
   background: #fff;
   color: #17202a;
@@ -1801,52 +2139,43 @@ article.tovna-card:focus-within .card-photo {
   padding: 1px 8px;
   border-radius: 999px;
   background: #e6f4f1;
-  color: #115e59;
+  color: #084f49;
   font-size: 0.72rem;
   font-weight: 700;
 }
 .booking-chip:hover {
-  border-color: #0f766e;
-  color: #0f766e;
+  border-color: #0b6b63;
+  color: #0b6b63;
 }
 .booking-chip.is-active {
-  border-color: #0f766e;
-  background: #0f766e;
+  border-color: #0b6b63;
+  background: #0b6b63;
   color: #fff;
 }
 .booking-chip.is-active small {
   background: rgba(255, 255, 255, 0.22);
   color: #fff;
 }
-.booking-chip:focus-visible {
-  outline: 3px solid rgba(245, 158, 11, 0.7);
-  outline-offset: 2px;
-}
 
-/* ---------- Groups ---------- */
 .booking-group {
   margin-bottom: 40px;
 }
-
 .booking-group-title {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.5rem;
-  font-weight: 600;
 }
 .booking-group-title small {
   padding: 2px 10px;
   border-radius: 999px;
   background: #e6f4f1;
-  color: #115e59;
+  color: #084f49;
   font-family: system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
 }
-
 .booking-list {
   display: grid;
   gap: 24px;
@@ -1856,12 +2185,11 @@ article.tovna-card:focus-within .card-photo {
   margin-top: 0;
 }
 
-/* ---------- Booking card ---------- */
 .booking-card {
   display: flex;
   gap: 24px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e3e9e6;
   border-radius: 16px;
   background: #fff;
   padding: 20px;
@@ -1874,7 +2202,6 @@ article.tovna-card:focus-within .card-photo {
   box-shadow: 0 14px 32px rgb(0 0 0 / 10%);
   transform: translateY(-3px);
 }
-
 .booking-hotel-image {
   width: 240px;
   min-width: 240px;
@@ -1883,12 +2210,10 @@ article.tovna-card:focus-within .card-photo {
   border-radius: 12px;
   background: #f3f4f6;
 }
-
 .booking-card-content {
   flex: 1;
   min-width: 0;
 }
-
 .booking-head {
   display: flex;
   flex-wrap: wrap;
@@ -1897,21 +2222,17 @@ article.tovna-card:focus-within .card-photo {
   gap: 8px 16px;
   margin-bottom: 12px;
 }
-
 .booking-card-content h2 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.4rem;
-  font-weight: 600;
 }
 .booking-card-content h2 a {
   color: #17202a;
   text-decoration: none;
 }
 .booking-card-content h2 a:hover {
-  color: #0f766e;
+  color: #0b6b63;
 }
-
 .booking-card-content p {
   margin: 8px 0;
   overflow-wrap: anywhere;
@@ -1941,10 +2262,9 @@ article.tovna-card:focus-within .card-photo {
 }
 .booking-status.completed {
   background: #e6f4f1;
-  color: #115e59;
+  color: #084f49;
 }
 
-/* Reference with a copy button */
 .booking-ref {
   display: flex;
   flex-wrap: wrap;
@@ -1964,18 +2284,16 @@ article.tovna-card:focus-within .card-photo {
 }
 .booking-copy {
   padding: 2px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e3e9e6;
   border-radius: 999px;
   background: #fff;
-  color: #0f766e;
+  color: #0b6b63;
   font-size: 0.78rem;
   font-weight: 600;
 }
 .booking-copy:hover {
-  border-color: #0f766e;
+  border-color: #0b6b63;
 }
-
-/* Dates and stay length in a tidy row */
 .booking-facts {
   display: flex;
   flex-wrap: wrap;
@@ -1993,15 +2311,13 @@ article.tovna-card:focus-within .card-photo {
   margin: 2px 0 0;
   font-weight: 600;
 }
-
-/* Total and actions */
 .booking-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #e3e9e6;
 }
 .booking-total span {
   display: block;
@@ -2012,12 +2328,11 @@ article.tovna-card:focus-within .card-photo {
   text-transform: uppercase;
 }
 .booking-total strong {
-  color: #0f766e;
+  color: #0b6b63;
   font-size: 1.6rem;
   font-weight: 800;
   line-height: 1.2;
 }
-
 .booking-card details {
   margin-top: 16px;
 }
@@ -2034,8 +2349,27 @@ article.tovna-card:focus-within .card-photo {
   color: #3b4642;
   font-size: 0.92rem;
 }
+.booking-details-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: #0b6b63;
+  font-weight: 700;
+  text-decoration: none;
+  transition: gap 0.2s ease;
+}
+.booking-details-link:hover {
+  gap: 13px;
+  color: #084f49;
+}
+.booking-details-link:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
 
-/* ---------- Loading and empty states ---------- */
+/* Loading and empty states */
 .booking-skeleton {
   height: 240px;
   border-radius: 16px;
@@ -2048,7 +2382,6 @@ article.tovna-card:focus-within .card-photo {
     background-position: -200% 0;
   }
 }
-
 .booking-empty {
   padding: 64px 20px;
   border: 1px dashed #d1d5db;
@@ -2058,16 +2391,13 @@ article.tovna-card:focus-within .card-photo {
 }
 .booking-empty h2 {
   margin-bottom: 8px;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.5rem;
-  font-weight: 600;
 }
 .booking-empty p {
   margin-bottom: 20px;
   color: #5b6573;
 }
 
-/* ---------- Tablet and phone ---------- */
 @media (max-width: 820px) {
   .booking-hotel-image {
     width: 180px;
@@ -2075,23 +2405,19 @@ article.tovna-card:focus-within .card-photo {
     height: 180px;
   }
 }
-
 @media (max-width: 640px) {
   .my-bookings {
     padding: 28px 16px 56px;
   }
-
   .booking-card {
     flex-direction: column;
     gap: 16px;
   }
-
   .booking-hotel-image {
     width: 100%;
     min-width: 0;
     height: 200px;
   }
-
   .bookings-filters {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -2104,87 +2430,40 @@ article.tovna-card:focus-within .card-photo {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .booking-card,
-  .booking-chip {
-    transition: none;
-  }
-  .booking-card:hover {
-    transform: none;
-  }
-  .booking-skeleton {
-    animation: none;
-  }
-}
 /* =========================================================
-   TovNa - booking details page. Paste at the END of your CSS file
-   (after my-bookings.css).
+   TovNa - booking details page
    ========================================================= */
-
-/* Link at the bottom of each card on the My Bookings list */
-.booking-details-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
-  color: #0f766e;
-  font-weight: 700;
-  text-decoration: none;
-  transition: gap 0.2s ease;
-}
-.booking-details-link:hover {
-  gap: 13px;
-  color: #115e59;
-}
-.booking-details-link:focus-visible {
-  outline: 3px solid rgba(245, 158, 11, 0.7);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* =========================================================
-   TovNa - booking details page (BookingDetails.jsx)
-   Paste at the END of your CSS. Uses your existing class names.
-   Rules are scoped to .booking-detail-page so they win over any older
-   .booking-detail-* rules (for example from my-bookings.css).
-   ========================================================= */
-
 .booking-detail-page {
   padding-top: 2rem;
 }
-
 .booking-back-link {
   display: inline-block;
   margin-bottom: 1.25rem;
-  color: #0f766e;
+  color: #0b6b63;
   font-weight: 600;
   text-decoration: none;
 }
 .booking-back-link:hover {
-  color: #115e59;
+  color: #084f49;
   text-decoration: underline;
 }
-
 .booking-detail-page .booking-detail-card {
   max-width: 860px;
   margin: 0 auto;
   padding: clamp(1.25rem, 4vw, 2.25rem);
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e3e9e6;
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
 }
 .booking-detail-page .booking-detail-card > hr {
   margin: 1.75rem 0;
-  border-color: #e5e7eb;
+  border-color: #e3e9e6;
   opacity: 1;
 }
 .booking-detail-page .booking-detail-card h2 {
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.4rem;
-  font-weight: 600;
 }
-
 .booking-detail-page .booking-detail-header {
   display: flex;
   flex-wrap: wrap;
@@ -2198,13 +2477,12 @@ article.tovna-card:focus-within .card-photo {
   align-items: center;
   gap: 0.75rem;
   margin: 0;
+  font-family: Inter, system-ui, sans-serif;
   font-size: clamp(1.4rem, 4vw, 2rem);
   font-weight: 800;
   letter-spacing: 0.02em;
   word-break: break-all;
 }
-
-/* Hotel photo, name and a plain-language status line */
 .booking-detail-hotel {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -2228,7 +2506,7 @@ article.tovna-card:focus-within .card-photo {
   text-decoration: none;
 }
 .booking-detail-hotel h2 a:hover {
-  color: #0f766e;
+  color: #0b6b63;
 }
 .booking-status-text {
   margin: 0.75rem 0 0;
@@ -2240,12 +2518,10 @@ article.tovna-card:focus-within .card-photo {
   padding: 4px 12px;
   border-radius: 20px;
   background: #e6f4f1;
-  color: #115e59;
+  color: #084f49;
   font-size: 13px;
   font-weight: 700;
 }
-
-/* Facts in neat cells */
 .booking-detail-page .booking-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -2269,12 +2545,9 @@ article.tovna-card:focus-within .card-photo {
   display: block;
   margin-top: 2px;
 }
-
 .booking-cancel-section {
   margin-top: 1.5rem;
 }
-
-/* Price rows */
 .booking-price-row {
   display: flex;
   justify-content: space-between;
@@ -2285,11 +2558,10 @@ article.tovna-card:focus-within .card-photo {
 .booking-price-total {
   margin-top: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-  color: #0f766e;
+  border-top: 1px solid #e3e9e6;
+  color: #0b6b63;
   font-size: 1.25rem;
 }
-
 .booking-notes {
   margin-top: 1.5rem;
 }
@@ -2303,7 +2575,6 @@ article.tovna-card:focus-within .card-photo {
   font-size: 0.92rem;
   overflow-wrap: anywhere;
 }
-
 .booking-detail-actions {
   display: flex;
   flex-wrap: wrap;
@@ -2321,7 +2592,367 @@ article.tovna-card:focus-within .card-photo {
     aspect-ratio: 16 / 9;
   }
 }
+/* Booking progress timeline */
+.booking-timeline {
+  margin: 24px 0;
+}
 
+.booking-timeline-step {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding-bottom: 28px;
+}
+
+.booking-timeline-step:not(:last-child)::before {
+  position: absolute;
+  top: 34px;
+  left: 16px;
+  width: 2px;
+  height: calc(100% - 34px);
+  background: #e2e8f0;
+  content: "";
+}
+
+.booking-timeline-step.is-done:not(:last-child)::before {
+  background: #16a34a;
+}
+
+.booking-timeline-marker {
+  z-index: 1;
+  display: flex;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  background: #e2e8f0;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.booking-timeline-step.is-done .booking-timeline-marker {
+  color: #fff;
+  background: #16a34a;
+}
+
+.booking-timeline-step.is-current .booking-timeline-marker {
+  color: #fff;
+  background: #2563eb;
+}
+
+.booking-timeline-content {
+  padding-top: 5px;
+}
+
+.booking-timeline-content strong {
+  display: block;
+  color: #172033;
+}
+
+.booking-timeline-content p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Payment information */
+.booking-payment-card,
+.booking-payment-empty {
+  margin-top: 18px;
+  padding: 22px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.booking-payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.booking-payment-header > div span {
+  display: block;
+  margin-bottom: 5px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.booking-payment-header > div strong {
+  color: #172033;
+  font-size: 18px;
+}
+
+@media print {
+  .booking-payment-card,
+  .booking-payment-empty {
+    break-inside: avoid;
+  }
+}
+/* =========================================================
+   TovNa - MyPayment  page
+   ========================================================= */
+.my-payments-page {
+  min-height: 70vh;
+  padding: 55px 0 80px;
+  background: #f8fafc;
+}
+
+.my-payments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.my-payments-eyebrow,
+.my-payment-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.my-payments-header h1 {
+  margin: 0 0 8px;
+  color: #172033;
+  font-size: 32px;
+  font-weight: 750;
+}
+
+.my-payments-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.my-payments-back-link,
+.my-payment-view-link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.my-payments-back-link:hover,
+.my-payment-view-link:hover {
+  text-decoration: underline;
+}
+
+.my-payments-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.my-payment-stat {
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e5eaf1;
+  border-radius: 12px;
+}
+
+.my-payment-stat span,
+.my-payment-details span {
+  display: block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.my-payment-stat strong {
+  color: #172033;
+  font-size: 24px;
+}
+
+.my-payments-list {
+  display: grid;
+  gap: 18px;
+}
+
+.my-payment-card {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e5eaf1;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 3%);
+}
+
+.my-payment-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.my-payment-card-top h3 {
+  margin: 0 0 8px;
+  color: #172033;
+  font-size: 19px;
+}
+
+.my-payment-card-top p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.my-payment-card-top p strong {
+  color: #334155;
+}
+
+.my-payment-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.my-payment-status.status-paid {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.my-payment-status.status-pending {
+  color: #a16207;
+  background: #fef3c7;
+}
+
+.my-payment-status.status-failed {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.my-payment-status.status-refunded {
+  color: #6d28d9;
+  background: #ede9fe;
+}
+
+.my-payment-details {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  padding: 22px 0;
+}
+
+.my-payment-details strong {
+  display: block;
+  color: #172033;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.my-payment-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding-top: 16px;
+  border-top: 1px solid #edf0f4;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.my-payment-card-bottom strong {
+  color: #334155;
+}
+
+.my-payments-empty,
+.my-payments-message,
+.my-payments-error {
+  padding: 45px 25px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e5eaf1;
+  border-radius: 14px;
+}
+
+.my-payments-empty h2 {
+  margin-bottom: 10px;
+  color: #172033;
+}
+
+.my-payments-empty p {
+  margin-bottom: 20px;
+  color: #64748b;
+}
+
+.my-payments-error {
+  color: #b91c1c;
+}
+
+.my-payments-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 20px;
+  color: #fff;
+  background: #2563eb;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.my-payments-primary-btn:hover {
+  color: #fff;
+  background: #1d4ed8;
+}
+
+@media (max-width: 900px) {
+  .my-payments-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .my-payment-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 576px) {
+  .my-payments-page {
+    padding: 35px 0 55px;
+  }
+
+  .my-payments-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .my-payments-header h1 {
+    font-size: 27px;
+  }
+
+  .my-payment-card {
+    padding: 18px;
+  }
+
+  .my-payment-card-top {
+    flex-direction: column;
+  }
+
+  .my-payment-details {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .my-payment-card-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 /* Printing: just the booking, without the site header, footer or buttons */
 @media print {
   .tovna-header,
@@ -2337,60 +2968,13 @@ article.tovna-card:focus-within .card-photo {
     box-shadow: none;
   }
 }
-/* ---------- Activity card polish ---------- */
-.tovna-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-.tovna-card-media::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(6, 28, 26, 0.45), transparent);
-  pointer-events: none;
-}
-.tovna-chip-overlay {
-  position: absolute;
-  z-index: 1;
-  right: 12px;
-  bottom: 12px;
-  padding: 0.25rem 0.7rem;
-  border-radius: 999px;
-  background: rgba(6, 28, 26, 0.62);
-  backdrop-filter: blur(6px);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-.tovna-badge {
-  z-index: 1;
-}
-.tovna-price-block {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-.tovna-price-block small {
-  margin-top: 2px;
-  color: var(--tovna-muted);
-  font-size: 0.75rem;
-}
-.tovna-link .arrow {
-  display: inline-block;
-  transition: transform 0.3s var(--ease);
-}
-article.tovna-card:hover .tovna-link .arrow {
-  transform: translateX(4px);
-}
 
 /* ---------- Accent details ---------- */
 .price {
   color: var(--tovna-accent-dark);
+  font-size: 1.15rem;
   font-weight: 800;
 }
-
 .badge-highlight {
   display: inline-block;
   padding: 0.25rem 0.7rem;
@@ -2410,13 +2994,38 @@ article.tovna-card:hover .tovna-link .arrow {
 .form-control,
 .form-select {
   padding: 0.7rem 0.9rem;
-  border-color: var(--tovna-border);
+  background: #fff;
+  border-color: #d5ded9;
   border-radius: var(--tovna-radius-sm);
+  font-size: 0.97rem;
 }
 .form-control:focus,
 .form-select:focus {
   border-color: var(--tovna-primary);
-  box-shadow: 0 0 0 0.25rem rgba(15, 118, 110, 0.18);
+  box-shadow: 0 0 0 0.25rem rgba(11, 107, 99, 0.18);
+}
+.form-label {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+/* ---------- Footer ---------- */
+main ~ footer {
+  background: var(--tovna-ink);
+  color: rgba(255, 255, 255, 0.78);
+}
+main ~ footer a {
+  color: rgba(255, 255, 255, 0.78);
+}
+main ~ footer a:hover {
+  color: var(--tovna-accent);
+}
+main ~ footer h5,
+main ~ footer h6 {
+  color: #fff;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 /* ---------- Accessibility: no motion for people who ask for none ---------- */
@@ -2446,7 +3055,88 @@ article.tovna-card:hover .tovna-link .arrow {
     transform: none !important;
     opacity: 1 !important;
   }
-  .tovna-card:hover {
+  .tovna-card:hover,
+  .hotel-card:hover,
+  .hotel-card:hover .hotel-card-media > *,
+  .booking-card:hover {
     transform: none;
+  }
+}
+
+/* =========================================================
+   Booking flow additions: transport icon, hints, facts, map
+   ========================================================= */
+.booking-transport-icon,
+.booking-detail-transport-icon {
+  display: grid;
+  place-items: center;
+  width: 240px;
+  min-width: 240px;
+  height: 200px;
+  border-radius: 12px;
+  background: var(--tovna-primary-soft);
+  font-size: 3.5rem;
+}
+.booking-detail-transport-icon {
+  width: 100%;
+  min-width: 0;
+  height: 150px;
+}
+.booking-hint {
+  margin: 0 0 4px;
+  color: #92400e;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bookings-filter-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.tovna-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin: 28px 0 0;
+}
+.tovna-facts dt {
+  color: #6b7772;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tovna-facts dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+.tovna-map {
+  overflow: hidden;
+  margin-top: 28px;
+  border: 1px solid #e3e9e6;
+  border-radius: 16px;
+}
+.tovna-map iframe {
+  display: block;
+  width: 100%;
+  height: 300px;
+  border: 0;
+}
+#things-to-do,
+#booking {
+  scroll-margin-top: 90px;
+}
+
+@media (max-width: 640px) {
+  .booking-transport-icon {
+    width: 100%;
+    min-width: 0;
+    height: 140px;
   }
 }

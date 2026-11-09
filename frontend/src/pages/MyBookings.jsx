@@ -4,10 +4,11 @@ import { Link } from "react-router-dom";
 import { API_URL, TOKEN_KEY, readError } from "../lib/api";
 import { SafeImage } from "../components/ui";
 import { usd } from "../lib/pricing";
+import "./PaymentModal.css";
+import { ABA_KHQR } from "../lib/payment";
 
 /* ------------------------------ Helpers ------------------------------ */
 
-// Read a value from the booking notes, e.g. "Check-in: 2026-10-20; Nights: 2".
 function getNoteValue(notes, label) {
   const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const match = (notes || "").match(
@@ -16,7 +17,6 @@ function getNoteValue(notes, label) {
   return match ? match[1].trim() : "";
 }
 
-// Parse a date without shifting YYYY-MM-DD dates across time zones. null means "not a date".
 function parseDate(value) {
   if (!value) return null;
   const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -38,7 +38,6 @@ const formatDate = (date, fallback) =>
 const titleCase = (text) =>
   String(text || "Unknown").replace(/^\w/, (c) => c.toUpperCase());
 
-// Bookings in these states are finished: never shown as "Upcoming".
 const INACTIVE_STATUSES = ["cancelled", "canceled", "rejected"];
 
 const TYPE_ICONS = {
@@ -52,31 +51,79 @@ const TYPE_ICONS = {
   flight: "✈️",
 };
 
-// Prepare one booking (hotel or transportation) for display.
-// This must stay a plain function: hooks such as useLocation() can't be used here.
+const TYPE_LABELS = {
+  hotel: "Hotels",
+  transportation: "Transport",
+  tour: "Tours",
+  activity: "Activities",
+};
+
+const SERVICE_LINK_LABELS = {
+  hotel: "View hotel",
+  tour: "View tour",
+  activity: "View activity",
+};
+
+function getBookingType(b) {
+  if (b.transportation_id != null) return "transportation";
+  if (b.tour_id != null) return "tour";
+  if (b.activity_id != null) return "activity";
+  return "hotel";
+}
+
+function getServicePath(b) {
+  if (b.bookingType === "hotel" && b.hotel_id != null)
+    return `/hotels/${b.hotel_id}`;
+  if (b.bookingType === "tour" && b.tour_id != null)
+    return `/articles/tours/${b.tour_id}`;
+  if (b.bookingType === "activity" && b.activity_id != null)
+    return `/articles/activities/${b.activity_id}`;
+  return null;
+}
+
 function normalize(booking) {
-  const isTransportation = booking.transportation_id != null;
+  const bookingType = getBookingType(booking);
+  const isTransportation = bookingType === "transportation";
+  const isExperience = bookingType === "tour" || bookingType === "activity";
+
+  const serviceDateRaw = booking.items?.[0]?.service_date || "";
   const checkInRaw =
-    booking.check_in || getNoteValue(booking.notes, "Check-in");
+    booking.check_in ||
+    getNoteValue(booking.notes, "Check-in") ||
+    (bookingType === "hotel" ? serviceDateRaw : "");
   const checkOutRaw =
     booking.check_out || getNoteValue(booking.notes, "Check-out");
   const travelDateRaw = getNoteValue(booking.notes, "Travel date");
 
+  const startRaw = isTransportation
+    ? travelDateRaw
+    : isExperience
+      ? serviceDateRaw
+      : checkInRaw;
+
+  const titles = {
+    transportation: `${booking.from_destination || "Departure"} → ${booking.to_destination || "Destination"}`,
+    tour: booking.tour_name || "Tour booking",
+    activity: booking.activity_name || "Activity booking",
+    hotel: booking.hotel_name || "Hotel booking",
+  };
+
   return {
     ...booking,
-    bookingType: isTransportation ? "transportation" : "hotel",
+    bookingType,
     checkInRaw,
     checkOutRaw,
     travelDateRaw,
-    start: parseDate(isTransportation ? travelDateRaw : checkInRaw),
+    serviceDateRaw,
+    start: parseDate(startRaw),
     end: parseDate(checkOutRaw),
     passengers: Number(getNoteValue(booking.notes, "Passengers")) || 0,
+    participants: Number(booking.participants) || 0,
     nights:
       Number(booking.nights ?? getNoteValue(booking.notes, "Nights")) || 0,
     statusKey: String(booking.status || "unknown").toLowerCase(),
-    title: isTransportation
-      ? `${booking.from_destination || "Departure"} → ${booking.to_destination || "Destination"}`
-      : booking.hotel_name || "Hotel booking",
+    title: titles[bookingType],
+    image: booking.hotel_image || booking.tour_image || booking.activity_image,
   };
 }
 
@@ -105,12 +152,423 @@ function CopyButton({ text }) {
   );
 }
 
+function paymentStatusLabel(status) {
+  const labels = {
+    pending: "Payment pending",
+    paid: "Paid",
+    failed: "Payment failed",
+    refunded: "Refunded",
+  };
+  return labels[status] || titleCase(status);
+}
+
+// One place for the token, headers and error handling of payment calls.
+async function callPaymentApi(path, options = {}) {
+  const token = localStorage.getItem(TOKEN_KEY);
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (response.status === 401) {
+    throw new Error("Your session has expired. Please log in again.");
+  }
+
+  if (!response.ok) {
+    const error = new Error(readError(data));
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+}
+
+/* ------------------------------ Payment Modal ------------------------------ */
+
+function PaymentModal({
+  booking,
+  payment,
+  onClose,
+  onPaymentCreated,
+  onReferenceSubmitted,
+  onConflict,
+}) {
+  const [method, setMethod] = useState("ABA KHQR");
+  const [reference, setReference] = useState(
+    payment?.transaction_reference || "",
+  );
+  const [createdPayment, setCreatedPayment] = useState(payment || null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [qrFailed, setQrFailed] = useState(false);
+
+  // Escape closes the window and the page behind it stops scrolling.
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function onKeyDown(event) {
+      if (event.key === "Escape" && !busy) onClose();
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [busy, onClose]);
+
+  async function createPayment() {
+    setBusy(true);
+    setError("");
+
+    try {
+      const data = await callPaymentApi("/payments/checkout", {
+        method: "POST",
+        body: JSON.stringify({ booking_id: booking.id, method }),
+      });
+
+      // Stay open so the customer sees what to do next.
+      setCreatedPayment(data.payment);
+      onPaymentCreated(data.payment);
+    } catch (err) {
+      if (err.status === 409) {
+        // A payment already exists (for example created in another tab).
+        onConflict(err.message);
+        return;
+      }
+
+      setError(err.message || "Unable to create payment.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitReference() {
+    setBusy(true);
+    setError("");
+
+    try {
+      const data = await callPaymentApi(
+        `/payments/${createdPayment.id}/reference`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ transaction_reference: reference.trim() }),
+        },
+      );
+
+      onReferenceSubmitted(data.payment);
+      onClose();
+    } catch (err) {
+      setError(err.message || "Unable to submit transaction reference.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const hasCreatedPayment = Boolean(createdPayment);
+  const isAba = createdPayment?.method === "ABA KHQR";
+  const savedReference = createdPayment?.transaction_reference || "";
+  const referenceUnchanged = reference.trim() === savedReference;
+
+  return (
+    <div
+      className="payment-modal-backdrop"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !busy) onClose();
+      }}
+    >
+      <section
+        className="payment-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="payment-modal-title"
+      >
+        <div className="payment-modal-header">
+          <div>
+            <h2 id="payment-modal-title">
+              {hasCreatedPayment
+                ? "Complete your payment"
+                : "Choose payment method"}
+            </h2>
+            <p>Booking {booking.booking_reference || `#${booking.id}`}</p>
+          </div>
+
+          <button
+            type="button"
+            className="payment-modal-close"
+            onClick={onClose}
+            disabled={busy}
+            aria-label="Close payment window"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="payment-modal-body">
+          <div className="payment-order-total">
+            <span>Booking total</span>
+            <strong>{usd(booking.total_amount)}</strong>
+          </div>
+
+          {!hasCreatedPayment ? (
+            <>
+              <h3>Select a payment method</h3>
+
+              <label
+                className={`payment-method-option ${method === "ABA KHQR" ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="payment-method"
+                  value="ABA KHQR"
+                  checked={method === "ABA KHQR"}
+                  onChange={(e) => setMethod(e.target.value)}
+                />
+                <span className="payment-method-icon">📱</span>
+                <span>
+                  <strong>ABA KHQR</strong>
+                  <small>Pay using your ABA mobile app</small>
+                </span>
+              </label>
+
+              <label
+                className={`payment-method-option ${method === "Cash" ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="payment-method"
+                  value="Cash"
+                  checked={method === "Cash"}
+                  onChange={(e) => setMethod(e.target.value)}
+                />
+                <span className="payment-method-icon">💵</span>
+                <span>
+                  <strong>Cash</strong>
+                  <small>Pay cash to the travel agency</small>
+                </span>
+              </label>
+
+              {method === "ABA KHQR" && (
+                <div className="payment-info-note">
+                  <strong>ABA KHQR payment</strong>
+                  <p>
+                    After creating your payment, follow the agency's payment
+                    instructions and submit your transaction reference.
+                  </p>
+                  <p>
+                    The official merchant QR code will be displayed here once it
+                    has been provided by the agency.
+                  </p>
+                </div>
+              )}
+
+              {method === "Cash" && (
+                <div className="payment-info-note">
+                  <strong>Cash payment</strong>
+                  <p>
+                    Your payment will remain pending until the agency receives
+                    and verifies your cash payment.
+                  </p>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="payment-created-notice">
+                <strong>
+                  {payment ? "Your payment" : "Payment created successfully"}
+                </strong>
+                <p>
+                  Payment #{createdPayment.id} · {createdPayment.method}
+                </p>
+                <p>
+                  Status: <strong>Pending</strong>
+                </p>
+              </div>
+
+              {isAba ? (
+                <>
+                  {/* =====================================
+        ABA KHQR CODE
+        Hide QR after a reference is saved.
+    ===================================== */}
+                  {!savedReference && (
+                    <div className="payment-qr">
+                      {/* Show an error if QR cannot load */}
+                      {qrFailed ? (
+                        <p className="text-danger">
+                          The QR code couldn't be loaded. Please contact the
+                          agency to pay.
+                        </p>
+                      ) : (
+                        <>
+                          {/* ABA Merchant QR Image */}
+                          <img
+                            src={ABA_KHQR.image}
+                            alt="ABA KHQR code for TovNa"
+                            onError={() => setQrFailed(true)}
+                          />
+
+                          {/* Save QR image */}
+                          <p>
+                            <a
+                              href={ABA_KHQR.image}
+                              download="tovna-aba-khqr.png"
+                            >
+                              Save QR image
+                            </a>{" "}
+                            · On a phone, save it, then upload it from your
+                            gallery in ABA Mobile.
+                          </p>
+                        </>
+                      )}
+
+                      {/* Payment amount */}
+                      <p>
+                        Pay <strong>{usd(createdPayment.amount)}</strong> to{" "}
+                        <strong>{ABA_KHQR.accountName}</strong>
+                      </p>
+
+                      {/* Booking reference for payment remark */}
+                      <p>
+                        In the remark, write{" "}
+                        <code>{booking.booking_reference}</code>
+                      </p>
+                    </div>
+                  )}
+                  <div className="payment-info-note">
+                    <strong>
+                      {savedReference
+                        ? "Change your ABA transaction reference"
+                        : "Submit your ABA transaction reference"}
+                    </strong>
+                    <p>
+                      Enter the transaction reference shown in your ABA
+                      transaction details. The agency will verify it.
+                    </p>
+                  </div>
+
+                  <label
+                    className="payment-reference-label"
+                    htmlFor="aba-reference"
+                  >
+                    ABA transaction reference
+                  </label>
+                  <input
+                    id="aba-reference"
+                    className="form-control"
+                    type="text"
+                    maxLength={100}
+                    value={reference}
+                    onChange={(e) => setReference(e.target.value)}
+                    placeholder="Enter transaction reference"
+                    autoFocus
+                  />
+                </>
+              ) : (
+                <div className="payment-info-note">
+                  <strong>Pay in cash</strong>
+                  <p>
+                    Please pay the travel agency in cash. Your payment stays
+                    pending until the agency confirms it.
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+
+          {error && (
+            <div className="alert alert-danger mt-3" role="alert">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="payment-modal-footer">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={onClose}
+            disabled={busy}
+          >
+            {hasCreatedPayment && !isAba ? "Close" : "Cancel"}
+          </button>
+
+          {!hasCreatedPayment ? (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={createPayment}
+              disabled={busy}
+            >
+              {busy ? "Processing..." : "Continue"}
+            </button>
+          ) : isAba ? (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={submitReference}
+              disabled={busy || !reference.trim() || referenceUnchanged}
+            >
+              {busy
+                ? "Submitting..."
+                : savedReference
+                  ? "Update reference"
+                  : "Submit reference"}
+            </button>
+          ) : (
+            <button type="button" className="btn btn-primary" onClick={onClose}>
+              Done
+            </button>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 /* ------------------------------ Cards ------------------------------ */
 
-function BookingCard({ booking, onCancel, cancelling }) {
-  const isTransportation = booking.bookingType === "transportation";
+function BookingCard({
+  booking,
+  payment,
+  onCancel,
+  cancelling,
+  onPay,
+  onUpdateReference,
+}) {
+  const { bookingType } = booking;
+  const isTransportation = bookingType === "transportation";
+  const isExperience = bookingType === "tour" || bookingType === "activity";
   const transportKind = String(booking.transport_type || "").toLowerCase();
   const isPending = booking.statusKey === "pending";
+  const isConfirmed = booking.statusKey === "confirmed";
+  const servicePath = getServicePath(booking);
+
+  const hasReference = Boolean(payment?.transaction_reference);
+
+  const canPay = isConfirmed && !payment;
+
+  // The API lets a customer submit or change the reference while pending.
+  const canEditReference =
+    isConfirmed &&
+    payment?.method === "ABA KHQR" &&
+    payment.status === "pending";
+
+  // Only say "awaiting verification" when the customer has nothing left to do.
+  const awaitingVerification =
+    isConfirmed &&
+    payment?.status === "pending" &&
+    (payment.method === "Cash" || hasReference);
 
   return (
     <article className="booking-card">
@@ -121,16 +579,16 @@ function BookingCard({ booking, onCancel, cancelling }) {
       ) : (
         <SafeImage
           className="booking-hotel-image"
-          src={booking.hotel_image}
-          alt={booking.hotel_name || "Booked hotel"}
+          src={booking.image}
+          alt={booking.title}
         />
       )}
 
       <div className="booking-card-content">
         <div className="booking-head">
           <h2>
-            {!isTransportation && booking.hotel_id != null ? (
-              <Link to={`/hotels/${booking.hotel_id}`}>{booking.title}</Link>
+            {servicePath ? (
+              <Link to={servicePath}>{booking.title}</Link>
             ) : (
               booking.title
             )}
@@ -153,7 +611,7 @@ function BookingCard({ booking, onCancel, cancelling }) {
         </p>
 
         <dl className="booking-facts">
-          {isTransportation ? (
+          {isTransportation && (
             <>
               <div>
                 <dt>Travel date</dt>
@@ -180,7 +638,24 @@ function BookingCard({ booking, onCancel, cancelling }) {
                 </dd>
               </div>
             </>
-          ) : (
+          )}
+
+          {isExperience && (
+            <>
+              <div>
+                <dt>
+                  {bookingType === "tour" ? "Tour date" : "Activity date"}
+                </dt>
+                <dd>{formatDate(booking.start, booking.serviceDateRaw)}</dd>
+              </div>
+              <div>
+                <dt>{bookingType === "tour" ? "Travelers" : "Participants"}</dt>
+                <dd>{booking.participants || "—"}</dd>
+              </div>
+            </>
+          )}
+
+          {bookingType === "hotel" && (
             <>
               {(booking.checkInRaw || booking.start) && (
                 <div>
@@ -204,11 +679,42 @@ function BookingCard({ booking, onCancel, cancelling }) {
               )}
             </>
           )}
+
           <div>
             <dt>Booked on</dt>
             <dd>{formatDate(parseDate(booking.booking_date))}</dd>
           </div>
         </dl>
+
+        {payment && (
+          <div className="booking-payment-info">
+            <div>
+              <span>Payment method</span>
+              <strong>{payment.method}</strong>
+            </div>
+            <div>
+              <span>Payment status</span>
+              <strong className={`payment-status ${payment.status}`}>
+                {paymentStatusLabel(payment.status)}
+              </strong>
+            </div>
+            {hasReference && (
+              <div>
+                <span>Transaction reference</span>
+                <code>{payment.transaction_reference}</code>
+              </div>
+            )}
+            {canEditReference && (
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => onUpdateReference(booking, payment)}
+              >
+                {hasReference ? "Change reference" : "Submit ABA reference"}
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="booking-foot">
           <div className="booking-total">
@@ -223,15 +729,35 @@ function BookingCard({ booking, onCancel, cancelling }) {
             >
               View details
             </Link>
-            {!isTransportation && booking.hotel_id != null && (
-              <Link
-                to={`/hotels/${booking.hotel_id}`}
-                className="btn btn-outline-primary btn-sm"
-              >
-                View hotel
+
+            {servicePath && (
+              <Link to={servicePath} className="btn btn-outline-primary btn-sm">
+                {SERVICE_LINK_LABELS[bookingType]}
               </Link>
             )}
-            {/* Only pending bookings can be cancelled (the API enforces this too). */}
+
+            {canPay && (
+              <button
+                type="button"
+                className="btn btn-success btn-sm"
+                onClick={() => onPay(booking)}
+              >
+                Pay Now
+              </button>
+            )}
+
+            {awaitingVerification && (
+              <span className="booking-hint">
+                Awaiting payment verification
+              </span>
+            )}
+
+            {payment?.status === "failed" && (
+              <span className="booking-hint">
+                Payment failed. Please contact the agency.
+              </span>
+            )}
+
             {isPending && (
               <button
                 type="button"
@@ -249,7 +775,15 @@ function BookingCard({ booking, onCancel, cancelling }) {
   );
 }
 
-function BookingGroup({ title, items, onCancel, cancellingId }) {
+function BookingGroup({
+  title,
+  items,
+  paymentsByBooking,
+  onCancel,
+  cancellingId,
+  onPay,
+  onUpdateReference,
+}) {
   if (items.length === 0) return null;
 
   return (
@@ -262,8 +796,11 @@ function BookingGroup({ title, items, onCancel, cancellingId }) {
           <BookingCard
             key={booking.id}
             booking={booking}
+            payment={paymentsByBooking[booking.id] || null}
             onCancel={onCancel}
             cancelling={cancellingId === booking.id}
+            onPay={onPay}
+            onUpdateReference={onUpdateReference}
           />
         ))}
       </div>
@@ -275,54 +812,77 @@ function BookingGroup({ title, items, onCancel, cancellingId }) {
 
 export default function MyBookings({ onLogin, user }) {
   const [bookings, setBookings] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [paymentLoadError, setPaymentLoadError] = useState("");
   const [needsLogin, setNeedsLogin] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [cancellingId, setCancellingId] = useState(null);
   const [actionError, setActionError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState(null);
 
-  // Loads when the page opens, after login or logout (user changes),
-  // when "Try again" is clicked, and after a cancel (attempt changes).
   useEffect(() => {
     const controller = new AbortController();
 
-    async function loadBookings() {
+    async function loadData() {
       setLoading(true);
       setError("");
+      setPaymentLoadError("");
       setNeedsLogin(false);
 
       const token = localStorage.getItem(TOKEN_KEY);
 
       if (!token) {
         setBookings([]);
+        setPayments([]);
         setNeedsLogin(true);
         setLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`${API_URL}/bookings/?limit=200`, {
-          headers: { Authorization: `Bearer ${token}` },
-          signal: controller.signal,
-        });
+        const headers = { Authorization: `Bearer ${token}` };
 
-        const data = await response.json().catch(() => ({}));
+        const [bookingResponse, paymentResponse] = await Promise.all([
+          fetch(`${API_URL}/bookings/my?limit=200`, {
+            headers,
+            signal: controller.signal,
+          }),
+          fetch(`${API_URL}/payments/`, {
+            headers,
+            signal: controller.signal,
+          }),
+        ]);
 
-        // An expired or invalid login token.
-        if (response.status === 401) {
+        const bookingData = await bookingResponse.json().catch(() => ({}));
+        const paymentData = await paymentResponse.json().catch(() => ({}));
+
+        if (bookingResponse.status === 401 || paymentResponse.status === 401) {
           localStorage.removeItem(TOKEN_KEY);
           setBookings([]);
+          setPayments([]);
           setNeedsLogin(true);
           setError("Your session has expired. Please log in again.");
           return;
         }
 
-        if (!response.ok) throw new Error(readError(data));
+        if (!bookingResponse.ok) {
+          throw new Error(readError(bookingData));
+        }
 
-        setBookings(Array.isArray(data) ? data : []);
+        setBookings(Array.isArray(bookingData) ? bookingData : []);
+
+        if (paymentResponse.ok) {
+          setPayments(Array.isArray(paymentData) ? paymentData : []);
+        } else {
+          setPayments([]);
+          setPaymentLoadError(readError(paymentData));
+        }
       } catch (err) {
         if (err.name !== "AbortError") {
           setError(
@@ -336,10 +896,18 @@ export default function MyBookings({ onLogin, user }) {
       }
     }
 
-    loadBookings();
+    loadData();
 
     return () => controller.abort();
   }, [user, attempt]);
+
+  // Success messages dismiss themselves.
+  useEffect(() => {
+    if (!notice) return undefined;
+
+    const timer = setTimeout(() => setNotice(""), 5000);
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   async function cancelBooking(booking) {
     const label = booking.booking_reference || `#${booking.id}`;
@@ -357,12 +925,12 @@ export default function MyBookings({ onLogin, user }) {
           Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
         },
       });
+
       const data = await response.json().catch(() => ({}));
 
       if (response.status === 401) {
         localStorage.removeItem(TOKEN_KEY);
       } else if (!response.ok) {
-        // e.g. 409: an admin already confirmed or rejected it.
         setActionError(readError(data));
       }
     } catch (err) {
@@ -373,16 +941,60 @@ export default function MyBookings({ onLogin, user }) {
       );
     } finally {
       setCancellingId(null);
-      // Always refetch: even after an error the status may have changed.
       setAttempt((n) => n + 1);
     }
   }
 
+  function openPayment(booking) {
+    setSelectedBooking(booking);
+    setSelectedPayment(null);
+  }
+
+  function openReferenceForm(booking, payment) {
+    setSelectedBooking(booking);
+    setSelectedPayment(payment);
+  }
+
+  function closePayment() {
+    setSelectedBooking(null);
+    setSelectedPayment(null);
+  }
+
+  function updateLocalPayment(payment) {
+    setPayments((current) => {
+      const exists = current.some((item) => item.id === payment.id);
+
+      if (exists) {
+        return current.map((item) => (item.id === payment.id ? payment : item));
+      }
+
+      return [payment, ...current];
+    });
+  }
+
+  // The payment already exists on the server: show why, then reload.
+  function handlePaymentConflict(message) {
+    closePayment();
+    setActionError(message || "A payment already exists for this booking.");
+    setAttempt((n) => n + 1);
+  }
+
+  const paymentsByBooking = useMemo(
+    () =>
+      payments.reduce((result, payment) => {
+        result[payment.booking_id] = payment;
+        return result;
+      }, {}),
+    [payments],
+  );
+
   const items = useMemo(() => bookings.map(normalize), [bookings]);
+
   const statuses = useMemo(
     () => [...new Set(items.map((b) => b.statusKey))],
     [items],
   );
+
   const types = useMemo(
     () => [...new Set(items.map((b) => b.bookingType))],
     [items],
@@ -394,7 +1006,6 @@ export default function MyBookings({ onLogin, user }) {
       (typeFilter === "all" || b.bookingType === typeFilter),
   );
 
-  // Upcoming means still active (not cancelled or rejected) and the stay or journey has not finished.
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
@@ -405,6 +1016,7 @@ export default function MyBookings({ onLogin, user }) {
   const upcoming = visible
     .filter(isUpcoming)
     .sort((a, b) => (a.start?.getTime() ?? 0) - (b.start?.getTime() ?? 0));
+
   const past = visible
     .filter((b) => !isUpcoming(b))
     .sort((a, b) => (b.start?.getTime() ?? 0) - (a.start?.getTime() ?? 0));
@@ -433,10 +1045,30 @@ export default function MyBookings({ onLogin, user }) {
 
   return (
     <div className="my-bookings">
-      <h1>My Bookings</h1>
-      <p className="my-bookings-intro">
-        View and manage your hotel and transportation reservations.
-      </p>
+      <div className="my-bookings-heading">
+        <div>
+          <h1>My Bookings</h1>
+          <p className="my-bookings-intro">
+            View and manage your hotel, transport, tour and activity
+            reservations.
+          </p>
+        </div>
+      </div>
+
+      {notice && (
+        <div
+          className="alert alert-success d-flex justify-content-between align-items-center"
+          role="status"
+        >
+          <span>{notice}</span>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Dismiss"
+            onClick={() => setNotice("")}
+          />
+        </div>
+      )}
 
       {actionError && (
         <div
@@ -450,6 +1082,12 @@ export default function MyBookings({ onLogin, user }) {
             aria-label="Dismiss"
             onClick={() => setActionError("")}
           />
+        </div>
+      )}
+
+      {paymentLoadError && !loading && (
+        <div className="alert alert-warning" role="alert">
+          We couldn't load your payment information: {paymentLoadError}
         </div>
       )}
 
@@ -499,15 +1137,18 @@ export default function MyBookings({ onLogin, user }) {
         <div className="booking-empty">
           <h2>No bookings yet</h2>
           <p>
-            You haven't made any bookings yet. Your hotel and transportation
-            reservations will appear here.
+            You haven't made any bookings yet. Your reservations will appear
+            here.
           </p>
           <div className="d-flex flex-wrap justify-content-center gap-2">
-            <Link to="/hotels" className="btn btn-primary">
+            <Link to="/tours" className="btn btn-primary">
+              Browse tours
+            </Link>
+            <Link to="/hotels" className="btn btn-outline-primary">
               Browse hotels
             </Link>
-            <Link to="/transportation" className="btn btn-outline-primary">
-              Find transport
+            <Link to="/activities" className="btn btn-outline-primary">
+              Browse activities
             </Link>
           </div>
         </div>
@@ -527,8 +1168,7 @@ export default function MyBookings({ onLogin, user }) {
                 chips(
                   [
                     ["all", "All types"],
-                    ["hotel", "Hotels"],
-                    ["transportation", "Transport"],
+                    ...types.map((t) => [t, TYPE_LABELS[t]]),
                   ],
                   typeFilter,
                   setTypeFilter,
@@ -572,18 +1212,39 @@ export default function MyBookings({ onLogin, user }) {
               <BookingGroup
                 title="Upcoming"
                 items={upcoming}
+                paymentsByBooking={paymentsByBooking}
                 onCancel={cancelBooking}
                 cancellingId={cancellingId}
+                onPay={openPayment}
+                onUpdateReference={openReferenceForm}
               />
               <BookingGroup
                 title="Past, cancelled and rejected"
                 items={past}
+                paymentsByBooking={paymentsByBooking}
                 onCancel={cancelBooking}
                 cancellingId={cancellingId}
+                onPay={openPayment}
+                onUpdateReference={openReferenceForm}
               />
             </>
           )}
         </>
+      )}
+
+      {selectedBooking && (
+        <PaymentModal
+          booking={selectedBooking}
+          payment={selectedPayment}
+          onClose={closePayment}
+          onPaymentCreated={updateLocalPayment}
+          onReferenceSubmitted={(payment) => {
+            // The API already returned the updated payment, so no reload.
+            updateLocalPayment(payment);
+            setNotice("Your transaction reference was submitted.");
+          }}
+          onConflict={handlePaymentConflict}
+        />
       )}
     </div>
   );
