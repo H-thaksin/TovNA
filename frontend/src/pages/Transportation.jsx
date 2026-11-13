@@ -1,29 +1,18 @@
-import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { API_URL, TOKEN_KEY, readError } from "../lib/api";
 import { useApiList } from "../lib/hooks";
 import { usd } from "../lib/pricing";
+import { transportImage } from "../lib/transportImages";
 import "./Transportation.css";
 
 const MAX_PASSENGERS = 20;
-
-const TYPE_ICONS = {
-  bus: "🚌",
-  van: "🚐",
-  minivan: "🚐",
-  boat: "⛴️",
-  ferry: "⛴️",
-  taxi: "🚕",
-  train: "🚆",
-  flight: "✈️",
-};
 
 const todayISO = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
-
   return `${year}-${month}-${day}`;
 };
 
@@ -32,11 +21,8 @@ const titleCase = (text) =>
 
 const formatDay = (iso) => {
   if (!iso) return "Not specified";
-
   const date = new Date(`${iso}T00:00:00`);
-
   if (Number.isNaN(date.getTime())) return String(iso);
-
   return new Intl.DateTimeFormat("en-US", {
     weekday: "short",
     month: "short",
@@ -47,22 +33,20 @@ const formatDay = (iso) => {
 
 function formatDuration(minutes) {
   const total = Number(minutes);
-
   if (!Number.isFinite(total) || total <= 0) return null;
-
   const rounded = Math.round(total);
   const hours = Math.floor(rounded / 60);
   const rest = rounded % 60;
-
   if (hours === 0) return `${rest} min`;
   if (rest === 0) return `${hours} hr`;
-
   return `${hours} hr ${rest} min`;
 }
 
 const isActive = (item) => item.is_active !== false;
 
 export default function Transportation() {
+  const navigate = useNavigate();
+
   const {
     data: transportations,
     status: transportationStatus,
@@ -89,13 +73,8 @@ export default function Transportation() {
     setParams(
       (previous) => {
         const next = new URLSearchParams(previous);
-
-        if (!value || value === fallback) {
-          next.delete(key);
-        } else {
-          next.set(key, value);
-        }
-
+        if (!value || value === fallback) next.delete(key);
+        else next.set(key, value);
         return next;
       },
       { replace: true },
@@ -107,9 +86,7 @@ export default function Transportation() {
   const requestedType = params.get("type") ?? "all";
   const requestedSort = params.get("sort") ?? "price-asc";
   const requestedDate = params.get("date") ?? "";
-
   const travelDate = requestedDate >= today ? requestedDate : "";
-
   const requestedPassengers = Number(params.get("passengers")) || 1;
 
   const passengers = Math.min(
@@ -142,10 +119,7 @@ export default function Transportation() {
       ),
     ]
       .filter((id) => destinationNames.has(id))
-      .map((id) => ({
-        id,
-        name: destinationNames.get(id),
-      }))
+      .map((id) => ({ id, name: destinationNames.get(id) }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
   const fromOptions = useMemo(
@@ -173,7 +147,6 @@ export default function Transportation() {
   const type = typeOptions.includes(requestedType) ? requestedType : "all";
 
   const sortOptions = ["price-asc", "price-desc", "duration-asc"];
-
   const sort = sortOptions.includes(requestedSort)
     ? requestedSort
     : "price-asc";
@@ -194,32 +167,25 @@ export default function Transportation() {
     const matches = activeServices.filter((item) => {
       const matchesFrom =
         !fromId || Number(item.from_destination_id) === Number(fromId);
-
       const matchesTo =
         !toId || Number(item.to_destination_id) === Number(toId);
-
       const matchesType =
         type === "all" || String(item.type || "").toLowerCase() === type;
-
       return matchesFrom && matchesTo && matchesType;
     });
 
     return [...matches].sort((a, b) => {
-      if (sort === "price-desc") {
-        return Number(b.price) - Number(a.price);
-      }
+      if (sort === "price-desc") return Number(b.price) - Number(a.price);
 
       if (sort === "duration-asc") {
         const durationA = Number(a.duration_minutes);
         const durationB = Number(b.duration_minutes);
-
         const validA = Number.isFinite(durationA) && durationA > 0;
         const validB = Number.isFinite(durationB) && durationB > 0;
 
         if (!validA && !validB) return 0;
         if (!validA) return 1;
         if (!validB) return -1;
-
         return durationA - durationB;
       }
 
@@ -240,9 +206,7 @@ export default function Transportation() {
 
   const loading =
     transportationStatus === "loading" || destinationStatus === "loading";
-
   const hasError = transportationStatus === "error";
-
   const namesFailed = destinationStatus === "error" && !hasError;
 
   const isFiltering = Boolean(
@@ -250,26 +214,18 @@ export default function Transportation() {
   );
 
   const retry = () => {
-    if (transportationStatus === "error") {
-      retryTransportations();
-    }
-
-    if (destinationStatus === "error") {
-      retryDestinations();
-    }
+    if (transportationStatus === "error") retryTransportations();
+    if (destinationStatus === "error") retryDestinations();
   };
 
   const swapRoute = () => {
     setParams(
       (previous) => {
         const next = new URLSearchParams(previous);
-
         if (toId) next.set("from", toId);
         else next.delete("from");
-
         if (fromId) next.set("to", fromId);
         else next.delete("to");
-
         return next;
       },
       { replace: true },
@@ -289,11 +245,26 @@ export default function Transportation() {
 
   function closeBooking() {
     if (bookingLoading) return;
-
     setSelectedService(null);
     setBookingError("");
     setBookingSuccess(null);
   }
+
+  // Close the modal with the Escape key
+  useEffect(() => {
+    if (!selectedService) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && !bookingLoading) {
+        setSelectedService(null);
+        setBookingError("");
+        setBookingSuccess(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedService, bookingLoading]);
 
   async function confirmBooking(event) {
     event.preventDefault();
@@ -344,7 +315,6 @@ export default function Transportation() {
 
       if (response.status === 401) {
         localStorage.removeItem(TOKEN_KEY);
-
         throw new Error("Your session has expired. Please log in again.");
       }
 
@@ -352,9 +322,7 @@ export default function Transportation() {
         throw new Error(readError(data) || "Unable to create your booking.");
       }
 
-      const booking = data.booking ?? data;
-
-      setBookingSuccess(booking);
+      setBookingSuccess(data.booking ?? data);
     } catch (error) {
       setBookingError(
         error instanceof TypeError
@@ -366,46 +334,33 @@ export default function Transportation() {
     }
   }
 
+  const modalPrice = selectedService ? Number(selectedService.price) : 0;
+
   return (
     <div className="transport-page">
+      {/* ---------- Hero ---------- */}
       <section className="transport-hero">
         <div className="container">
-          <span className="transport-eyebrow">EXPLORE CAMBODIA</span>
-
+          <span className="transport-eyebrow">Explore Cambodia</span>
           <h1>Find your way around Cambodia</h1>
-
           <p>
-            Compare bus and van services, discover routes, and find
-            transportation that fits your trip and budget.
+            Compare bus, van and boat services, then book your seat in a few
+            clicks.
           </p>
         </div>
       </section>
 
       <section className="container transport-content">
-        <div className="transport-heading">
-          <div>
-            <h2>Available transportation</h2>
-            <p>Choose your route and compare available services.</p>
-          </div>
-
-          {!loading && !hasError && (
-            <span className="transport-count" aria-live="polite">
-              {results.length} {results.length === 1 ? "service" : "services"}
-            </span>
-          )}
-        </div>
-
-        <div className="transport-filters">
+        {/* ---------- Floating search card ---------- */}
+        <div className="transport-search">
           <div className="transport-field">
             <label htmlFor="transport-from">From</label>
-
             <select
               id="transport-from"
               value={fromId}
               onChange={(event) => setParam("from", event.target.value)}
             >
-              <option value="">All starting points</option>
-
+              <option value="">Any starting point</option>
               {fromOptions.map((destination) => (
                 <option
                   key={destination.id}
@@ -418,27 +373,24 @@ export default function Transportation() {
             </select>
           </div>
 
+          <button
+            type="button"
+            className="transport-swap-btn"
+            onClick={swapRoute}
+            disabled={!fromId && !toId}
+            aria-label="Swap from and to"
+          >
+            ⇄
+          </button>
+
           <div className="transport-field">
-            <div className="transport-label-row">
-              <label htmlFor="transport-to">To</label>
-
-              <button
-                type="button"
-                className="transport-swap"
-                onClick={swapRoute}
-                disabled={!fromId && !toId}
-              >
-                ⇄ Swap
-              </button>
-            </div>
-
+            <label htmlFor="transport-to">To</label>
             <select
               id="transport-to"
               value={toId}
               onChange={(event) => setParam("to", event.target.value)}
             >
-              <option value="">All destinations</option>
-
+              <option value="">Any destination</option>
               {toOptions.map((destination) => (
                 <option
                   key={destination.id}
@@ -452,42 +404,7 @@ export default function Transportation() {
           </div>
 
           <div className="transport-field">
-            <label htmlFor="transport-type">Transport type</label>
-
-            <select
-              id="transport-type"
-              value={type}
-              onChange={(event) => setParam("type", event.target.value, "all")}
-            >
-              <option value="all">All types</option>
-
-              {typeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {titleCase(option)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="transport-field">
-            <label htmlFor="transport-sort">Sort by</label>
-
-            <select
-              id="transport-sort"
-              value={sort}
-              onChange={(event) =>
-                setParam("sort", event.target.value, "price-asc")
-              }
-            >
-              <option value="price-asc">Lowest price</option>
-              <option value="price-desc">Highest price</option>
-              <option value="duration-asc">Shortest journey</option>
-            </select>
-          </div>
-
-          <div className="transport-field">
             <label htmlFor="transport-date">Travel date</label>
-
             <input
               id="transport-date"
               type="date"
@@ -501,7 +418,6 @@ export default function Transportation() {
             <span className="transport-label" id="transport-passengers-label">
               Passengers
             </span>
-
             <div
               className="transport-stepper"
               role="group"
@@ -517,9 +433,7 @@ export default function Transportation() {
               >
                 −
               </button>
-
               <output aria-live="polite">{passengers}</output>
-
               <button
                 type="button"
                 aria-label="More passengers"
@@ -532,21 +446,68 @@ export default function Transportation() {
               </button>
             </div>
           </div>
+        </div>
 
-          <button
-            type="button"
-            className="transport-reset"
-            onClick={() => setParams({}, { replace: true })}
-            disabled={!isFiltering && sort === "price-asc"}
+        {/* ---------- Toolbar: type chips + sort ---------- */}
+        <div className="transport-toolbar">
+          <div
+            className="transport-chips"
+            role="group"
+            aria-label="Transport type"
           >
-            Reset filters
-          </button>
+            {["all", ...typeOptions].map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`transport-chip ${type === option ? "is-active" : ""}`}
+                aria-pressed={type === option}
+                onClick={() => setParam("type", option, "all")}
+              >
+                {option === "all" ? (
+                  "All"
+                ) : (
+                  <>
+                    <img src={transportImage(option)} alt="" />
+                    {titleCase(option)}
+                  </>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="transport-toolbar-right">
+            {!loading && !hasError && (
+              <span className="transport-count" aria-live="polite">
+                {results.length} {results.length === 1 ? "service" : "services"}
+              </span>
+            )}
+
+            <select
+              aria-label="Sort by"
+              value={sort}
+              onChange={(event) =>
+                setParam("sort", event.target.value, "price-asc")
+              }
+            >
+              <option value="price-asc">Lowest price</option>
+              <option value="price-desc">Highest price</option>
+              <option value="duration-asc">Shortest journey</option>
+            </select>
+
+            <button
+              type="button"
+              className="transport-reset"
+              onClick={() => setParams({}, { replace: true })}
+              disabled={!isFiltering && sort === "price-asc"}
+            >
+              Reset
+            </button>
+          </div>
         </div>
 
         {travelDate && (
           <p className="transport-summary">
-            Travelling on <strong>{formatDay(travelDate)}</strong>
-            {" · "}
+            Travelling on <strong>{formatDay(travelDate)}</strong> for{" "}
             {passengers} {passengers === 1 ? "passenger" : "passengers"}
           </p>
         )}
@@ -564,33 +525,41 @@ export default function Transportation() {
           </div>
         )}
 
+        {/* ---------- Loading ---------- */}
         {loading && (
           <div
             className="transport-list"
             role="status"
             aria-label="Loading transportation services"
           >
-            <div className="transport-skeleton" />
-            <div className="transport-skeleton" />
-            <div className="transport-skeleton" />
+            {[0, 1, 2].map((key) => (
+              <div className="transport-skeleton" key={key}>
+                <div className="transport-skeleton-body" />
+                <div className="transport-skeleton-stub" />
+              </div>
+            ))}
           </div>
         )}
 
+        {/* ---------- Error ---------- */}
         {hasError && (
           <div className="transport-message transport-error" role="alert">
-            <p>
-              We couldn't load transportation data. Check that the server is
-              running, then try again.
-            </p>
-
+            <h3>We couldn't load transportation data</h3>
+            <p>Check that the server is running, then try again.</p>
             <button type="button" onClick={retry}>
               Try again
             </button>
           </div>
         )}
 
+        {/* ---------- Empty states ---------- */}
         {!loading && !hasError && activeServices.length === 0 && (
           <div className="transport-message">
+            <img
+              src={transportImage("bus")}
+              alt=""
+              className="transport-empty-img"
+            />
             <h3>No transportation services yet</h3>
             <p>Check back soon. New routes are added regularly.</p>
           </div>
@@ -601,30 +570,30 @@ export default function Transportation() {
           activeServices.length > 0 &&
           results.length === 0 && (
             <div className="transport-message">
-              <h3>No services found</h3>
-
-              <p>
-                There are no services for this route yet. Try changing your
-                route or filters.
-              </p>
-
+              <img
+                src={transportImage("bus")}
+                alt=""
+                className="transport-empty-img"
+              />
+              <h3>No services match your search</h3>
+              <p>Try a different route or clear a filter.</p>
               <button
                 type="button"
-                className="transport-reset"
+                className="transport-primary-btn"
                 onClick={() => setParams({}, { replace: true })}
               >
-                Reset filters
+                Clear all filters
               </button>
             </div>
           )}
 
+        {/* ---------- Results ---------- */}
         {!loading && !hasError && results.length > 0 && (
           <div className="transport-list">
             {results.map((item) => {
               const kind = String(item.type || "").toLowerCase();
               const duration = formatDuration(item.duration_minutes);
               const price = Number(item.price);
-
               const validPrice = Number.isFinite(price) && price >= 0;
 
               const isCheapest =
@@ -644,64 +613,61 @@ export default function Transportation() {
 
               return (
                 <article className="transport-card" key={item.id}>
-                  <div className="transport-card-main">
-                    <div className="transport-icon" aria-hidden="true">
-                      {TYPE_ICONS[kind] ?? "🚌"}
-                    </div>
-
-                    <div className="transport-route">
-                      <div className="transport-route-label">
-                        {nameOf(item.from_destination_id)}
-                        <span aria-hidden="true"> → </span>
-                        <span className="visually-hidden">to </span>
-                        {nameOf(item.to_destination_id)}
+                  <div className="transport-card-body">
+                    <div className="transport-operator">
+                      <div className="transport-icon">
+                        <img src={transportImage(kind)} alt="" loading="lazy" />
                       </div>
 
-                      <div className="transport-meta">
-                        {kind && <span>{titleCase(kind)}</span>}
+                      <div>
+                        <strong>{item.provider || "Transport provider"}</strong>
+                        <span>{titleCase(kind) || "Transport"}</span>
+                      </div>
 
-                        <span>{item.provider || "Transport provider"}</span>
-
-                        {duration && <span>{duration}</span>}
-
+                      <div className="transport-badges">
                         {isCheapest && (
                           <span className="transport-badge transport-badge--price">
                             Lowest price
                           </span>
                         )}
-
                         {isFastest && (
                           <span className="transport-badge transport-badge--fast">
                             Fastest
                           </span>
                         )}
                       </div>
-
-                      {item.description && (
-                        <p className="transport-description">
-                          {item.description}
-                        </p>
-                      )}
                     </div>
+
+                    <div className="transport-journey">
+                      <span className="transport-place">
+                        {nameOf(item.from_destination_id)}
+                      </span>
+                      <span className="transport-line" aria-hidden="true">
+                        {duration && <em>{duration}</em>}
+                      </span>
+                      <span className="visually-hidden">to</span>
+                      <span className="transport-place">
+                        {nameOf(item.to_destination_id)}
+                      </span>
+                    </div>
+
+                    {item.description && (
+                      <p className="transport-description">
+                        {item.description}
+                      </p>
+                    )}
                   </div>
 
                   <div className="transport-price">
-                    <span>Price per person</span>
+                    <small>From</small>
+                    <strong>{validPrice ? usd(price) : "N/A"}</strong>
+                    <small>per person</small>
 
-                    <strong>
-                      {validPrice ? usd(price) : "Price unavailable"}
-                    </strong>
-
-                    <small>
-                      {passengers}{" "}
-                      {passengers === 1 ? "passenger" : "passengers"}
-                    </small>
-
-                    <span>Estimated total</span>
-
-                    <strong>
-                      {validPrice ? usd(price * passengers) : "Unavailable"}
-                    </strong>
+                    {passengers > 1 && validPrice && (
+                      <span className="transport-total">
+                        {usd(price * passengers)} for {passengers}
+                      </span>
+                    )}
 
                     <button
                       type="button"
@@ -709,7 +675,7 @@ export default function Transportation() {
                       onClick={() => openBooking(item)}
                       disabled={!validPrice}
                     >
-                      Book Now
+                      Book now
                     </button>
                   </div>
                 </article>
@@ -719,13 +685,12 @@ export default function Transportation() {
         )}
       </section>
 
+      {/* ---------- Booking modal ---------- */}
       {selectedService && (
         <div
           className="transport-modal-backdrop"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              closeBooking();
-            }
+            if (event.target === event.currentTarget) closeBooking();
           }}
         >
           <section
@@ -746,11 +711,10 @@ export default function Transportation() {
 
             {bookingSuccess ? (
               <>
-                <h2 id="transport-booking-title">Booking received!</h2>
-
+                <h2 id="transport-booking-title">Booking received</h2>
                 <p>
-                  Your transportation booking has been submitted. Please check
-                  the status below.
+                  Your booking has been submitted. Check its status in My
+                  Bookings.
                 </p>
 
                 <div className="transport-confirmation">
@@ -761,7 +725,6 @@ export default function Transportation() {
                       {bookingSuccess.booking_reference || "Not provided"}
                     </code>
                   </p>
-
                   <p>
                     <strong>Route</strong>
                     <br />
@@ -771,24 +734,20 @@ export default function Transportation() {
                     {bookingSuccess.to_destination ||
                       nameOf(selectedService.to_destination_id)}
                   </p>
-
                   <p>
                     <strong>Travel date:</strong>{" "}
                     {formatDay(bookingSuccess.travel_date || bookingDate)}
                   </p>
-
                   <p>
                     <strong>Passengers:</strong>{" "}
                     {bookingSuccess.passengers ?? bookingPassengers}
                   </p>
-
                   <p>
                     <strong>Total:</strong>{" "}
                     {bookingSuccess.total_amount != null
                       ? usd(Number(bookingSuccess.total_amount))
-                      : usd(Number(selectedService.price) * bookingPassengers)}
+                      : usd(modalPrice * bookingPassengers)}
                   </p>
-
                   <p>
                     <strong>Status:</strong>{" "}
                     {bookingSuccess.status || "Submitted"}
@@ -799,14 +758,10 @@ export default function Transportation() {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => {
-                      closeBooking();
-                      window.location.href = "/my-bookings";
-                    }}
+                    onClick={() => navigate("/my-bookings")}
                   >
                     My Bookings
                   </button>
-
                   <button
                     type="button"
                     className="btn btn-outline-primary"
@@ -820,22 +775,26 @@ export default function Transportation() {
               <>
                 <h2 id="transport-booking-title">Confirm your trip</h2>
 
-                <p className="transport-modal-route">
-                  {nameOf(selectedService.from_destination_id)}
-                  {" → "}
-                  {nameOf(selectedService.to_destination_id)}
-                </p>
-
-                <p>
-                  {titleCase(selectedService.type)}
-                  {" · "}
-                  {selectedService.provider || "Transport provider"}
-                </p>
+                <div className="transport-modal-summary">
+                  <div className="transport-icon">
+                    <img src={transportImage(selectedService.type)} alt="" />
+                  </div>
+                  <div>
+                    <p className="transport-modal-route">
+                      {nameOf(selectedService.from_destination_id)}
+                      {" → "}
+                      {nameOf(selectedService.to_destination_id)}
+                    </p>
+                    <p className="transport-modal-sub">
+                      {titleCase(selectedService.type)} ·{" "}
+                      {selectedService.provider || "Transport provider"}
+                    </p>
+                  </div>
+                </div>
 
                 <form onSubmit={confirmBooking}>
                   <div className="transport-field">
                     <label htmlFor="booking-travel-date">Travel date</label>
-
                     <input
                       id="booking-travel-date"
                       type="date"
@@ -848,7 +807,6 @@ export default function Transportation() {
 
                   <div className="transport-field">
                     <label htmlFor="booking-passengers">Passengers</label>
-
                     <select
                       id="booking-passengers"
                       value={bookingPassengers}
@@ -859,7 +817,7 @@ export default function Transportation() {
                     >
                       {Array.from(
                         { length: MAX_PASSENGERS },
-                        (_, index) => index + 1,
+                        (_, i) => i + 1,
                       ).map((count) => (
                         <option key={count} value={count}>
                           {count} {count === 1 ? "passenger" : "passengers"}
@@ -869,14 +827,8 @@ export default function Transportation() {
                   </div>
 
                   <div className="transport-modal-total">
-                    <span>
-                      {usd(Number(selectedService.price) * bookingPassengers)}{" "}
-                      total
-                    </span>
-
-                    <small>
-                      {usd(Number(selectedService.price))} per passenger
-                    </small>
+                    <span>{usd(modalPrice * bookingPassengers)} total</span>
+                    <small>{usd(modalPrice)} per passenger</small>
                   </div>
 
                   {bookingError && (

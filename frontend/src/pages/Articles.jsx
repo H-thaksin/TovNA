@@ -1,12 +1,14 @@
-import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { useApiList } from "../lib/hooks";
-import { Card, articlePath } from "../components/cards";
-import { PageHeader, Section, money } from "../components/ui";
+import { articlePath } from "../components/cards";
+import { SafeImage, money } from "../components/ui";
+
+const PAGE_SIZE = 9;
 
 const categories = [
-  { label: "All Stories", value: "all" },
+  { label: "All", value: "all" },
   { label: "Destinations", value: "destinations" },
   { label: "Tours", value: "tours" },
   { label: "Activities", value: "activities" },
@@ -14,53 +16,126 @@ const categories = [
 
 const validTypes = ["destinations", "tours", "activities"];
 
+const typeLabel = {
+  destinations: "Destination",
+  tours: "Tour",
+  activities: "Activity",
+};
+
 const pageInfo = {
   all: {
-    title: "Travel Stories",
+    title: "Travel stories",
     subtitle:
       "Find inspiration for your next adventure and discover the beauty of Cambodia.",
   },
   destinations: {
-    title: "Explore Destinations",
+    title: "Destinations",
     subtitle:
       "Discover beautiful places, local culture, and hidden gems across Cambodia.",
   },
   tours: {
-    title: "Find Your Next Adventure",
+    title: "Tours",
     subtitle:
-      "Explore tours and plan unforgettable experiences around Cambodia.",
+      "Explore guided tours and plan unforgettable experiences around Cambodia.",
   },
   activities: {
-    title: "Things to Do",
-    subtitle: "Find memorable activities and experiences for your next trip.",
+    title: "Activities",
+    subtitle: "Find memorable things to do for your next trip.",
   },
 };
 
-const badgeFor = (storyType, item) =>
-  storyType === "destinations"
-    ? item.province
-    : storyType === "tours"
-      ? `${item.duration_days} days`
-      : item.category;
+// The small line under the title: where it is, how long it takes, or what kind it is.
+function detailFor(type, item) {
+  if (type === "destinations") return item.province || null;
+  if (type === "tours") {
+    return item.duration_days != null ? `${item.duration_days} days` : null;
+  }
+  const parts = [
+    item.category,
+    item.duration_hours != null ? `${item.duration_hours} hours` : null,
+  ].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
 
-const metaFor = (storyType) =>
-  storyType === "destinations"
-    ? "DESTINATION"
-    : storyType === "tours"
-      ? "TRAVEL TOUR"
-      : "ACTIVITY";
+function StoryCard({ story }) {
+  const { type, item } = story;
+  const path = articlePath(type, item);
+  const detail = detailFor(type, item);
+  const showPrice = type !== "destinations" && item.price != null;
+
+  return (
+    <article className="st-card">
+      <Link to={path} className="st-card-link">
+        <div className="st-card-photo">
+          <SafeImage src={item.image_url} alt="" className="st-card-img" />
+          <span className="st-tag">{typeLabel[type]}</span>
+        </div>
+
+        <div className="st-card-body">
+          <h3>{item.name}</h3>
+          {detail && <p className="st-card-detail">{detail}</p>}
+          {item.description && (
+            <p className="st-card-text">{item.description}</p>
+          )}
+
+          {showPrice && (
+            <p className="st-card-price">
+              <strong>{money(item.price)}</strong>
+              <span>
+                {" "}
+                {type === "tours" ? "per person" : "per participant"}
+              </span>
+            </p>
+          )}
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+function FeaturedStory({ story }) {
+  const { type, item } = story;
+  const detail = detailFor(type, item);
+
+  return (
+    <Link to={articlePath(type, item)} className="st-featured">
+      <SafeImage src={item.image_url} alt="" className="st-featured-img" />
+      <div className="st-featured-overlay" />
+      <div className="st-featured-content">
+        <span className="st-tag st-tag--light">
+          Featured {typeLabel[type].toLowerCase()}
+        </span>
+        <h2>{item.name}</h2>
+        {detail && <p className="st-featured-detail">{detail}</p>}
+        {item.description && (
+          <p className="st-featured-text">{item.description}</p>
+        )}
+        <span className="st-featured-cta">Read the story</span>
+      </div>
+    </Link>
+  );
+}
 
 export default function Articles() {
   // /articles -> undefined, /articles/tours -> "tours"
   const { type } = useParams();
+  const [params, setParams] = useSearchParams();
 
   const destinations = useApiList("/destinations/");
   const tours = useApiList("/tours/");
   const activities = useApiList("/activities/");
   const lists = [destinations, tours, activities];
 
-  // Show the page once every list has answered. If only some lists fail,
-  // still show the stories that did load and offer a retry.
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
+  const query = (params.get("q") ?? "").trim();
+  const selectedCategory = type ?? "all";
+
+  // Start from the first page again whenever the filter changes.
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [selectedCategory, query]);
+
   const loading = lists.some((list) => list.status === "loading");
   const failedCount = lists.filter((list) => list.status === "error").length;
   const status = loading
@@ -72,13 +147,53 @@ export default function Articles() {
   const allStories = useMemo(
     () => [
       ...destinations.data.map((item) => ({ type: "destinations", item })),
-      ...tours.data.map((item) => ({ type: "tours", item })),
+      ...tours.data
+        .filter((item) => item.is_active !== false)
+        .map((item) => ({ type: "tours", item })),
       ...activities.data.map((item) => ({ type: "activities", item })),
     ],
     [destinations.data, tours.data, activities.data],
   );
 
+  const counts = useMemo(
+    () => ({
+      all: allStories.length,
+      destinations: allStories.filter((s) => s.type === "destinations").length,
+      tours: allStories.filter((s) => s.type === "tours").length,
+      activities: allStories.filter((s) => s.type === "activities").length,
+    }),
+    [allStories],
+  );
+
+  const stories = useMemo(() => {
+    const needle = query.toLowerCase();
+
+    return allStories.filter((story) => {
+      if (selectedCategory !== "all" && story.type !== selectedCategory) {
+        return false;
+      }
+      if (!needle) return true;
+
+      const { item } = story;
+      return [item.name, item.province, item.category, item.description]
+        .filter(Boolean)
+        .some((text) => String(text).toLowerCase().includes(needle));
+    });
+  }, [allStories, selectedCategory, query]);
+
   const retryAll = () => lists.forEach((list) => list.retry());
+
+  const setQuery = (value) => {
+    setParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        if (value) next.set("q", value);
+        else next.delete("q");
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   if (type && !validTypes.includes(type)) {
     return (
@@ -91,63 +206,68 @@ export default function Articles() {
     );
   }
 
-  // The address bar decides the category, so Back, Forward and refresh always agree with the page.
-  const selectedCategory = type ?? "all";
-
-  const stories =
-    selectedCategory === "all"
-      ? allStories
-      : allStories.filter((story) => story.type === selectedCategory);
-
   const page = pageInfo[selectedCategory];
-  const isEmpty = status === "ready" && stories.length === 0;
+  const isReady = status === "ready";
+
+  // Feature one story on the plain "all" view, so the page has a clear starting point.
+  const showFeatured =
+    isReady && selectedCategory === "all" && !query && stories.length > 4;
+  const featured = showFeatured ? stories[0] : null;
+  const rest = showFeatured ? stories.slice(1) : stories;
+  const shown = rest.slice(0, visible);
+
+  const search = params.toString() ? `?${params.toString()}` : "";
 
   return (
-    <div className="tovna-stories-page">
-      <PageHeader title={page.title} subtitle={page.subtitle} />
+    <div className="st-page">
+      {/* ---------- Hero ---------- */}
+      <header className="st-hero">
+        <div className="container">
+          <h1>{page.title}</h1>
+          <p>{page.subtitle}</p>
 
-      <section className="container tovna-stories-section">
-        <div className="tovna-stories-intro">
-          <div>
-            <span className="tovna-section-eyebrow">YOUR CAMBODIA JOURNEY</span>
-            <h2>Find a place worth discovering.</h2>
-            <p>
-              Browse destinations, tours, and experiences to help plan your next
-              trip.
-            </p>
-          </div>
-
-          <div className="tovna-stories-count">
-            <span>{status === "ready" ? stories.length : "–"}</span>
-            <small>{stories.length === 1 ? "STORY" : "STORIES"}</small>
+          <div className="st-search">
+            <label htmlFor="stories-search" className="visually-hidden">
+              Search stories
+            </label>
+            <input
+              id="stories-search"
+              type="search"
+              placeholder="Search places, tours and activities"
+              value={params.get("q") ?? ""}
+              onChange={(event) => setQuery(event.target.value)}
+            />
           </div>
         </div>
+      </header>
 
-        <nav
-          className="tovna-category-filters"
-          aria-label="Filter travel stories"
-        >
+      {/* ---------- Category tabs ---------- */}
+      <nav className="st-tabs" aria-label="Filter travel stories">
+        <div className="container st-tabs-inner">
           {categories.map((category) => {
-            const isActive = selectedCategory === category.value;
+            const active = selectedCategory === category.value;
 
             return (
               <Link
                 key={category.value}
                 to={
-                  category.value === "all"
+                  (category.value === "all"
                     ? "/articles"
-                    : `/articles/${category.value}`
+                    : `/articles/${category.value}`) + search
                 }
-                className={`tovna-filter-chip ${isActive ? "is-active" : ""}`}
-                aria-current={isActive ? "page" : undefined}
+                className={`st-tab ${active ? "is-active" : ""}`}
+                aria-current={active ? "page" : undefined}
               >
                 {category.label}
+                {isReady && <span>{counts[category.value]}</span>}
               </Link>
             );
           })}
-        </nav>
+        </div>
+      </nav>
 
-        {status === "ready" && failedCount > 0 && (
+      <section className="container st-content">
+        {isReady && failedCount > 0 && (
           <div className="alert alert-warning" role="alert">
             Some stories couldn't be loaded.{" "}
             <button
@@ -160,47 +280,78 @@ export default function Articles() {
           </div>
         )}
 
-        {/* Section only draws its children when count > 0, so the empty
-            state has to live outside it to ever appear. */}
-        {isEmpty ? (
-          <div className="tovna-stories-empty">
-            <span className="tovna-section-eyebrow">MORE TO DISCOVER</span>
-            <h2>No stories here yet</h2>
-            <p>Try another category to discover more of Cambodia.</p>
-            <Link to="/articles" className="btn btn-primary mt-2">
+        {status === "loading" && (
+          <div
+            className="st-grid"
+            role="status"
+            aria-label="Loading travel stories"
+          >
+            {Array.from({ length: 6 }, (_, index) => (
+              <div className="st-skeleton" key={index}>
+                <div className="st-skeleton-photo" />
+                <div className="st-skeleton-line" />
+                <div className="st-skeleton-line st-skeleton-line--short" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="st-message" role="alert">
+            <h2>We couldn't load the stories</h2>
+            <p>Check that the server is running, then try again.</p>
+            <button type="button" className="st-btn" onClick={retryAll}>
+              Try again
+            </button>
+          </div>
+        )}
+
+        {isReady && stories.length === 0 && (
+          <div className="st-message">
+            <h2>
+              {query ? `No results for "${query}"` : "No stories here yet"}
+            </h2>
+            <p>
+              {query
+                ? "Check the spelling or try a shorter search."
+                : "Try another category to discover more of Cambodia."}
+            </p>
+            <Link to="/articles" className="st-btn">
               Browse all stories
             </Link>
           </div>
-        ) : (
-          <Section status={status} count={stories.length} onRetry={retryAll}>
-            {stories.map(({ type: storyType, item }, index) => (
-              <Card
-                key={`${storyType}-${item.id}`}
-                item={item}
-                index={index}
-                to={articlePath(storyType, item)}
-                badge={badgeFor(storyType, item)}
-                meta={metaFor(storyType)}
-              >
-                <p className="tovna-excerpt">{item.description}</p>
+        )}
 
-                {storyType !== "destinations" && (
-                  <div className="tovna-card-footer">
-                    <span className="price fs-5">{money(item.price)}</span>
-                    {storyType === "tours" && (
-                      <small className="text-secondary">/ person</small>
-                    )}
-                  </div>
-                )}
+        {featured && <FeaturedStory story={featured} />}
 
-                <div className="tovna-card-footer mt-auto">
-                  <span className="tovna-link">
-                    Explore story <span aria-hidden="true">↗</span>
-                  </span>
-                </div>
-              </Card>
-            ))}
-          </Section>
+        {isReady && shown.length > 0 && (
+          <>
+            <p className="st-result-count" aria-live="polite">
+              {stories.length} {stories.length === 1 ? "story" : "stories"}
+              {query ? ` for "${query}"` : ""}
+            </p>
+
+            <div className="st-grid">
+              {shown.map((story) => (
+                <StoryCard
+                  key={`${story.type}-${story.item.id}`}
+                  story={story}
+                />
+              ))}
+            </div>
+
+            {shown.length < rest.length && (
+              <div className="st-more">
+                <button
+                  type="button"
+                  className="st-btn st-btn--outline"
+                  onClick={() => setVisible((count) => count + PAGE_SIZE)}
+                >
+                  Show more ({rest.length - shown.length} left)
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>

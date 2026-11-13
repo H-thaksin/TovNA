@@ -1027,7 +1027,454 @@ article.tovna-card:hover .tovna-link .arrow {
   border-radius: var(--tovna-radius);
   box-shadow: var(--tovna-shadow-sm);
 }
+/* =========================================================
+   TovNa - Travel Stories list page
+   All classes start with "st-" so they never clash with other pages.
+   ========================================================= */
 
+.st-page {
+  min-height: 70vh;
+  padding-bottom: 80px;
+  background: var(--tovna-bg, #f8faf9);
+}
+
+/* ---------- Hero ---------- */
+.st-hero {
+  padding: 56px 0 52px;
+  color: #fff;
+  background:
+    radial-gradient(
+      ellipse 60% 120% at 85% 0%,
+      rgba(245, 158, 11, 0.18),
+      transparent 60%
+    ),
+    linear-gradient(120deg, #0b2321, #0f766e);
+}
+
+.st-hero h1 {
+  margin-bottom: 12px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.st-hero p {
+  max-width: 600px;
+  margin-bottom: 26px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+}
+
+.st-search {
+  max-width: 520px;
+}
+
+.st-search input {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #17202a;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.st-search input:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.8);
+  outline-offset: 2px;
+}
+
+/* ---------- Tabs ---------- */
+.st-tabs {
+  position: sticky;
+  top: var(--navbar-height, 64px);
+  z-index: 20;
+  border-bottom: 1px solid var(--tovna-border, #e5e7eb);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+}
+
+.st-tabs-inner {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.st-tabs-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.st-tab {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 16px 14px;
+  border-bottom: 3px solid transparent;
+  color: var(--tovna-muted, #5b6573);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.st-tab span {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1f4f3;
+  font-size: 0.78rem;
+}
+
+.st-tab:hover {
+  color: var(--tovna-text, #17202a);
+}
+
+.st-tab.is-active {
+  border-bottom-color: var(--tovna-primary, #0f766e);
+  color: var(--tovna-primary, #0f766e);
+}
+
+.st-tab.is-active span {
+  background: var(--tovna-primary-soft, #e6f4f1);
+}
+
+.st-tab:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: -3px;
+}
+
+.st-content {
+  padding-top: 32px;
+}
+
+/* ---------- Featured story ---------- */
+.st-featured {
+  position: relative;
+  display: block;
+  min-height: 380px;
+  margin-bottom: 40px;
+  overflow: hidden;
+  border-radius: 24px;
+  color: #fff;
+  text-decoration: none;
+  isolation: isolate;
+  background: #173b36;
+}
+
+.st-featured:hover {
+  color: #fff;
+}
+
+.st-featured-img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.st-featured:hover .st-featured-img {
+  transform: scale(1.03);
+}
+
+.st-featured-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    0deg,
+    rgba(8, 24, 22, 0.88) 0%,
+    rgba(8, 24, 22, 0.45) 55%,
+    rgba(8, 24, 22, 0.1) 100%
+  );
+}
+
+.st-featured-content {
+  position: absolute;
+  right: 40px;
+  bottom: 36px;
+  left: 40px;
+  max-width: 640px;
+}
+
+.st-featured-content h2 {
+  margin: 14px 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.st-featured-detail {
+  margin: 0 0 10px;
+  color: #fcd34d;
+  font-weight: 600;
+}
+
+.st-featured-text {
+  display: -webkit-box;
+  margin-bottom: 18px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.st-featured-cta {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b2321;
+  font-weight: 700;
+}
+
+/* ---------- Tags ---------- */
+.st-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #0b2321;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.st-tag--light {
+  position: static;
+  display: inline-block;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  backdrop-filter: blur(8px);
+}
+
+/* ---------- Grid and cards ---------- */
+.st-result-count {
+  margin-bottom: 16px;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.92rem;
+}
+
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px 24px;
+}
+
+.st-card {
+  min-width: 0;
+}
+
+.st-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-card-photo {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #e8efec;
+}
+
+.st-card-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.st-card-link:hover .st-card-img {
+  transform: scale(1.04);
+}
+
+.st-card-link:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 4px;
+  border-radius: 16px;
+}
+
+.st-card-body {
+  padding: 14px 2px 0;
+}
+
+.st-card-body h3 {
+  margin: 0 0 4px;
+  color: var(--tovna-text, #17202a);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.st-card-link:hover h3 {
+  color: var(--tovna-primary, #0f766e);
+}
+
+.st-card-detail {
+  margin: 0 0 8px;
+  color: var(--tovna-primary, #0f766e);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.st-card-text {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.st-card-price {
+  margin: 10px 0 0;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.85rem;
+}
+
+.st-card-price strong {
+  color: var(--tovna-text, #17202a);
+  font-size: 1.05rem;
+}
+
+/* ---------- Buttons and messages ---------- */
+.st-more {
+  margin-top: 44px;
+  text-align: center;
+}
+
+.st-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  border: 1px solid var(--tovna-primary, #0f766e);
+  border-radius: 999px;
+  background: var(--tovna-primary, #0f766e);
+  color: #fff;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.st-btn:hover {
+  color: #fff;
+  background: var(--tovna-primary-dark, #115e59);
+}
+
+.st-btn--outline {
+  background: #fff;
+  color: var(--tovna-primary, #0f766e);
+}
+
+.st-btn--outline:hover {
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary-dark, #115e59);
+}
+
+.st-btn:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+.st-message {
+  padding: 56px 20px;
+  border: 1px dashed #d1d5db;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--tovna-muted, #5b6573);
+  text-align: center;
+}
+
+.st-message h2 {
+  color: var(--tovna-text, #17202a);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+/* ---------- Loading skeleton ---------- */
+.st-skeleton-photo,
+.st-skeleton-line {
+  background: linear-gradient(90deg, #eef1ef 25%, #f7f9f8 50%, #eef1ef 75%);
+  background-size: 200% 100%;
+  animation: st-shimmer 1.4s ease-in-out infinite;
+}
+
+.st-skeleton-photo {
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+}
+
+.st-skeleton-line {
+  height: 14px;
+  margin-top: 14px;
+  border-radius: 6px;
+}
+
+.st-skeleton-line--short {
+  width: 60%;
+}
+
+@keyframes st-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 991px) {
+  .st-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .st-hero {
+    padding: 40px 0 36px;
+  }
+
+  .st-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .st-featured {
+    min-height: 340px;
+    border-radius: 18px;
+  }
+
+  .st-featured-content {
+    right: 20px;
+    bottom: 22px;
+    left: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-card-img,
+  .st-featured-img {
+    transition: none;
+  }
+
+  .st-card-link:hover .st-card-img,
+  .st-featured:hover .st-featured-img {
+    transform: none;
+  }
+
+  .st-skeleton-photo,
+  .st-skeleton-line {
+    animation: none;
+  }
+}
 /* ========================================
    TovNa - travel magazine article page
 ======================================== */
