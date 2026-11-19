@@ -28,6 +28,7 @@ import MyBookings from "./pages/MyBookings";
 import BookingDetails from "./pages/BookingDetails";
 import MyPayments from "./pages/MyPayments";
 import Transportation from "./pages/Transportation";
+import Recommendations from "./pages/Recommendations";
 
 // Admin pages
 import AdminLayout from "./admin/AdminLayout";
@@ -170,6 +171,7 @@ export default function App() {
           />
 
           <Route path="/transportation" element={<Transportation />} />
+          <Route path="/recommendations" element={<Recommendations />} />
 
           {/* Customer account pages */}
           <Route

@@ -25,6 +25,30 @@ export async function fetchJson(path, signal) {
 }
 
 // =========================================================
+// POST JSON
+// =========================================================
+
+export async function postJson(path, body, signal) {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    signal,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(readError(data));
+  }
+
+  return data;
+}
+
+// =========================================================
 // Read API Error
 // =========================================================
 

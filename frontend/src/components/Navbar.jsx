@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import "./Navbar.css";
 
 // Main site links. Account pages live in the user menu instead.
 const NAV_LINKS = [
   { label: "Home", to: "/", end: true },
-  { label: "Articles", to: "/articles" },
+  { label: "Explore", to: "/articles" },
   { label: "Hotels", to: "/hotels" },
-  { label: "Destinations", to: "/destinations" },
-  { label: "Tours", to: "/tours" },
-  { label: "Activities", to: "/activities" },
   { label: "Transportation", to: "/transportation" },
+  { label: "Recommendations", to: "/recommendations" },
 ];
 
 function UserMenu({ user, onLogout, onNavigate }) {
@@ -49,26 +48,26 @@ function UserMenu({ user, onLogout, onNavigate }) {
   }
 
   return (
-    <div className="nav-user" ref={menuRef}>
+    <div className="nb-user" ref={menuRef}>
       <button
         type="button"
-        className={`nav-user-trigger ${open ? "is-open" : ""}`}
+        className={`nb-user-trigger ${open ? "is-open" : ""}`}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="nav-user-avatar" aria-hidden="true">
+        <span className="nb-user-avatar" aria-hidden="true">
           {initial}
         </span>
-        <span className="nav-user-name">{displayName}</span>
-        <span className="nav-user-caret" aria-hidden="true">
+        <span className="nb-user-name">{displayName}</span>
+        <span className="nb-user-caret" aria-hidden="true">
           ▾
         </span>
       </button>
 
       {open && (
-        <div className="nav-user-menu" role="menu">
-          <div className="nav-user-menu-header">
+        <div className="nb-user-menu" role="menu">
+          <div className="nb-user-menu-header">
             <strong>{displayName}</strong>
             {user.email && <span>{user.email}</span>}
           </div>
@@ -76,7 +75,7 @@ function UserMenu({ user, onLogout, onNavigate }) {
           <Link
             to="/my-bookings"
             role="menuitem"
-            className="nav-user-item"
+            className="nb-user-item"
             onClick={handleSelect}
           >
             My Bookings
@@ -85,7 +84,7 @@ function UserMenu({ user, onLogout, onNavigate }) {
           <Link
             to="/payments"
             role="menuitem"
-            className="nav-user-item"
+            className="nb-user-item"
             onClick={handleSelect}
           >
             My Payments
@@ -95,19 +94,19 @@ function UserMenu({ user, onLogout, onNavigate }) {
             <Link
               to="/admin"
               role="menuitem"
-              className="nav-user-item"
+              className="nb-user-item"
               onClick={handleSelect}
             >
               Admin panel
             </Link>
           )}
 
-          <div className="nav-user-divider" role="separator" />
+          <div className="nb-user-divider" role="separator" />
 
           <button
             type="button"
             role="menuitem"
-            className="nav-user-item is-danger"
+            className="nb-user-item is-danger"
             onClick={() => {
               setOpen(false);
               onNavigate();
@@ -124,76 +123,93 @@ function UserMenu({ user, onLogout, onNavigate }) {
 
 export default function Navbar({ user, onLogin, onSignup, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
+
   const close = () => setIsOpen(false);
 
+  // A soft shadow appears once the page scrolls under the bar.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close the phone menu when the page changes or Escape is pressed.
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onKeyDown = (event) => event.key === "Escape" && setIsOpen(false);
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
+
   return (
-    <header className="tovna-header sticky-top">
-      <nav className="navbar navbar-expand-lg" aria-label="Main navigation">
-        <div className="container py-1">
-          <Link className="navbar-brand" to="/" onClick={close}>
-            <span className="text-primary">Tov</span>
-            <span style={{ color: "var(--tovna-accent)" }}>Na</span>
-          </Link>
+    <header className={`nb-header ${scrolled ? "is-scrolled" : ""}`}>
+      <nav className="container nb-inner" aria-label="Main navigation">
+        <Link className="nb-brand" to="/" onClick={close}>
+          <span className="nb-brand-mark" aria-hidden="true">
+            T
+          </span>
+          <span>
+            <span className="nb-brand-a">Tov</span>
+            <span className="nb-brand-b">Na</span>
+          </span>
+        </Link>
 
-          <button
-            className="navbar-toggler"
-            type="button"
-            aria-controls="main-menu"
-            aria-expanded={isOpen}
-            aria-label="Toggle navigation"
-            onClick={() => setIsOpen((o) => !o)}
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
+        <button
+          className="nb-toggle"
+          type="button"
+          aria-controls="main-menu"
+          aria-expanded={isOpen}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+          onClick={() => setIsOpen((open) => !open)}
+        >
+          <span className={`nb-burger ${isOpen ? "is-open" : ""}`} />
+        </button>
 
-          <div
-            className={`collapse navbar-collapse ${isOpen ? "show" : ""}`}
-            id="main-menu"
-          >
-            <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-              {NAV_LINKS.map(({ label, to, end }) => (
-                <li className="nav-item" key={to}>
-                  {/* NavLink adds the "active" class and aria-current for the page you're on */}
-                  <NavLink
-                    className="nav-link tovna-nav-link"
-                    to={to}
-                    end={end}
-                    onClick={close}
-                  >
-                    {label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
+        <div className={`nb-panel ${isOpen ? "is-open" : ""}`} id="main-menu">
+          <ul className="nb-links">
+            {NAV_LINKS.map(({ label, to, end }) => (
+              <li key={to}>
+                <NavLink className="nb-link" to={to} end={end} onClick={close}>
+                  {label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
 
-            <div className="nav-auth d-lg-flex align-items-lg-center gap-lg-2 ms-lg-3">
-              {user ? (
-                <UserMenu user={user} onLogout={onLogout} onNavigate={close} />
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    onClick={() => {
-                      close();
-                      onLogin();
-                    }}
-                  >
-                    Log in
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => {
-                      close();
-                      onSignup();
-                    }}
-                  >
-                    Sign up
-                  </button>
-                </>
-              )}
-            </div>
+          <div className="nb-auth">
+            {user ? (
+              <UserMenu user={user} onLogout={onLogout} onNavigate={close} />
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="nb-btn nb-btn--ghost"
+                  onClick={() => {
+                    close();
+                    onLogin();
+                  }}
+                >
+                  Log in
+                </button>
+                <button
+                  type="button"
+                  className="nb-btn nb-btn--solid"
+                  onClick={() => {
+                    close();
+                    onSignup();
+                  }}
+                >
+                  Sign up
+                </button>
+              </>
+            )}
           </div>
         </div>
       </nav>
