@@ -1,0 +1,237 @@
+/* =========================================================
+   TovNa - Home page additions
+   Keeps your existing hero, parallax and reveal styles in the global CSS.
+   Classes here start with "hm-".
+   ========================================================= */
+
+/* The stats card overlaps the hero, so the scroll cue would sit under it */
+.scene-hero .scroll-cue {
+  display: none;
+}
+
+/* ---------- Hero search ---------- */
+.hm-search {
+  display: flex;
+  max-width: 560px;
+  padding: 6px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+.hm-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 18px;
+  border: 0;
+  background: transparent;
+  color: var(--tovna-text, #17202a);
+}
+
+.hm-search input:focus {
+  outline: none;
+}
+
+.hm-search:focus-within {
+  outline: 3px solid rgba(245, 158, 11, 0.8);
+  outline-offset: 2px;
+}
+
+.hm-search button {
+  padding: 10px 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tovna-accent, #f59e0b);
+  color: var(--tovna-ink, #0e1b1a);
+  font-weight: 700;
+  transition: background-color 0.15s ease;
+}
+
+.hm-search button:hover {
+  background: #d98a06;
+}
+
+.hm-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.hm-quick a {
+  padding: 5px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  transition: background-color 0.15s ease;
+}
+
+.hm-quick a:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* ---------- Stats card ---------- */
+.hm-stats {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  margin-top: -52px;
+  padding: 22px 16px;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(14, 27, 26, 0.12);
+}
+
+.hm-stat {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.hm-stat + .hm-stat {
+  border-left: 1px solid var(--tovna-border, #e3e9e6);
+}
+
+.hm-stat strong {
+  color: var(--tovna-primary, #0b6b63);
+  font-family: var(--tovna-display, Georgia, serif);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  line-height: 1.1;
+}
+
+.hm-stat:hover {
+  color: var(--tovna-primary-dark, #084f49);
+}
+
+/* ---------- Shortcut cards ---------- */
+.hm-tool {
+  display: flex;
+  flex-direction: column;
+  padding: 26px 24px;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 20px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.25s var(--ease, ease);
+}
+
+.hm-tool:hover {
+  border-color: rgba(11, 107, 99, 0.4);
+  box-shadow: 0 14px 34px rgba(14, 27, 26, 0.1);
+  transform: translateY(-4px);
+  color: inherit;
+}
+
+.hm-tool-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary, #0b6b63);
+}
+
+.hm-tool h3 {
+  margin-bottom: 8px;
+  color: var(--tovna-text, #17202a);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.hm-tool p {
+  flex: 1;
+  margin-bottom: 18px;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.hm-tool-link {
+  color: var(--tovna-primary, #0b6b63);
+  font-weight: 700;
+}
+
+.hm-search button:focus-visible,
+.hm-quick a:focus-visible,
+.hm-stat:focus-visible,
+.hm-tool:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767.98px) {
+  .hm-search {
+    flex-direction: column;
+    border-radius: 20px;
+  }
+
+  .hm-search button {
+    width: 100%;
+  }
+
+  .hm-stats {
+    flex-wrap: wrap;
+    margin-top: -36px;
+  }
+
+  .hm-stat {
+    flex: 1 1 40%;
+    padding: 10px 8px;
+  }
+
+  .hm-stat + .hm-stat {
+    border-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-tool,
+  .hm-search button {
+    transition: none;
+  }
+
+  .hm-tool:hover {
+    transform: none;
+  }
+}
+
+/* ---------- Hero and story-band images ---------- */
+/* Kept here so they always load with the Home page. */
+.scene-bg-img,
+.band-bg > * {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.float-card {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+  object-fit: cover;
+}

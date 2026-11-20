@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import heroBackground from "../assets/hero/hero-background.jpg";
 import heroFloat1 from "../assets/hero/hero-float-1.jpg";
 import heroFloat2 from "../assets/hero/hero-float-2.jpg";
@@ -11,44 +12,63 @@ import {
   DetailsModal,
   TourCards,
 } from "../components/cards";
+import "./Home.css";
 
-const FEATURES = [
+// Shortcuts to the other parts of the site.
+const TOOLS = [
   {
-    icon: "compass",
-    title: "Discover",
-    text: "Find beautiful destinations and exciting places across Cambodia.",
+    icon: "bed",
+    title: "Hotels",
+    text: "Find a comfortable place to stay, from city hotels to island resorts.",
+    to: "/hotels",
   },
   {
-    icon: "star",
-    title: "Get recommendations",
-    text: "Travel ideas based on your interests, budget and plans.",
+    icon: "bus",
+    title: "Transportation",
+    text: "Compare buses, vans and boats between Cambodia's top destinations.",
+    to: "/transportation",
   },
   {
-    icon: "calendar",
-    title: "Plan your trip",
-    text: "Pick tours and activities and organize your journey.",
+    icon: "route",
+    title: "Tours",
+    text: "Join guided tours with local experts and a ready-made plan.",
+    to: "/articles/tours",
   },
   {
     icon: "ticket",
-    title: "Book easily",
-    text: "Manage tours, activities and bookings in one place.",
+    title: "Activities",
+    text: "Add memorable experiences to your trip and book them online.",
+    to: "/articles/activities",
   },
 ];
 
+const QUICK_LINKS = [
+  { label: "Destinations", to: "/articles/destinations" },
+  { label: "Tours", to: "/articles/tours" },
+  { label: "Activities", to: "/articles/activities" },
+  { label: "Hotels", to: "/hotels" },
+];
+
 const ICONS = {
-  compass: (
+  bed: (
     <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="m15.5 8.5-2 5-5 2 2-5z" />
+      <path d="M3 19V7M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6" />
+      <circle cx="7" cy="11" r="1.6" />
     </>
   ),
-  star: (
-    <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />
-  ),
-  calendar: (
+  bus: (
     <>
-      <rect x="4" y="5" width="16" height="15" rx="2" />
-      <path d="M4 10h16M9 3v4M15 3v4" />
+      <rect x="4" y="4" width="16" height="13" rx="2" />
+      <path d="M4 11h16M8 20v-3M16 20v-3" />
+      <circle cx="8" cy="14" r=".6" />
+      <circle cx="16" cy="14" r=".6" />
+    </>
+  ),
+  route: (
+    <>
+      <circle cx="6" cy="18" r="2" />
+      <circle cx="18" cy="6" r="2" />
+      <path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6" />
     </>
   ),
   ticket: (
@@ -63,8 +83,8 @@ function Icon({ name }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="22"
-      height="22"
+      width="24"
+      height="24"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -79,18 +99,25 @@ function Icon({ name }) {
 
 function Hero() {
   const ref = useScrollProgress("leave");
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
   const rise = (delay) => ({ "--d": delay });
+
+  // The search opens the Stories page, which reads the same ?q= value.
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const text = query.trim();
+    navigate(text ? `/articles?q=${encodeURIComponent(text)}` : "/articles");
+  };
 
   return (
     <section id="home" ref={ref} className="scene-hero">
-      {/* Background: the photo drifts and zooms slowly, and scrolls slower than the page */}
       <div className="scene-bg">
         <SafeImage src={heroBackground} alt="" eager className="scene-bg-img" />
       </div>
       <div className="scene-shade" />
       <div className="scene-fade" />
 
-      {/* Midground: two photos float at different depths (hidden on mobile) */}
       <div className="scene-mid" aria-hidden="true">
         <div className="float-wrap float-wrap--a">
           <SafeImage
@@ -108,11 +135,10 @@ function Hero() {
         </div>
       </div>
 
-      {/* Foreground: the message */}
       <div className="container scene-fg">
         <div className="hero-copy">
           <span className="badge-highlight rise mb-3" style={rise(0)}>
-            🇰🇭 Explore Cambodia
+            Explore Cambodia
           </span>
           <h1 className="hero-title rise" style={rise(120)}>
             Where are you <span className="hero-accent">going?</span>
@@ -121,29 +147,59 @@ function Hero() {
             Discover amazing destinations, plan your perfect trip, and explore
             Cambodia with TovNa.
           </p>
-          <div className="d-flex flex-wrap gap-3 rise" style={rise(400)}>
-            <Link to="/destinations" className="btn btn-accent btn-lg">
-              Explore destinations
-            </Link>
-            <Link to="/tours" className="btn btn-outline-light btn-lg">
-              Plan my trip
-            </Link>
+
+          <form
+            className="hm-search rise"
+            style={rise(380)}
+            onSubmit={handleSearch}
+          >
+            <label htmlFor="home-search" className="visually-hidden">
+              Search destinations, tours and activities
+            </label>
+            <input
+              id="home-search"
+              type="search"
+              placeholder="Search destinations, tours and activities"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <button type="submit">Search</button>
+          </form>
+
+          <div className="hm-quick rise" style={rise(500)}>
+            <span>Browse:</span>
+            {QUICK_LINKS.map(({ label, to }) => (
+              <Link key={to} to={to}>
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
-
-      <a
-        className="scroll-cue"
-        href="#popular"
-        aria-label="Scroll to destinations"
-      >
-        <span />
-      </a>
     </section>
   );
 }
 
-// A full-width cinematic pause between the activity list and the feature cards.
+// Live numbers from the API, so the page shows the site has real content.
+function Stats({ items }) {
+  const visible = items.filter((item) => item.count > 0);
+  if (visible.length < 2) return null;
+
+  return (
+    <div className="container">
+      <Reveal className="hm-stats">
+        {visible.map(({ label, count, to }) => (
+          <Link to={to} key={label} className="hm-stat">
+            <strong>{count}</strong>
+            <span>{label}</span>
+          </Link>
+        ))}
+      </Reveal>
+    </div>
+  );
+}
+
+// A full-width pause between the activity list and the shortcut cards.
 function StoryBand() {
   const ref = useScrollProgress("pass");
 
@@ -159,7 +215,7 @@ function StoryBand() {
           From the temples of Angkor to the islands of the south, build a
           journey that feels like yours.
         </p>
-        <Link to="/tours" className="btn btn-accent btn-lg">
+        <Link to="/articles/tours" className="btn btn-accent btn-lg">
           Browse tours
         </Link>
       </Reveal>
@@ -177,11 +233,29 @@ export default function Home() {
   const destinations = useApiList("/destinations/");
   const tours = useApiList("/tours/");
   const activities = useApiList("/activities/");
+  const hotels = useApiList("/hotels/");
   const details = useDetails();
 
   return (
     <>
       <Hero />
+
+      <Stats
+        items={[
+          {
+            label: "Destinations",
+            count: destinations.data.length,
+            to: "/articles/destinations",
+          },
+          { label: "Tours", count: tours.data.length, to: "/articles/tours" },
+          {
+            label: "Activities",
+            count: activities.data.length,
+            to: "/articles/activities",
+          },
+          { label: "Hotels", count: hotels.data.length, to: "/hotels" },
+        ]}
+      />
 
       {details.notice && (
         <div className="container">
@@ -199,7 +273,7 @@ export default function Home() {
         status={destinations.status}
         count={destinations.data.length}
         onRetry={destinations.retry}
-        action={viewAll("/destinations", "View all destinations")}
+        action={viewAll("/articles/destinations", "View all destinations")}
       >
         <DestinationCards
           items={destinations.data.slice(0, 3)}
@@ -214,7 +288,7 @@ export default function Home() {
         status={tours.status}
         count={tours.data.length}
         onRetry={tours.retry}
-        action={viewAll("/tours", "View all tours")}
+        action={viewAll("/articles/tours", "View all tours")}
       >
         <TourCards items={tours.data.slice(0, 3)} onView={details.viewTour} />
       </Section>
@@ -226,7 +300,7 @@ export default function Home() {
         status={activities.status}
         count={activities.data.length}
         onRetry={activities.retry}
-        action={viewAll("/activities", "View all activities")}
+        action={viewAll("/articles/activities", "View all activities")}
       >
         <ActivityCards items={activities.data.slice(0, 3)} />
       </Section>
@@ -238,19 +312,27 @@ export default function Home() {
           <Reveal blur className="text-center mb-5">
             <h2 className="section-title">Everything you need for your trip</h2>
             <p className="section-subtitle mb-0">
-              Plan, discover and enjoy your Cambodia journey in one place.
+              Stay, travel and explore. Plan it all in one place.
             </p>
           </Reveal>
+
           <div className="row g-4">
-            {FEATURES.map(({ icon, title, text }, i) => (
-              <Reveal className="col-sm-6 col-lg-3" delay={i * 100} key={title}>
-                <div className="feature-card h-100">
-                  <span className="feature-icon">
+            {TOOLS.map(({ icon, title, text, to }, index) => (
+              <Reveal
+                className="col-sm-6 col-lg-3"
+                delay={index * 100}
+                key={title}
+              >
+                <Link to={to} className="hm-tool h-100">
+                  <span className="hm-tool-icon">
                     <Icon name={icon} />
                   </span>
-                  <h3 className="h5 fw-bold">{title}</h3>
-                  <p className="text-secondary mb-0">{text}</p>
-                </div>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                  <span className="hm-tool-link">
+                    Open <span aria-hidden="true">→</span>
+                  </span>
+                </Link>
               </Reveal>
             ))}
           </div>
