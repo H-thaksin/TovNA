@@ -1,52 +1,343 @@
 @import "./AdminTransportation.css";
 
-/* Payment revenue summary */
+/* =========================================================
+   TovNa - Admin payments
+   Keeps the same class names, so AdminPayments.jsx needs no changes.
 
+   Part 1 restyles the shared admin classes (hotel-*) that this page
+   borrows. They are scoped to .admin-hotels-page, so every admin page
+   that uses that wrapper gets the same green and gold look.
+   Part 2 is the payment-only styles.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Part 1: shared admin look
+   --------------------------------------------------------- */
+.admin-hotels-page .admin-hotels-heading h1 {
+  margin: 0 0 6px;
+  color: #0e1b1a;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.admin-hotels-page .admin-hotels-heading p {
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.admin-hotels-page .hotel-refresh-btn {
+  padding: 10px 18px;
+  border: 1px solid #d5ded9;
+  border-radius: 10px;
+  background: #fff;
+  color: #0e1b1a;
+  font-weight: 600;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-hotels-page .hotel-refresh-btn:hover:not(:disabled) {
+  border-color: #0b6b63;
+  color: #0b6b63;
+}
+
+.admin-hotels-page .hotel-notice {
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.admin-hotels-page .hotel-error {
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.admin-hotels-page .hotel-stat-card {
+  border: 1px solid #e6ece9;
+  border-radius: 16px;
+  background: #fff;
+  color: #64748b;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+  animation: pay-rise 0.5s ease backwards;
+}
+
+.admin-hotels-page .hotel-stat-card:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.admin-hotels-page .hotel-stat-card:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.admin-hotels-page .hotel-stat-card:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.admin-hotels-page .hotel-stat-card:nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.admin-hotels-page .hotel-stat-card:hover {
+  border-color: rgba(11, 107, 99, 0.4);
+  box-shadow: 0 10px 24px rgba(14, 27, 26, 0.07);
+  transform: translateY(-2px);
+}
+
+.admin-hotels-page .hotel-stat-card.is-selected {
+  border-color: #0b6b63;
+  background: #f4fbf9;
+  box-shadow: 0 0 0 2px rgba(11, 107, 99, 0.18);
+}
+
+.admin-hotels-page .hotel-stat-card strong {
+  color: #0e1b1a;
+}
+
+.admin-hotels-page .hotel-stat-card.paid strong {
+  color: #15803d;
+}
+
+.admin-hotels-page .hotel-stat-card.pending strong {
+  color: #b45309;
+}
+
+.admin-hotels-page .hotel-stat-card.failed strong {
+  color: #b91c1c;
+}
+
+.admin-hotels-page .hotel-stat-card.refunded strong {
+  color: #6d28d9;
+}
+
+.admin-hotels-page .hotel-table-panel {
+  overflow: hidden;
+  border: 1px solid #e6ece9;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.admin-hotels-page .hotel-table-heading h2 {
+  color: #0e1b1a;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.admin-hotels-page .hotel-table-heading p {
+  color: #94a3b8;
+}
+
+.admin-hotels-page .hotel-link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0b6b63;
+  font-weight: 650;
+}
+
+.admin-hotels-page .hotel-link-btn:hover {
+  text-decoration: underline;
+}
+
+.admin-hotels-page .hotel-filters input,
+.admin-hotels-page .hotel-filters select {
+  min-height: 42px;
+  border: 1px solid #d5ded9;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2937;
+}
+
+.admin-hotels-page .hotel-filters input:focus,
+.admin-hotels-page .hotel-filters select:focus {
+  border-color: #0b6b63;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(11, 107, 99, 0.15);
+}
+
+.admin-hotels-page .hotel-table th {
+  background: #f7faf9;
+  color: #6b7c77;
+  letter-spacing: 0.08em;
+}
+
+.admin-hotels-page .hotel-table td {
+  border-color: #eef2f0;
+  color: #475467;
+}
+
+.admin-hotels-page .hotel-table tbody tr:hover {
+  background: #f7fbfa;
+}
+
+.admin-hotels-page .hotel-edit-btn {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #e6f4f1;
+  color: #0b6b63;
+  font-weight: 650;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-hotels-page .hotel-edit-btn:hover {
+  background: #0b6b63;
+  color: #fff;
+}
+
+.admin-hotels-page .hotel-pagination {
+  border-color: #eef2f0;
+  color: #64748b;
+}
+
+.admin-hotels-page .hotel-pagination button {
+  border: 1px solid #d5ded9;
+  border-radius: 8px;
+  background: #fff;
+  color: #0e1b1a;
+}
+
+.admin-hotels-page .hotel-pagination button:hover:not(:disabled) {
+  border-color: #0b6b63;
+  color: #0b6b63;
+}
+
+.admin-hotels-page .hotel-empty {
+  color: #94a3b8;
+}
+
+.admin-hotels-page .hotel-skeleton-row {
+  border-radius: 10px;
+  background: linear-gradient(90deg, #eef1ef 25%, #f7f9f8 50%, #eef1ef 75%);
+  background-size: 200% 100%;
+  animation: pay-shimmer 1.4s ease-in-out infinite;
+}
+
+.admin-hotels-page .hotel-modal-backdrop {
+  background: rgba(8, 24, 22, 0.55);
+  backdrop-filter: blur(4px);
+  animation: pay-fade 0.18s ease-out;
+}
+
+.admin-hotels-page .hotel-modal {
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  animation: pay-pop 0.2s ease-out;
+}
+
+.admin-hotels-page .hotel-modal-heading h2 {
+  color: #0e1b1a;
+}
+
+.admin-hotels-page .hotel-modal-heading > button {
+  border-radius: 9px;
+  background: #f1f4f3;
+}
+
+.admin-hotels-page .hotel-cancel-btn {
+  border: 1px solid #d5ded9;
+  border-radius: 10px;
+  background: #fff;
+  color: #0e1b1a;
+}
+
+.admin-hotels-page .hotel-cancel-btn:hover:not(:disabled) {
+  border-color: #0b6b63;
+  color: #0b6b63;
+}
+
+.admin-hotels-page .hotel-save-btn {
+  border: 0;
+  border-radius: 10px;
+  background: #0b6b63;
+  color: #fff;
+  font-weight: 650;
+}
+
+.admin-hotels-page .hotel-save-btn:hover:not(:disabled) {
+  background: #084f49;
+}
+
+.admin-hotels-page .hotel-save-btn:disabled {
+  opacity: 0.55;
+}
+
+.admin-hotels-page button:focus-visible,
+.admin-hotels-page select:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------
+   Part 2: payments only
+   --------------------------------------------------------- */
+
+/* Revenue summary: a dark banner like the dashboard */
 .payment-revenue-card {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 22px;
-  padding: 24px 28px;
-  border: 1px solid #e7ebf1;
-  border-radius: 14px;
-  background: #ffffff;
+  padding: 26px 30px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 20px;
+  color: #fff;
+  background:
+    radial-gradient(
+      ellipse 50% 140% at 95% 0%,
+      rgba(245, 158, 11, 0.28),
+      transparent 60%
+    ),
+    linear-gradient(120deg, #0b2321, #0f4f4a);
 }
 
 .payment-revenue-card > div:first-child {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 }
 
 .payment-revenue-card span {
-  color: #697586;
-  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.88rem;
   font-weight: 500;
 }
 
 .payment-revenue-card strong {
-  color: #172b4d;
-  font-size: 30px;
-  font-weight: 700;
+  color: #fff;
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  font-weight: 750;
+  line-height: 1.1;
 }
 
 .payment-revenue-card small {
-  color: #8791a1;
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
 }
 
 .payment-revenue-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 54px;
-  height: 54px;
-  border-radius: 14px;
-  background: #eaf7ef;
-  color: #18864b;
-  font-size: 28px;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(252, 211, 77, 0.45);
+  border-radius: 16px;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+  font-size: 1.7rem;
   font-weight: 700;
 }
 
@@ -79,25 +370,25 @@
 .payment-customer-cell {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .payment-id-cell strong,
 .payment-customer-cell strong {
-  color: #263448;
-  font-size: 13px;
-  font-weight: 600;
+  color: #0e1b1a;
+  font-size: 0.88rem;
+  font-weight: 650;
 }
 
 .payment-id-cell small,
 .payment-customer-cell span {
-  color: #8791a1;
-  font-size: 11px;
+  color: #94a3b8;
+  font-size: 0.75rem;
 }
 
 .payment-reference {
-  color: #34445b;
-  font-size: 12px;
+  color: #0b6b63;
+  font-size: 0.82rem;
   white-space: nowrap;
 }
 
@@ -105,43 +396,42 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 76px;
-  padding: 6px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
+  min-width: 80px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: capitalize;
 }
 
 .payment-status-paid {
-  background: #e8f7ee;
-  color: #16834a;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .payment-status-pending {
-  background: #fff5df;
-  color: #a66b08;
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .payment-status-failed {
-  background: #ffebeb;
-  color: #c03939;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .payment-status-refunded {
-  background: #eeeaff;
-  color: #6851b5;
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 .payment-status-unknown {
-  background: #edf0f4;
-  color: #647184;
+  background: #eef0f3;
+  color: #64748b;
 }
 
 /* Payment details modal */
-
 .payment-details-modal {
-  max-width: 650px;
+  max-width: 660px;
 }
 
 .payment-details-grid {
@@ -150,38 +440,38 @@
   gap: 18px;
   margin: 22px 0;
   padding: 20px;
-  border: 1px solid #e9edf2;
-  border-radius: 10px;
-  background: #fafbfd;
+  border: 1px solid #e6ece9;
+  border-radius: 14px;
+  background: #f7fbfa;
 }
 
 .payment-details-grid > div {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
 .payment-details-grid span {
-  color: #8791a1;
-  font-size: 11px;
+  color: #94a3b8;
+  font-size: 0.78rem;
 }
 
 .payment-details-grid strong {
+  color: #0e1b1a;
+  font-size: 0.92rem;
+  font-weight: 650;
   overflow-wrap: anywhere;
-  color: #263448;
-  font-size: 13px;
-  font-weight: 600;
 }
 
 .payment-cancelled-warning {
   margin-bottom: 20px;
   padding: 12px 14px;
-  border: 1px solid #f1d49a;
-  border-radius: 8px;
-  background: #fff8e9;
-  color: #8b5b0a;
-  font-size: 12px;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.85rem;
   line-height: 1.6;
 }
 
@@ -193,28 +483,56 @@
 }
 
 .payment-status-editor label {
-  color: #34445b;
-  font-size: 13px;
-  font-weight: 600;
+  color: #0e1b1a;
+  font-size: 0.88rem;
+  font-weight: 650;
 }
 
 .payment-status-editor select {
   box-sizing: border-box;
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   padding: 9px 12px;
-  border: 1px solid #dce2e9;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #263448;
+  border: 1px solid #d5ded9;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2937;
   font: inherit;
 }
 
 .payment-status-editor select:focus {
-  border-color: #4779d0;
-  outline: 3px solid rgba(71, 121, 208, 0.12);
+  border-color: #0b6b63;
+  outline: 3px solid rgba(11, 107, 99, 0.15);
 }
 
+/* ---------- Animations ---------- */
+@keyframes pay-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes pay-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pay-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes pay-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   .payment-stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -223,11 +541,7 @@
 
 @media (max-width: 768px) {
   .payment-revenue-card {
-    padding: 18px;
-  }
-
-  .payment-revenue-card strong {
-    font-size: 25px;
+    padding: 20px;
   }
 
   .payment-stats {
@@ -254,5 +568,18 @@
   .payment-details-modal {
     max-height: 90vh;
     overflow-y: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-hotels-page .hotel-stat-card,
+  .admin-hotels-page .hotel-modal-backdrop,
+  .admin-hotels-page .hotel-modal,
+  .admin-hotels-page .hotel-skeleton-row {
+    animation: none;
+  }
+
+  .admin-hotels-page .hotel-stat-card:hover {
+    transform: none;
   }
 }

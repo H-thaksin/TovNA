@@ -1,223 +1,414 @@
-.admin-layout {
-  min-height: 100vh;
+/* =========================================================
+   TovNa - Admin layout (sidebar and top bar)
+   Classes start with "al-". Replaces the old .admin-sidebar, .admin-nav,
+   .admin-topbar and related rules.
+   ========================================================= */
+
+.al-layout {
   display: flex;
-  background: #f5f7fb;
+  min-height: 100vh;
+  background: #f3f6f5;
   color: #1f2937;
 }
 
-.admin-sidebar {
-  width: 250px;
-  flex-shrink: 0;
-  background: #172554;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 28px 18px 18px;
+/* ---------- Sidebar ---------- */
+.al-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  width: 264px;
+  padding: 24px 16px 16px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(
+      ellipse 120% 40% at 100% 0%,
+      rgba(15, 157, 138, 0.25),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 120% 40% at 0% 100%,
+      rgba(245, 158, 11, 0.14),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #0b2321 0%, #0a1d1e 100%);
 }
 
-.admin-brand {
-  padding: 0 12px 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+/* Faint stars */
+.al-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  background-image:
+    radial-gradient(1.5px 1.5px at 15% 12%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 70% 22%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 35% 48%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 85% 60%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 20% 78%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 60% 90%, #fff, transparent 60%);
+  pointer-events: none;
 }
 
-.admin-brand h2 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 800;
-  color: white;
+.al-sidebar > * {
+  position: relative;
 }
 
-.admin-brand span {
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #a5b4fc;
-}
-
-.admin-nav {
-  padding-top: 28px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.admin-nav-label {
-  color: #94a3b8;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  padding: 0 12px;
-  margin-bottom: 14px;
-}
-
-.admin-nav-link {
+.al-brand {
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 12px;
-  margin-bottom: 5px;
-  color: #cbd5e1;
+  gap: 12px;
+  padding: 0 10px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.al-brand-mark {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0f766e, #134e4a);
+  color: #fcd34d;
+  font-family: var(--tovna-display, Georgia, serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.al-brand strong {
+  display: block;
+  font-family: var(--tovna-display, Georgia, serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.al-brand strong span {
+  color: #f59e0b;
+}
+
+.al-brand small {
+  color: #8fb3ae;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- Menu ---------- */
+.al-nav {
+  flex: 1;
+  padding-top: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.al-group {
+  margin-top: 18px;
+}
+
+.al-group-label {
+  margin: 0 0 8px;
+  padding: 0 12px;
+  color: #6f9690;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.al-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  color: #b9cfcb;
+  font-size: 0.92rem;
   text-decoration: none;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: 0.2s;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
-.admin-nav-link:hover,
-.admin-nav-link.active {
-  color: white;
-  background: #2563eb;
+.al-link svg {
+  flex-shrink: 0;
+  color: #7ea6a0;
+  transition: color 0.15s ease;
 }
 
-.admin-nav-icon {
-  width: 20px;
-  text-align: center;
-  font-size: 17px;
+.al-link:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
 }
 
-.admin-sidebar-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  padding-top: 18px;
+.al-link.is-active {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 157, 138, 0.32),
+    rgba(15, 157, 138, 0.08)
+  );
+  color: #fff;
+  font-weight: 650;
+  box-shadow: inset 0 0 0 1px rgba(15, 157, 138, 0.3);
 }
 
-.admin-user {
+.al-link.is-active svg {
+  color: #fcd34d;
+}
+
+/* Gold marker on the page you are on */
+.al-link.is-active::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -16px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+}
+
+/* ---------- Bottom: website link, user, log out ---------- */
+.al-bottom {
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.al-site-link {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  color: #b9cfcb;
+  font-size: 0.88rem;
+  text-decoration: none;
 }
 
-.admin-avatar {
+.al-site-link:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.al-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.al-avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #dbeafe;
-  color: #1d4ed8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0e1b1a;
+  font-weight: 800;
 }
 
-.admin-avatar.small {
-  width: 34px;
-  height: 34px;
+.al-avatar--small {
+  width: 36px;
+  height: 36px;
 }
 
-.admin-user-info {
+.al-user-info {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-.admin-user-info strong {
-  font-size: 13px;
-  color: white;
+.al-user-info strong {
+  overflow: hidden;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.admin-user-info span {
-  font-size: 11px;
-  color: #94a3b8;
+.al-user-info span {
+  color: #8fb3ae;
+  font-size: 0.72rem;
 }
 
-.admin-logout {
+.al-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  margin-top: 12px;
-  padding: 11px;
-  color: #fecaca;
-  background: transparent;
+  margin-top: 10px;
+  padding: 10px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: 10px;
+  background: transparent;
+  color: #fecaca;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
 }
 
-.admin-logout:hover {
-  background: rgba(239, 68, 68, 0.15);
+.al-logout:hover {
+  background: rgba(239, 68, 68, 0.18);
 }
 
-.admin-main {
+/* ---------- Main area and top bar ---------- */
+.al-main {
   flex: 1;
   min-width: 0;
-  margin-left: 250px;
+  margin-left: 264px;
 }
 
-.admin-topbar {
-  height: 72px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+.al-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30px;
+  gap: 16px;
+  height: 68px;
+  padding: 0 32px;
+  border-bottom: 1px solid #e3e9e6;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
 }
 
-.admin-topbar-title {
+.al-title {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.al-title span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.al-title strong {
+  color: #0e1b1a;
+  font-size: 1.15rem;
   font-weight: 700;
-  font-size: 16px;
+  line-height: 1.2;
 }
 
-.admin-topbar-user {
+.al-topbar-user {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 13px;
+}
+
+.al-topbar-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+}
+
+.al-topbar-text strong {
+  color: #0e1b1a;
+  font-size: 0.88rem;
+}
+
+.al-topbar-text span {
   color: #64748b;
+  font-size: 0.75rem;
 }
 
-.admin-content {
-  padding: 30px;
+.al-content {
+  padding: 28px 32px 48px;
 }
 
-.admin-menu-toggle {
-  display: none;
-  background: none;
-  border: 0;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.admin-overlay {
+.al-toggle,
+.al-overlay {
   display: none;
 }
 
-@media (max-width: 768px) {
-  .admin-sidebar {
+.al-link:focus-visible,
+.al-site-link:focus-visible,
+.al-logout:focus-visible,
+.al-toggle:focus-visible,
+.al-overlay:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.8);
+  outline-offset: 2px;
+}
+
+/* ---------- Tablet and phone ---------- */
+@media (max-width: 900px) {
+  .al-sidebar {
     transform: translateX(-100%);
     transition: transform 0.25s ease;
+    box-shadow: none;
   }
 
-  .admin-sidebar.open {
+  .al-sidebar.is-open {
     transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
   }
 
-  .admin-main {
+  .al-main {
     margin-left: 0;
   }
 
-  .admin-topbar {
+  .al-topbar {
     padding: 0 16px;
-    gap: 12px;
   }
 
-  .admin-menu-toggle {
-    display: block;
+  .al-toggle {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e3e9e6;
+    border-radius: 12px;
+    background: #fff;
+    color: #0e1b1a;
   }
 
-  .admin-content {
-    padding: 20px 15px;
+  .al-topbar-text {
+    display: none;
   }
 
-  .admin-overlay {
-    display: block;
+  .al-content {
+    padding: 20px 16px 40px;
+  }
+
+  .al-overlay {
     position: fixed;
     inset: 0;
     z-index: 999;
-    background: rgba(15, 23, 42, 0.45);
+    display: block;
     border: 0;
+    background: rgba(8, 24, 22, 0.55);
+    backdrop-filter: blur(2px);
   }
 
-  .admin-topbar-user span {
-    display: none;
+  /* The gold marker would sit off-screen edge, so keep it inside */
+  .al-link.is-active::before {
+    left: -16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al-sidebar,
+  .al-link,
+  .al-link svg,
+  .al-logout {
+    transition: none;
   }
 }

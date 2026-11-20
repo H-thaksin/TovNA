@@ -1,26 +1,34 @@
+/* =========================================================
+   TovNa - Shared admin table pages
+   Used by Hotels, Tours, Destinations and Transportation (and Payments),
+   because their CSS files import this one. Same class names as before,
+   so none of those pages need JSX changes.
+   ========================================================= */
+
 .admin-hotels-page {
   width: 100%;
 }
 
+/* ---------- Page heading ---------- */
 .admin-hotels-heading {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   margin-bottom: 26px;
 }
 
 .admin-hotels-heading h1 {
-  margin: 0 0 7px;
-  color: #172033;
-  font-size: 27px;
+  margin: 0 0 6px;
+  color: #0e1b1a;
+  font-size: 1.7rem;
   font-weight: 700;
 }
 
 .admin-hotels-heading p {
   margin: 0;
-  color: #7b8495;
-  font-size: 14px;
+  color: #64748b;
+  font-size: 0.92rem;
 }
 
 .hotel-heading-actions,
@@ -32,24 +40,21 @@
 
 .hotel-heading-actions button,
 .hotel-row-actions button {
-  padding: 9px 13px;
+  padding: 10px 16px;
   border: 0;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 650;
   cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
-.hotel-refresh-btn {
-  border: 1px solid #dce2eb !important;
-  background: #fff;
-  color: #344054;
-}
-
-.hotel-add-btn,
-.hotel-save-btn {
-  background: #365dbb;
-  color: #fff;
+.hotel-row-actions button {
+  padding: 8px 13px;
+  font-size: 0.78rem;
 }
 
 .hotel-heading-actions button:disabled,
@@ -58,95 +63,173 @@
   cursor: not-allowed;
 }
 
+.hotel-refresh-btn {
+  border: 1px solid #d5ded9 !important;
+  background: #fff;
+  color: #0e1b1a;
+}
+
+.hotel-refresh-btn:hover:not(:disabled) {
+  border-color: #0b6b63 !important;
+  color: #0b6b63;
+}
+
+.hotel-add-btn,
+.hotel-save-btn {
+  background: #0b6b63;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(11, 107, 99, 0.2);
+}
+
+.hotel-add-btn:hover:not(:disabled),
+.hotel-save-btn:hover:not(:disabled) {
+  background: #084f49;
+}
+
+/* ---------- Stat cards (also status filters) ---------- */
 .hotel-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .hotel-stat-card {
   padding: 20px;
-  border: 1px solid #e8ebf1;
-  border-radius: 11px;
+  border: 1px solid #e6ece9;
+  border-radius: 16px;
   background: #fff;
+  animation: ah-rise 0.5s ease backwards;
+}
+
+.hotel-stat-card:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.hotel-stat-card:nth-child(3) {
+  animation-delay: 120ms;
 }
 
 .hotel-stat-card span {
   display: block;
-  margin-bottom: 10px;
-  color: #7b8495;
-  font-size: 13px;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 0.85rem;
 }
 
 .hotel-stat-card strong {
-  color: #172033;
-  font-size: 28px;
+  color: #0e1b1a;
+  font-size: 1.9rem;
+  font-weight: 750;
+  line-height: 1.1;
 }
 
 .hotel-stat-card.active strong {
-  color: #16834a;
+  color: #15803d;
 }
 
 .hotel-stat-card.inactive strong {
-  color: #9a6b27;
+  color: #b45309;
 }
 
+button.hotel-stat-card {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+button.hotel-stat-card:hover {
+  border-color: rgba(11, 107, 99, 0.4);
+  box-shadow: 0 10px 24px rgba(14, 27, 26, 0.07);
+  transform: translateY(-2px);
+}
+
+button.hotel-stat-card.is-selected {
+  border-color: #0b6b63;
+  background: #f4fbf9;
+  box-shadow: 0 0 0 2px rgba(11, 107, 99, 0.18);
+}
+
+/* ---------- Table panel ---------- */
 .hotel-table-panel {
   overflow: hidden;
-  border: 1px solid #e8ebf1;
-  border-radius: 12px;
+  border: 1px solid #e6ece9;
+  border-radius: 16px;
   background: #fff;
+  animation: ah-rise 0.5s ease 180ms backwards;
 }
 
 .hotel-table-heading {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 18px;
-  padding: 21px;
-  border-bottom: 1px solid #edf0f4;
+  padding: 22px 24px;
+  border-bottom: 1px solid #eef2f0;
 }
 
 .hotel-table-heading h2 {
-  margin: 0 0 5px;
-  color: #172033;
-  font-size: 17px;
+  margin: 0 0 4px;
+  color: #0e1b1a;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .hotel-table-heading p {
   margin: 0;
-  color: #8992a2;
-  font-size: 13px;
+  color: #94a3b8;
+  font-size: 0.85rem;
 }
 
 .hotel-filters {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 10px;
 }
 
 .hotel-filters input,
 .hotel-filters select {
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 1px solid #dce2eb;
-  border-radius: 8px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid #d5ded9;
+  border-radius: 10px;
   outline: none;
   background: #fff;
-  color: #344054;
-  font-size: 13px;
+  color: #1f2937;
+  font-size: 0.88rem;
 }
 
 .hotel-filters input {
-  width: 260px;
+  width: 250px;
 }
 
 .hotel-filters input:focus,
 .hotel-filters select:focus {
-  border-color: #6484d8;
-  box-shadow: 0 0 0 3px rgba(100, 132, 216, 0.12);
+  border-color: #0b6b63;
+  box-shadow: 0 0 0 3px rgba(11, 107, 99, 0.15);
 }
 
+.hotel-link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0b6b63;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.hotel-link-btn:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Table ---------- */
 .hotel-table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -159,12 +242,12 @@
 }
 
 .hotel-table th {
-  padding: 14px 16px;
-  background: #f8f9fb;
-  color: #7c8798;
-  font-size: 11px;
+  padding: 13px 16px;
+  background: #f7faf9;
+  color: #6b7c77;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.08em;
   text-align: left;
   text-transform: uppercase;
   white-space: nowrap;
@@ -172,38 +255,42 @@
 
 .hotel-table td {
   padding: 14px 16px;
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid #eef2f0;
   color: #475467;
-  font-size: 13px;
+  font-size: 0.88rem;
   vertical-align: middle;
 }
 
+.hotel-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
 .hotel-table tbody tr:hover {
-  background: #fbfcfe;
+  background: #f7fbfa;
 }
 
 .hotel-name-cell {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   min-width: 190px;
 }
 
 .hotel-name-cell img,
 .hotel-image-placeholder {
-  width: 48px;
-  height: 43px;
+  width: 52px;
+  height: 46px;
   flex-shrink: 0;
-  border-radius: 7px;
+  border-radius: 10px;
   object-fit: cover;
 }
 
 .hotel-image-placeholder {
   display: grid;
   place-items: center;
-  background: #edf2ff;
-  color: #4568c8;
-  font-size: 21px;
+  background: #e6f4f1;
+  color: #0b6b63;
+  font-size: 1.3rem;
 }
 
 .hotel-name-cell strong,
@@ -212,71 +299,171 @@
 }
 
 .hotel-name-cell strong {
-  color: #273449;
-  font-size: 13px;
+  color: #0e1b1a;
+  font-size: 0.9rem;
 }
 
 .hotel-name-cell span {
-  margin-top: 4px;
-  color: #98a1b0;
-  font-size: 11px;
+  max-width: 220px;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* Status pill (a toggle button) */
 .hotel-status {
   display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
 .hotel-status.is-active {
-  background: #e5f7ed;
-  color: #16834a;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .hotel-status.is-inactive {
-  background: #fff4dc;
-  color: #a66b0b;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+button.hotel-status {
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+button.hotel-status:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+button.hotel-status:disabled {
+  opacity: 0.5;
+  cursor: wait;
 }
 
 .hotel-edit-btn {
-  background: #edf2ff;
-  color: #365bb5;
+  background: #e6f4f1;
+  color: #0b6b63;
+}
+
+.hotel-edit-btn:hover {
+  background: #0b6b63;
+  color: #fff;
 }
 
 .hotel-delete-btn {
-  background: #ffebeb;
-  color: #bd3838;
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
+.hotel-delete-btn:hover:not(:disabled) {
+  background: #b91c1c;
+  color: #fff;
+}
+
+/* ---------- Empty, loading, pagination ---------- */
 .hotel-empty {
-  padding: 55px 20px;
-  color: #8992a2;
-  font-size: 14px;
+  padding: 56px 20px;
+  color: #94a3b8;
+  font-size: 0.95rem;
   text-align: center;
 }
 
+.hotel-empty p {
+  margin: 0 0 12px;
+}
+
+.hotel-empty-btn {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.hotel-skeleton-list {
+  display: grid;
+  gap: 12px;
+  padding: 20px 24px 24px;
+}
+
+.hotel-skeleton-row {
+  height: 60px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #eef1ef 25%, #f7f9f8 50%, #eef1ef 75%);
+  background-size: 200% 100%;
+  animation: ah-shimmer 1.4s ease-in-out infinite;
+}
+
+.hotel-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid #eef2f0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.hotel-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hotel-pagination button {
+  padding: 8px 14px;
+  border: 1px solid #d5ded9;
+  border-radius: 8px;
+  background: #fff;
+  color: #0e1b1a;
+  font-size: 0.8rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.hotel-pagination button:hover:not(:disabled) {
+  border-color: #0b6b63;
+  color: #0b6b63;
+}
+
+.hotel-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- Notices ---------- */
 .hotel-notice,
 .hotel-error {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 17px;
-  padding: 12px 15px;
-  border-radius: 8px;
-  font-size: 13px;
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
 }
 
 .hotel-notice {
-  background: #e8f7ee;
-  color: #167443;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
 }
 
 .hotel-error {
-  background: #fff0f0;
-  color: #b42318;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 .hotel-notice button,
@@ -284,31 +471,51 @@
   border: 0;
   background: transparent;
   color: inherit;
-  font-size: 20px;
+  font-size: 1.3rem;
+  line-height: 1;
   cursor: pointer;
 }
 
+.hotel-error-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.hotel-error-actions button:first-child {
+  padding: 5px 12px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+/* ---------- Modals ---------- */
 .hotel-modal-backdrop {
   position: fixed;
   z-index: 1100;
   inset: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
   overflow-y: auto;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(8, 24, 22, 0.55);
+  backdrop-filter: blur(4px);
+  animation: ah-fade 0.18s ease-out;
 }
 
 .hotel-modal {
   width: 100%;
   max-width: 680px;
   max-height: 92vh;
-  padding: 25px;
+  padding: 26px 28px;
   overflow-y: auto;
-  border-radius: 14px;
+  border-radius: 20px;
   background: #fff;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  animation: ah-pop 0.2s ease-out;
 }
 
 .hotel-modal-heading {
@@ -316,31 +523,37 @@
   justify-content: space-between;
   gap: 15px;
   margin-bottom: 22px;
-  padding-bottom: 17px;
-  border-bottom: 1px solid #edf0f4;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #eef2f0;
 }
 
 .hotel-modal-heading h2 {
   margin: 0 0 6px;
-  color: #172033;
-  font-size: 20px;
+  color: #0e1b1a;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .hotel-modal-heading p {
   margin: 0;
-  color: #8992a2;
-  font-size: 13px;
+  color: #64748b;
+  font-size: 0.88rem;
 }
 
 .hotel-modal-heading > button {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: 0;
-  border-radius: 7px;
-  background: #f1f3f6;
+  border-radius: 9px;
+  background: #f1f4f3;
   color: #475467;
-  font-size: 22px;
+  font-size: 1.4rem;
+  line-height: 1;
   cursor: pointer;
+}
+
+.hotel-modal-heading > button:hover {
+  background: #e3e9e6;
 }
 
 .hotel-form-grid {
@@ -353,9 +566,9 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
-  color: #344054;
-  font-size: 12px;
-  font-weight: 600;
+  color: #0e1b1a;
+  font-size: 0.82rem;
+  font-weight: 650;
 }
 
 .hotel-form-full {
@@ -367,44 +580,63 @@
 .hotel-form-grid select {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #dce2eb;
-  border-radius: 7px;
+  border: 1px solid #d5ded9;
+  border-radius: 10px;
   outline: none;
-  color: #344054;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 400;
   background: #fff;
+  color: #1f2937;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
 .hotel-form-grid input:focus,
 .hotel-form-grid textarea:focus,
 .hotel-form-grid select:focus {
-  border-color: #6484d8;
-  box-shadow: 0 0 0 3px rgba(100, 132, 216, 0.12);
+  border-color: #0b6b63;
+  box-shadow: 0 0 0 3px rgba(11, 107, 99, 0.15);
 }
 
 .hotel-form-grid textarea {
   resize: vertical;
 }
 
+.hotel-form-grid [aria-invalid="true"] {
+  border-color: #ef4444;
+}
+
+.hotel-field-error {
+  color: #b91c1c;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.hotel-image-preview {
+  width: 100%;
+  max-height: 160px;
+  margin-top: 4px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
 .hotel-active-toggle {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin-top: 19px;
-  color: #344054;
-  font-size: 13px;
+  gap: 10px;
+  margin-top: 20px;
+  color: #0e1b1a;
+  font-size: 0.9rem;
   cursor: pointer;
 }
 
 .hotel-active-toggle input {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  accent-color: #0b6b63;
 }
 
 .hotel-form-error {
-  margin-top: 15px;
+  margin-top: 16px;
 }
 
 .hotel-modal-actions {
@@ -412,29 +644,103 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 24px;
-  padding-top: 17px;
-  border-top: 1px solid #edf0f4;
+  padding-top: 18px;
+  border-top: 1px solid #eef2f0;
 }
 
 .hotel-modal-actions button {
-  padding: 10px 16px;
+  padding: 11px 20px;
   border: 0;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 650;
   cursor: pointer;
 }
 
 .hotel-cancel-btn {
-  background: #f1f3f6;
-  color: #475467;
+  border: 1px solid #d5ded9 !important;
+  background: #fff;
+  color: #0e1b1a;
 }
 
-.hotel-save-btn:disabled {
-  opacity: 0.6;
+.hotel-cancel-btn:hover:not(:disabled) {
+  border-color: #0b6b63 !important;
+  color: #0b6b63;
+}
+
+.hotel-save-btn:disabled,
+.hotel-danger-btn:disabled,
+.hotel-cancel-btn:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
+.hotel-confirm {
+  max-width: 440px;
+}
+
+.hotel-confirm h2 {
+  margin: 0 0 8px;
+  color: #0e1b1a;
+  font-size: 1.15rem;
+}
+
+.hotel-confirm p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.hotel-danger-btn {
+  background: #dc2626;
+  color: #fff;
+}
+
+.hotel-danger-btn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+/* Keyboard focus that is visible on every control */
+.admin-hotels-page button:focus-visible,
+.admin-hotels-page input:focus-visible,
+.admin-hotels-page select:focus-visible,
+.hotel-modal button:focus-visible,
+.hotel-modal input:focus-visible,
+.hotel-modal select:focus-visible,
+.hotel-modal textarea:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+/* ---------- Animations ---------- */
+@keyframes ah-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes ah-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ah-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes ah-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Responsive ---------- */
 @media (max-width: 850px) {
   .admin-hotels-heading,
   .hotel-table-heading {
@@ -443,6 +749,7 @@
   }
 
   .hotel-filters {
+    justify-content: flex-start;
     width: 100%;
   }
 
@@ -450,11 +757,21 @@
     flex: 1;
     width: auto;
   }
+
+  .hotel-filters select {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .hotel-pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 @media (max-width: 600px) {
   .admin-hotels-heading h1 {
-    font-size: 23px;
+    font-size: 1.5rem;
   }
 
   .hotel-heading-actions {
@@ -474,7 +791,11 @@
   }
 
   .hotel-stat-card strong {
-    font-size: 23px;
+    font-size: 1.5rem;
+  }
+
+  .hotel-table-heading {
+    padding: 16px;
   }
 
   .hotel-filters {
@@ -498,236 +819,17 @@
     padding: 18px;
   }
 }
-/* Keyboard focus that is visible on every control */
-.admin-hotels-page button:focus-visible,
-.admin-hotels-page input:focus-visible,
-.admin-hotels-page select:focus-visible,
-.hotel-modal button:focus-visible,
-.hotel-modal input:focus-visible,
-.hotel-modal select:focus-visible,
-.hotel-modal textarea:focus-visible {
-  outline: 2px solid #365dbb;
-  outline-offset: 2px;
-}
-
-/* Stat cards are now filter buttons */
-button.hotel-stat-card {
-  width: 100%;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
-}
-
-button.hotel-stat-card:hover {
-  border-color: #c5d0ea;
-}
-
-button.hotel-stat-card.is-selected {
-  border-color: #365dbb;
-  box-shadow: 0 0 0 3px rgba(54, 93, 187, 0.12);
-}
-
-/* Status pill is now a toggle button */
-button.hotel-status {
-  border: 0;
-  font-family: inherit;
-  cursor: pointer;
-  transition: filter 0.15s;
-}
-
-button.hotel-status:hover:not(:disabled) {
-  filter: brightness(0.95);
-}
-
-button.hotel-status:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
-
-/* Filters: four controls need to wrap */
-.hotel-filters {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.hotel-filters input {
-  width: 240px;
-}
-
-/* Inline text button */
-.hotel-link-btn {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #365dbb;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.hotel-link-btn:hover {
-  text-decoration: underline;
-}
-
-/* Error banner with actions */
-.hotel-error-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.hotel-error-actions button:first-child {
-  padding: 5px 10px;
-  border: 1px solid currentColor;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Row text: long addresses stay on one line */
-.hotel-name-cell span {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Loading skeleton */
-.hotel-skeleton-list {
-  display: grid;
-  gap: 1px;
-}
-
-.hotel-skeleton-row {
-  height: 68px;
-  background: linear-gradient(90deg, #f3f5f9 25%, #e9edf4 50%, #f3f5f9 75%);
-  background-size: 200% 100%;
-  animation: hotel-shimmer 1.4s linear infinite;
-}
-
-@keyframes hotel-shimmer {
-  to {
-    background-position: -200% 0;
-  }
-}
-
-/* Empty state */
-.hotel-empty p {
-  margin: 0 0 12px;
-}
-
-.hotel-empty-btn {
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Pagination */
-.hotel-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 21px;
-  border-top: 1px solid #edf0f4;
-  color: #7b8495;
-  font-size: 13px;
-}
-
-.hotel-pagination > div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.hotel-pagination button {
-  padding: 7px 12px;
-  border: 1px solid #dce2eb;
-  border-radius: 7px;
-  background: #fff;
-  color: #344054;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.hotel-pagination button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-/* Form field errors */
-.hotel-field-error {
-  color: #b42318;
-  font-size: 12px;
-  font-weight: 400;
-}
-
-.hotel-form-grid [aria-invalid="true"] {
-  border-color: #e5484d;
-}
-
-.hotel-image-preview {
-  width: 100%;
-  max-height: 160px;
-  margin-top: 4px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-/* Delete confirmation */
-.hotel-confirm {
-  max-width: 440px;
-}
-
-.hotel-confirm h2 {
-  margin: 0 0 8px;
-  color: #172033;
-  font-size: 18px;
-}
-
-.hotel-confirm p {
-  margin: 0;
-  color: #667085;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.hotel-danger-btn {
-  background: #c7372f;
-  color: #fff;
-}
-
-.hotel-danger-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-@media (max-width: 850px) {
-  .hotel-filters {
-    justify-content: flex-start;
-  }
-
-  .hotel-filters select {
-    flex: 1;
-    min-width: 140px;
-  }
-
-  .hotel-pagination {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
+  .hotel-stat-card,
+  .hotel-table-panel,
+  .hotel-modal-backdrop,
+  .hotel-modal,
   .hotel-skeleton-row {
     animation: none;
+  }
+
+  button.hotel-stat-card:hover {
+    transform: none;
   }
 }

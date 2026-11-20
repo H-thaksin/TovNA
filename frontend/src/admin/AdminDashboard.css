@@ -1,241 +1,543 @@
-.admin-dashboard {
+/* =========================================================
+   TovNa - Admin dashboard
+   Classes start with "ad-". The two .admin-* rules at the bottom are kept
+   because App.jsx (permission check) and other admin pages use them.
+   ========================================================= */
+
+.ad-page {
+  display: grid;
+  gap: 24px;
   width: 100%;
 }
 
-.admin-page-heading {
+/* ---------- Welcome banner ---------- */
+.ad-banner {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 28px;
-}
-
-.admin-page-heading h1 {
-  font-size: 26px;
-  font-weight: 750;
-  margin: 0 0 7px;
-  color: #172554;
-}
-
-.admin-page-heading p {
-  color: #64748b;
-  margin: 0;
-  font-size: 14px;
-}
-
-.admin-role-badge {
-  background: #dbeafe;
-  color: #1d4ed8;
-  padding: 8px 13px;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 30px 32px;
+  overflow: hidden;
   border-radius: 20px;
-  font-size: 12px;
+  color: #fff;
+  background:
+    radial-gradient(
+      ellipse 50% 140% at 90% 0%,
+      rgba(245, 158, 11, 0.28),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 40% 100% at 0% 100%,
+      rgba(15, 157, 138, 0.35),
+      transparent 60%
+    ),
+    linear-gradient(120deg, #0b2321, #0f4f4a);
+}
+
+/* A few faint dots, like stars, behind the text */
+.ad-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 45% 70%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 70% 25%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 85% 75%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 10% 80%, #fff, transparent 60%);
+  pointer-events: none;
+}
+
+.ad-banner > * {
+  position: relative;
+}
+
+.ad-banner-eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border: 1px solid rgba(252, 211, 77, 0.45);
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.16);
+  color: #fcd34d;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
-.admin-stat-grid {
+.ad-banner h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+}
+
+.ad-banner p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ad-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.ad-banner-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border: 1px solid rgba(252, 211, 77, 0.5);
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fff;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.ad-banner-alert:hover {
+  background: rgba(245, 158, 11, 0.3);
+  color: #fff;
+}
+
+.ad-banner-alert strong {
+  color: #fcd34d;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.ad-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.ad-refresh:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ad-refresh:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ad-inline-error {
+  padding: 12px 16px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+/* ---------- Stat cards ---------- */
+.ad-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
-  margin-bottom: 24px;
 }
 
-.admin-stat-card {
-  background: white;
-  border: 1px solid #e8edf5;
-  border-radius: 12px;
-  padding: 22px;
+.ad-stat {
   display: flex;
   align-items: center;
   gap: 16px;
   min-width: 0;
+  padding: 22px;
+  border: 1px solid #e6ece9;
+  border-radius: 16px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-.admin-stat-icon {
-  width: 48px;
-  height: 48px;
+a.ad-stat:hover {
+  border-color: rgba(15, 118, 110, 0.4);
+  box-shadow: 0 12px 28px rgba(14, 27, 26, 0.08);
+  transform: translateY(-2px);
+  color: inherit;
+}
+
+.ad-stat-icon {
+  display: grid;
   flex-shrink: 0;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 23px;
-  font-weight: 700;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
 }
 
-.admin-stat-icon.blue {
-  background: #dbeafe;
-  color: #2563eb;
+.ad-tone-teal {
+  background: #e6f4f1;
+  color: #0b6b63;
 }
 
-.admin-stat-icon.orange {
+.ad-tone-amber {
   background: #fef3c7;
-  color: #d97706;
+  color: #b45309;
 }
 
-.admin-stat-icon.purple {
+.ad-tone-violet {
   background: #ede9fe;
-  color: #7c3aed;
+  color: #6d28d9;
 }
 
-.admin-stat-icon.green {
+.ad-tone-green {
   background: #dcfce7;
-  color: #16a34a;
+  color: #15803d;
 }
 
-.admin-stat-card p {
-  margin: 0 0 8px;
+.ad-stat p {
+  margin: 0 0 2px;
   color: #64748b;
-  font-size: 13px;
+  font-size: 0.85rem;
 }
 
-.admin-stat-card h2 {
-  margin: 0;
-  color: #172554;
-  font-size: 25px;
+.ad-stat strong {
+  display: block;
+  color: #0e1b1a;
+  font-size: 1.7rem;
   font-weight: 750;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
-.admin-dashboard-grid {
+.ad-stat small {
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+/* ---------- Panels ---------- */
+.ad-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 20px;
 }
 
-.admin-panel {
-  background: white;
-  border: 1px solid #e8edf5;
-  border-radius: 12px;
-  padding: 24px;
+.ad-panel {
   min-width: 0;
+  padding: 24px;
+  border: 1px solid #e6ece9;
+  border-radius: 16px;
+  background: #fff;
 }
 
-.admin-panel-heading {
+.ad-panel-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
   gap: 12px;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
 }
 
-.admin-panel-heading h3 {
-  margin: 0 0 6px;
-  font-size: 17px;
-  color: #172554;
+.ad-panel-head h2 {
+  margin: 0 0 4px;
+  color: #0e1b1a;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
-.admin-panel-heading p {
+.ad-panel-head p {
   margin: 0;
-  font-size: 13px;
   color: #94a3b8;
+  font-size: 0.85rem;
 }
 
-.admin-panel-heading > strong {
-  font-size: 12px;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 7px 10px;
-  border-radius: 7px;
+.ad-link {
+  color: #0b6b63;
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-decoration: none;
 }
 
-.admin-status-item {
-  margin-bottom: 20px;
+.ad-link:hover {
+  text-decoration: underline;
 }
 
-.admin-status-info {
+/* Booking donut and legend */
+.ad-overview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 28px 40px;
+}
+
+.ad-donut {
+  position: relative;
+  flex-shrink: 0;
+  width: 180px;
+  height: 180px;
+}
+
+.ad-donut svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ad-donut-track {
+  fill: none;
+  stroke: #eef2f1;
+  stroke-width: 16;
+}
+
+.ad-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ad-donut-center strong {
+  color: #0e1b1a;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.ad-donut-center span {
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.ad-legend {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ad-legend li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 9px;
-  font-size: 13px;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f4;
 }
 
-.admin-status-info span {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: #475569;
+.ad-legend li:last-child {
+  border-bottom: 0;
 }
 
-.admin-status-info i {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-}
-
-.admin-status-info strong {
-  color: #172554;
-}
-
-.admin-progress {
-  width: 100%;
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.admin-progress > div {
-  height: 100%;
-  border-radius: 10px;
-  transition: width 0.3s ease;
-}
-
-.admin-user-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.admin-user-summary-item {
+.ad-legend-name {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
-  color: #64748b;
+  color: #475569;
+  font-size: 0.92rem;
 }
 
-.admin-user-summary-item strong {
-  margin-left: auto;
-  color: #172554;
-  font-size: 16px;
-}
-
-.user-dot {
+.ad-legend-name i,
+.ad-dot {
+  display: inline-block;
   width: 10px;
   height: 10px;
   border-radius: 50%;
 }
 
-.customer-dot {
-  background: #2563eb;
+.ad-legend-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
-.staff-dot {
+.ad-legend-value strong {
+  color: #0e1b1a;
+  font-size: 1.05rem;
+}
+
+.ad-legend-value small {
+  min-width: 36px;
+  color: #94a3b8;
+  text-align: right;
+}
+
+/* Users */
+.ad-users-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ad-users-total strong {
+  color: #0e1b1a;
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.ad-users-total span {
+  color: #94a3b8;
+}
+
+.ad-split {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
   background: #8b5cf6;
 }
 
-.admin-user-total {
+.ad-split > div {
+  height: 100%;
+  background: #0f9d8a;
+}
+
+.ad-user-list {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ad-user-list li {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #e8edf5;
-  margin-top: 25px;
-  padding-top: 20px;
-  color: #64748b;
-  font-size: 13px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f4;
+  color: #475569;
+  font-size: 0.92rem;
 }
 
-.admin-user-total strong {
-  color: #172554;
-  font-size: 23px;
+.ad-user-list li:last-child {
+  border-bottom: 0;
 }
 
+.ad-user-list span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ad-user-list strong {
+  color: #0e1b1a;
+  font-size: 1.05rem;
+}
+
+.ad-dot--customer {
+  background: #0f9d8a;
+}
+
+.ad-dot--staff {
+  background: #8b5cf6;
+}
+
+/* Quick links */
+.ad-quick {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ad-quick-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e6ece9;
+  border-radius: 12px;
+  color: #0e1b1a;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.ad-quick-item span {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #e6f4f1;
+  color: #0b6b63;
+}
+
+.ad-quick-item:hover {
+  border-color: rgba(15, 118, 110, 0.4);
+  background: #f6fbf9;
+  color: #0b6b63;
+}
+
+.ad-stat:focus-visible,
+.ad-quick-item:focus-visible,
+.ad-banner-alert:focus-visible,
+.ad-refresh:focus-visible,
+.ad-link:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+/* ---------- Entrance animation ---------- */
+/* Each block fades up one after another. "backwards" (not "both") keeps
+   the hover lift working once the animation has finished. */
+.ad-banner,
+.ad-stat,
+.ad-panel {
+  animation: ad-rise 0.6s var(--ease, ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+@keyframes ad-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+/* ---------- Loading skeleton ---------- */
+.ad-skeleton {
+  border-radius: 16px;
+  background: linear-gradient(90deg, #eef1ef 25%, #f7f9f8 50%, #eef1ef 75%);
+  background-size: 200% 100%;
+  animation: ad-shimmer 1.4s ease-in-out infinite;
+}
+
+.ad-skeleton--banner {
+  height: 130px;
+}
+
+.ad-skeleton--stat {
+  height: 100px;
+}
+
+.ad-skeleton--panel {
+  height: 280px;
+}
+
+@keyframes ad-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Kept: used by AdminGuard in App.jsx and other admin pages ---------- */
 .admin-message,
 .admin-error {
-  background: white;
   padding: 30px;
   border-radius: 12px;
+  background: white;
   color: #64748b;
 }
 
@@ -244,35 +546,68 @@
 }
 
 .admin-error button {
-  border: 0;
-  background: #2563eb;
-  color: white;
   padding: 10px 16px;
+  border: 0;
   border-radius: 7px;
+  background: #0b6b63;
+  color: white;
   cursor: pointer;
 }
 
+/* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
-  .admin-stat-grid {
+  .ad-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .admin-dashboard-grid {
+  .ad-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ad-quick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .ad-banner {
+    padding: 22px 20px;
+  }
+
+  .ad-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .ad-stat {
+    padding: 18px;
+  }
+
+  .ad-panel {
+    padding: 18px;
+  }
+
+  .ad-donut {
+    margin-inline: auto;
+  }
+
+  .ad-quick {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 500px) {
-  .admin-stat-grid {
-    grid-template-columns: 1fr;
+@media (prefers-reduced-motion: reduce) {
+  .ad-stat {
+    transition: none;
   }
 
-  .admin-page-heading {
-    align-items: flex-start;
-    flex-direction: column;
+  .ad-skeleton,
+  .ad-banner,
+  .ad-stat,
+  .ad-panel {
+    animation: none;
   }
 
-  .admin-stat-card {
-    padding: 18px;
+  a.ad-stat:hover {
+    transform: none;
   }
 }
