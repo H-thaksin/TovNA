@@ -48,6 +48,33 @@ export async function postJson(path, body, signal) {
   return data;
 }
 
+export async function postJsonAuth(path, body, token, signal) {
+  if (!token) {
+    throw new Error("Please log in to use the AI Assistant.");
+  }
+
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    signal,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(readError(data));
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+}
+
 // =========================================================
 // Read API Error
 // =========================================================

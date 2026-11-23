@@ -12,6 +12,7 @@ from routers.payments import router as payments_router
 from routers.auth import router as auth_router
 from routers.admin import router as admin_router
 from routers.recommendations import router as recommendations_router
+from routers.ai_assistant import router as ai_assistant_router
 
 app = FastAPI()
 
@@ -39,3 +40,4 @@ app.include_router(payments_router)
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(recommendations_router)
+app.include_router(ai_assistant_router)

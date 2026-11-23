@@ -5,6 +5,7 @@ import "./Navbar.css";
 // Main site links. Account pages live in the user menu instead.
 const NAV_LINKS = [
   { label: "Home", to: "/", end: true },
+  { label: "AI Assistant", to: "/ai-assistant" },
   { label: "Explore", to: "/articles" },
   { label: "Hotels", to: "/hotels" },
   { label: "Transportation", to: "/transportation" },

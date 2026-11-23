@@ -1286,6 +1286,7 @@ def get_recommendations(
                 "round_trip": ROUND_TRIP,
                 "room_sharing": request.room_sharing,
                 "hotel": to_float(hotel_cost),
+                "hotel_id": cheapest_hotel["id"] if cheapest_hotel else None,
                 "hotel_name": cheapest_hotel["name"] if cheapest_hotel else None,
                 "hotel_status": hotel_status,  # ok | no_hotels | not_needed
                 "hotel_rooms_needed": hotel_rooms,

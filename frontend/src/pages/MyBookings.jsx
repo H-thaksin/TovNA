@@ -6,6 +6,7 @@ import { SafeImage } from "../components/ui";
 import { usd } from "../lib/pricing";
 import "./PaymentModal.css";
 import { ABA_KHQR } from "../lib/payment";
+import { transportImage } from "../lib/transportImages";
 
 /* ------------------------------ Helpers ------------------------------ */
 
@@ -573,8 +574,8 @@ function BookingCard({
   return (
     <article className="booking-card">
       {isTransportation ? (
-        <div className="booking-transport-icon" aria-hidden="true">
-          {TYPE_ICONS[transportKind] ?? "🚌"}
+        <div className="booking-transport-icon">
+          <img src={transportImage(transportKind)} alt="" />
         </div>
       ) : (
         <SafeImage

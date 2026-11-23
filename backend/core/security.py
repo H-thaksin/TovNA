@@ -1,12 +1,21 @@
+
+import os
 from datetime import datetime, timedelta, timezone
 
 import jwt
+from dotenv import load_dotenv
 from pwdlib import PasswordHash
 
 
+load_dotenv()
+
 password_hash = PasswordHash.recommended()
 
-SECRET_KEY = "tovna-development-secret-key-2026"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+if not SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY is not configured")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 

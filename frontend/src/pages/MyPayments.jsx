@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { API_URL, TOKEN_KEY, readError } from "../lib/api";
+import { transportImage } from "../lib/transportImages";
 
 function formatUSD(value) {
   return new Intl.NumberFormat("en-US", {

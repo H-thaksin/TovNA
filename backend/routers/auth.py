@@ -1,5 +1,6 @@
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 from sqlalchemy import text
 
 from database import engine
@@ -9,7 +10,6 @@ from core.security import (
     verify_password,
 )
 from core.dependencies import get_current_user as get_authenticated_user
-from fastapi import Depends
 
 
 router = APIRouter(
@@ -19,18 +19,32 @@ router = APIRouter(
 
 
 # =========================
+# Request Models
+# =========================
+
+class RegisterRequest(BaseModel):
+    first_name: str = Field(min_length=1, max_length=100)
+    last_name: str = Field(min_length=1, max_length=100)
+    email: str = Field(min_length=5, max_length=255)
+    password: str = Field(min_length=8)
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+# =========================
 # Register
 # =========================
+
 @router.post("/register")
-def register_user(
-    first_name: str,
-    last_name: str,
-    email: str,
-    password: str,
-):
-    email = email.strip().lower()
-    first_name = first_name.strip()
-    last_name = last_name.strip()
+def register_user(request: RegisterRequest):
+
+    first_name = request.first_name.strip()
+    last_name = request.last_name.strip()
+    email = request.email.strip().lower()
+    password = request.password
 
     if not first_name or not last_name:
         raise HTTPException(
@@ -140,12 +154,12 @@ def register_user(
 # =========================
 # Login
 # =========================
+
 @router.post("/login")
-def login_user(
-    email: str,
-    password: str,
-):
-    email = email.strip().lower()
+def login_user(request: LoginRequest):
+
+    email = request.email.strip().lower()
+    password = request.password
 
     with engine.connect() as connection:
         user = connection.execute(
@@ -205,6 +219,7 @@ def login_user(
 # =========================
 # Get Current User
 # =========================
+
 @router.get("/me")
 def get_me(
     current_user: dict = Depends(get_authenticated_user),

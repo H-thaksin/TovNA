@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { API_URL, TOKEN_KEY, readError } from "../lib/api";
 import { Modal, SafeImage } from "../components/ui";
 import { usd } from "../lib/pricing";
-
+import { transportImage } from "../lib/transportImages";
 /* ------------------------------ Helpers ------------------------------ */
 
 // Read a value from booking notes, like "Check-in: 2026-10-20; Nights: 2".
@@ -469,8 +469,8 @@ export default function BookingDetails({ user, onLogin }) {
           {/* Service summary */}
           <div className="booking-detail-hotel">
             {isTransportation ? (
-              <div className="booking-detail-transport-icon" aria-hidden="true">
-                {TYPE_ICONS[details.transportKind] ?? "🚌"}
+              <div className="booking-detail-transport-icon">
+                <img src={transportImage(details.transportKind)} alt="" />
               </div>
             ) : (
               <SafeImage src={details.image} alt={details.title} />

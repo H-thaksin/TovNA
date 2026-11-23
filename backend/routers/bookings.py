@@ -36,6 +36,7 @@ class HotelBookingRequest(BaseModel):
     hotel_id: int = Field(gt=0)
     check_in: date
     nights: int = Field(ge=1, le=14)
+    rooms: int = Field(default=1, ge=1, le=20)
 
 
 class TransportationBookingRequest(BaseModel):
@@ -528,11 +529,17 @@ def create_hotel_booking(
 
     nightly_price = validate_price(hotel.price_per_night, "Hotel")
 
-    base = money(nightly_price * request.nights)
+    base = money(
+        nightly_price * request.nights * request.rooms
+    )
+
     accommodation_tax = money(base * Decimal("0.02"))
     vat = money(base * Decimal("0.10"))
     service_charge = money(base * Decimal("0.10"))
-    total = money(base + accommodation_tax + vat + service_charge)
+
+    total = money(
+        base + accommodation_tax + vat + service_charge
+    )
 
     check_out = request.check_in + timedelta(days=request.nights)
 
@@ -541,7 +548,7 @@ def create_hotel_booking(
         f"Check-in: {request.check_in.isoformat()}; "
         f"Check-out: {check_out.isoformat()}; "
         f"Nights: {request.nights}; "
-        f"Rooms: 1; "
+        f"Rooms: {request.rooms}; "
         f"Base: {base}; "
         f"Accommodation tax: {accommodation_tax}; "
         f"VAT: {vat}; "
@@ -554,30 +561,32 @@ def create_hotel_booking(
         notes=notes,
         item_column="hotel_id",
         service_id=hotel.id,
-        quantity=request.nights,
+        quantity=request.nights * request.rooms,
         unit_price=nightly_price,
         item_total=base,  # taxes/charges are only in bookings.total_amount
         service_date=request.check_in,
     )
 
     return {
-        "message": "Hotel booking created successfully",
-        "booking": {
-            "id": booking.id,
-            "booking_reference": booking.booking_reference,
-            "hotel_id": hotel.id,
-            "hotel_name": hotel.name,
-            "check_in": request.check_in.isoformat(),
-            "check_out": check_out.isoformat(),
-            "nights": request.nights,
-            "base": str(base),
-            "accommodation_tax": str(accommodation_tax),
-            "vat": str(vat),
-            "service_charge": str(service_charge),
-            "total_amount": str(booking.total_amount),
-            "status": booking.status,
-        },
-    }
+    "message": "Hotel booking created successfully",
+    "booking": {
+        "id": booking.id,
+        "booking_reference": booking.booking_reference,
+        "hotel_id": hotel.id,
+        "hotel_name": hotel.name,
+        "check_in": request.check_in.isoformat(),
+        "check_out": check_out.isoformat(),
+        "nights": request.nights,
+        "rooms": request.rooms,
+        "base": str(base),
+        "accommodation_tax": str(accommodation_tax),
+        "vat": str(vat),
+        "service_charge": str(service_charge),
+        "total_amount": str(booking.total_amount),
+        "status": booking.status,
+    },
+}
+    
 
 
 # =========================================================
