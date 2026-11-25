@@ -7,7 +7,11 @@ import BottomTabs from "../components/BottomTabs";
 import HomeScreen from "../screens/HomeScreen";
 import AuthScreen from "../screens/AuthScreen";
 import BookingsScreen from "../screens/BookingsScreen";
+import BookingFormScreen from "../screens/BookingFormScreen";
 import BookingDetailsScreen from "../screens/BookingDetailsScreen";
+import HotelsScreen from "../screens/HotelsScreen";
+import HotelDetailsScreen from "../screens/HotelDetailsScreen";
+import HotelBookingFormScreen from "../screens/HotelBookingFormScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ExploreScreen from "../screens/ExploreScreen";
 import ComingSoonScreen from "../screens/ComingSoonScreen";
@@ -53,11 +57,25 @@ export function appNavigate(navigation, route, params = {}) {
       },
     });
   }
+  if (route === "hotels") {
+    return navigation.navigate("Hotels", {
+      destination: params.destination,
+    });
+  }
 
   if (TABS[route]) return navigation.navigate("Tabs", { screen: TABS[route] });
   if (AUTH[route]) return navigation.navigate(AUTH[route]);
 
   if (DETAIL[route] && params.item) {
+    // Open the booking form when the user presses Book.
+    if (params.book && (route === "tour" || route === "activity")) {
+      return navigation.navigate("BookingForm", {
+        kind: route,
+        item: params.item,
+      });
+    }
+
+    // Keep the existing detail-page behavior for now.
     return navigation.navigate("Article", {
       type: DETAIL[route],
       id: params.item.id,
@@ -119,6 +137,15 @@ export default function RootNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="BookingDetails" component={BookingDetailsScreen} />
+        <Stack.Screen name="BookingForm" component={BookingFormScreen} />
+        <Stack.Screen name="Hotels" component={HotelsScreen} />
+        <Stack.Screen name="HotelDetails" component={HotelDetailsScreen} />
+
+        <Stack.Screen
+          name="HotelBookingForm"
+          component={HotelBookingFormScreen}
+        />
+
         {/* Placeholder until the real destination / tour / activity page is built */}
         <Stack.Screen name="Article" component={ComingSoonScreen} />
         <Stack.Screen
