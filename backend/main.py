@@ -1,5 +1,7 @@
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from routers.destinations import router as destinations_router
 from routers.hotels import router as hotels_router
@@ -15,6 +17,9 @@ from routers.recommendations import router as recommendations_router
 from routers.ai_assistant import router as ai_assistant_router
 
 app = FastAPI()
+
+IMAGES_DIR = Path(__file__).resolve().parent.parent / "frontend" / "public" / "images"
+app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 app.add_middleware(
     CORSMiddleware,
