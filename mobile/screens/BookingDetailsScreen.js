@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   ScrollView,
   Share,
   StyleSheet,
@@ -35,6 +36,8 @@ import { CopyButton, StatusPill } from "../components/bookingUi";
 import { SafeImage } from "../components/cards";
 import { EmptyState, PrimaryButton } from "../components/ui";
 import { colors, softShadow } from "../lib/theme";
+import PaymentSheet from "../components/PaymentSheet";
+import { getTransportImage } from "../lib/transport";
 
 const Card = ({ title, icon, children, style }) => (
   <View style={[styles.card, style]}>
@@ -74,14 +77,23 @@ const PriceRow = ({ label, value, bold }) => (
 // Photo cover for hotels / tours / activities, gradient + emoji for transport
 function HeroCover({ booking: b }) {
   if (b.isTransportation) {
+    const vehicle = getTransportImage(b.transportKind);
     return (
       <LinearGradient
         colors={["#0f766e", "#134e4a"]}
         style={[StyleSheet.absoluteFill, styles.heroCenter]}
       >
-        <Text style={{ fontSize: 84, marginBottom: 30 }}>
-          {transportEmoji(b.transportKind)}
-        </Text>
+        {vehicle ? (
+          <Image
+            source={vehicle}
+            style={{ width: "86%", height: 200, marginBottom: 30 }}
+            resizeMode="contain"
+          />
+        ) : (
+          <Text style={{ fontSize: 84, marginBottom: 30 }}>
+            {transportEmoji(b.transportKind)}
+          </Text>
+        )}
       </LinearGradient>
     );
   }
@@ -111,6 +123,7 @@ export default function BookingDetailsScreen({ route, navigation }) {
   const [cancelError, setCancelError] = useState("");
   const [cancelMessage, setCancelMessage] = useState("");
   const [notesOpen, setNotesOpen] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
 
   const load = useCallback(async () => {
     // Only numbers can be booking IDs
@@ -220,9 +233,18 @@ export default function BookingDetailsScreen({ route, navigation }) {
   const openService = () => {
     const target = b?.target;
     if (!target) return;
-    if (target.type === "hotels")
-      navigation.navigate("ComingSoon", { route: "hotels" });
-    else navigation.navigate("Article", { type: target.type, id: target.id });
+
+    if (target.type === "hotels") {
+      navigation.navigate("Hotels");
+    } else if (target.type === "tours" || target.type === "activities") {
+      navigation.navigate("Tabs", {
+        screen: "Explore",
+        params: {
+          category: target.type,
+          stamp: Date.now(),
+        },
+      });
+    }
   };
 
   // ---------- Page states ----------
@@ -664,11 +686,7 @@ export default function BookingDetailsScreen({ route, navigation }) {
                     <PrimaryButton
                       label="Pay now"
                       style={{ marginTop: 14 }}
-                      onPress={() =>
-                        navigation.navigate("ComingSoon", {
-                          route: "payments",
-                        })
-                      }
+                      onPress={() => setPayOpen(true)}
                     />
                   </>
                 ) : (
@@ -709,6 +727,21 @@ export default function BookingDetailsScreen({ route, navigation }) {
                     Your payment is waiting for verification by the TovNa team.
                   </Text>
                 )}
+
+                {statusKey === "confirmed" &&
+                  payment.method === "ABA KHQR" &&
+                  payment.status?.toLowerCase() === "pending" && (
+                    <PrimaryButton
+                      outline
+                      style={{ marginTop: 14 }}
+                      label={
+                        payment.transaction_reference
+                          ? "Change transaction reference"
+                          : "Submit ABA reference"
+                      }
+                      onPress={() => setPayOpen(true)}
+                    />
+                  )}
               </>
             )}
           </Card>
@@ -726,11 +759,7 @@ export default function BookingDetailsScreen({ route, navigation }) {
               <PrimaryButton
                 outline
                 label="Find more transport"
-                onPress={() =>
-                  navigation.navigate("ComingSoon", {
-                    route: "transportation",
-                  })
-                }
+                onPress={() => navigation.navigate("Transportation")}
               />
             )}
           </View>
@@ -746,6 +775,18 @@ export default function BookingDetailsScreen({ route, navigation }) {
           <Ionicons name="share-outline" size={21} color={colors.text} />
         </TouchableOpacity>
       </View>
+      {payOpen && (
+        <PaymentSheet
+          booking={booking}
+          payment={payment}
+          onClose={() => setPayOpen(false)}
+          onChanged={() => load()}
+          onConflict={() => {
+            setPayOpen(false);
+            load();
+          }}
+        />
+      )}
     </View>
   );
 }

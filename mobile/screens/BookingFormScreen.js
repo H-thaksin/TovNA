@@ -44,17 +44,22 @@ export default function BookingFormScreen({ route, navigation }) {
 
   const isTour = kind === "tour";
   const isActivity = kind === "activity";
-  const validService = item && item.id && (isTour || isActivity);
+  const isTransportation = kind === "transportation";
+
+  const validService =
+    item && item.id && (isTour || isActivity || isTransportation);
+
+  const maxParticipants = isTransportation
+    ? 20
+    : isTour
+      ? Math.max(1, Number(item?.max_people) || 50)
+      : 50;
 
   const [date, setDate] = useState(tomorrow);
   const [participants, setParticipants] = useState(1);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-
-  const maxParticipants = isTour
-    ? Math.max(1, Number(item?.max_people) || 50)
-    : 50;
 
   const unitPrice = Number(item?.price) || 0;
   const total = unitPrice * participants;
@@ -90,19 +95,31 @@ export default function BookingFormScreen({ route, navigation }) {
     setError("");
 
     try {
-      const body = isTour
-        ? {
-            tour_id: item.id,
-            tour_date: toISODate(date),
-            participants,
-          }
-        : {
-            activity_id: item.id,
-            activity_date: toISODate(date),
-            participants,
-          };
+      let body;
+      let endpoint;
 
-      const endpoint = isTour ? "/bookings/tours" : "/bookings/activities";
+      if (isTour) {
+        body = {
+          tour_id: item.id,
+          tour_date: toISODate(date),
+          participants,
+        };
+        endpoint = "/bookings/tours";
+      } else if (isActivity) {
+        body = {
+          activity_id: item.id,
+          activity_date: toISODate(date),
+          participants,
+        };
+        endpoint = "/bookings/activities";
+      } else if (isTransportation) {
+        body = {
+          transportation_id: item.id,
+          travel_date: toISODate(date),
+          passengers: participants,
+        };
+        endpoint = "/bookings/transportation";
+      }
 
       const result = await authFetch(endpoint, {
         method: "POST",
@@ -224,15 +241,19 @@ export default function BookingFormScreen({ route, navigation }) {
           </TouchableOpacity>
         )}
 
-        <Text style={styles.sectionTitle}>Number of participants</Text>
+        <Text style={styles.sectionTitle}>
+          {isTransportation ? "Number of passengers" : "Number of participants"}
+        </Text>
 
         <View style={styles.participantCard}>
           <View style={{ flex: 1 }}>
             <Text style={styles.participantTitle}>Participants</Text>
             <Text style={styles.fieldLabel}>
-              {isTour && item.max_people
-                ? `Maximum ${item.max_people} people`
-                : "Choose how many people are joining"}
+              {isTransportation
+                ? "Choose how many passengers are travelling"
+                : isTour && item.max_people
+                  ? `Maximum ${item.max_people} people`
+                  : "Choose how many people are joining"}
             </Text>
           </View>
 

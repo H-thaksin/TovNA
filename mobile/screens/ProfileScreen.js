@@ -113,9 +113,7 @@ export default function ProfileScreen({ navigation }) {
           <Row
             icon="card-outline"
             label="My payments"
-            onPress={() =>
-              navigation.navigate("ComingSoon", { route: "payments" })
-            }
+            onPress={() => navigation.navigate("Payments")}
           />
         </View>
 

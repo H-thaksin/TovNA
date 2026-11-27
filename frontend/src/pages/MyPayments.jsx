@@ -48,6 +48,7 @@ export default function MyPayments({ user, onLogin, authReady = true }) {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!authReady) return;
@@ -66,7 +67,6 @@ export default function MyPayments({ user, onLogin, authReady = true }) {
 
       try {
         const token = localStorage.getItem(TOKEN_KEY);
-
         if (!token) {
           throw new Error(
             "Your login session has expired. Please log in again.",
@@ -74,37 +74,36 @@ export default function MyPayments({ user, onLogin, authReady = true }) {
         }
 
         const response = await fetch(`${API_URL}/payments/`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           signal: controller.signal,
         });
 
-        if (!response.ok) {
-          throw new Error(
-            await readError(response, "Unable to load your payments."),
-          );
-        }
+        // Read the body once. If it is not JSON, use an empty object.
+        const data = await response.json().catch(() => ({}));
 
-        const data = await response.json();
+        if (response.status === 401) {
+          localStorage.removeItem(TOKEN_KEY);
+          throw new Error("Your session has expired. Please log in again.");
+        }
+        if (!response.ok) throw new Error(readError(data));
 
         setPayments(Array.isArray(data) ? data : data.payments || []);
       } catch (err) {
         if (err.name !== "AbortError") {
-          setError(err.message || "Unable to load your payments.");
+          setError(
+            err instanceof TypeError
+              ? "Cannot connect to the TovNa server. Make sure the backend is running."
+              : err.message || "Unable to load your payments.",
+          );
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
     loadPayments();
-
     return () => controller.abort();
-  }, [user, authReady]);
+  }, [user, authReady, attempt]);
 
   if (!authReady) {
     return (

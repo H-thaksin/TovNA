@@ -12,8 +12,13 @@ import BookingDetailsScreen from "../screens/BookingDetailsScreen";
 import HotelsScreen from "../screens/HotelsScreen";
 import HotelDetailsScreen from "../screens/HotelDetailsScreen";
 import HotelBookingFormScreen from "../screens/HotelBookingFormScreen";
+import TransportationScreen from "../screens/TransportationScreen";
+import TransportationDetailsScreen from "../screens/TransportationDetailsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import PaymentsScreen from "../screens/PaymentsScreen";
 import ExploreScreen from "../screens/ExploreScreen";
+import AIAssistantScreen from "../screens/AIAssistantScreen";
+import RecommendationsScreen from "../screens/RecommendationsScreen";
 import ComingSoonScreen from "../screens/ComingSoonScreen";
 
 const Stack = createNativeStackNavigator();
@@ -62,7 +67,16 @@ export function appNavigate(navigation, route, params = {}) {
       destination: params.destination,
     });
   }
-
+  if (route === "transportation") {
+    return navigation.navigate("Transportation", {
+      fromDestinationId: params.fromDestinationId,
+      toDestinationId: params.toDestinationId,
+    });
+  }
+  if (route === "payments") return navigation.navigate("Payments");
+  if (route === "ai") return navigation.navigate("AIAssistant");
+  if (route === "recommendations")
+    return navigation.navigate("Recommendations");
   if (TABS[route]) return navigation.navigate("Tabs", { screen: TABS[route] });
   if (AUTH[route]) return navigation.navigate(AUTH[route]);
 
@@ -138,8 +152,20 @@ export default function RootNavigator() {
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="BookingDetails" component={BookingDetailsScreen} />
         <Stack.Screen name="BookingForm" component={BookingFormScreen} />
+        <Stack.Screen name="Payments" component={PaymentsScreen} />
+        <Stack.Screen name="AIAssistant" component={AIAssistantScreen} />
+        <Stack.Screen
+          name="Recommendations"
+          component={RecommendationsScreen}
+        />
+        <Stack.Screen name="Explore" component={ExploreScreen} />
         <Stack.Screen name="Hotels" component={HotelsScreen} />
         <Stack.Screen name="HotelDetails" component={HotelDetailsScreen} />
+        <Stack.Screen name="Transportation" component={TransportationScreen} />
+        <Stack.Screen
+          name="TransportationDetails"
+          component={TransportationDetailsScreen}
+        />
 
         <Stack.Screen
           name="HotelBookingForm"

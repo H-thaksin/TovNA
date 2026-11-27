@@ -23,6 +23,7 @@ import {
 } from "../components/cards";
 import DetailsModal from "../components/DetailsModal";
 import { colors, shadow } from "../lib/theme";
+import PlanCards from "../components/PlanCards";
 
 const CATEGORIES = [
   { icon: "compass-outline", label: "Places", route: "destinations" },
@@ -275,6 +276,8 @@ export default function HomeScreen({ user, onNavigate }) {
         )}
 
         <PromoHero onNavigate={onNavigate} />
+        <View style={{ height: 20 }} />
+        <PlanCards onNavigate={onNavigate} />
 
         <SectionHeader
           title="Popular destinations"

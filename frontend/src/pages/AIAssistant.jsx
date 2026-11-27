@@ -299,8 +299,11 @@ export default function AIAssistant({ user, onLogin }) {
 
       const history = messages
         .filter((item) => item.role === "user" || item.role === "assistant")
-        .map(({ role, content }) => ({ role, content }));
-
+        .slice(-10)
+        .map(({ role, content }) => ({
+          role,
+          content: String(content).slice(0, 2000),
+        }));
       setMessages((previous) => [...previous, { role: "user", content: text }]);
       setMessage("");
       setError("");

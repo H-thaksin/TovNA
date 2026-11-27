@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -32,6 +33,7 @@ import { CopyButton, StatusPill } from "../components/bookingUi";
 import { SafeImage } from "../components/cards";
 import { EmptyState, PrimaryButton } from "../components/ui";
 import { colors, softShadow } from "../lib/theme";
+import { getTransportImage } from "../lib/transport";
 
 const shortDate = (date, raw) =>
   date
@@ -49,20 +51,34 @@ const InfoChip = ({ icon, text }) =>
     </View>
   ) : null;
 
-// Photo cover (tour / activity / hotel) or gradient + emoji (transport)
 function Cover({ booking: b }) {
   if (b.isTransportation) {
+    const vehicle = getTransportImage(b.transportKind);
+
     return (
       <LinearGradient
         colors={["#0f766e", "#134e4a"]}
-        style={[StyleSheet.absoluteFill, styles.coverCenter]}
+        style={[StyleSheet.absoluteFill, styles.heroCenter]}
       >
-        <Text style={{ fontSize: 64, marginBottom: 28 }}>
-          {transportEmoji(b.transportKind)}
-        </Text>
+        {vehicle ? (
+          <Image
+            source={vehicle}
+            style={{
+              width: "86%",
+              height: 200,
+              marginBottom: 30,
+            }}
+            resizeMode="contain"
+          />
+        ) : (
+          <Text style={{ fontSize: 84, marginBottom: 30 }}>
+            {transportEmoji(b.transportKind)}
+          </Text>
+        )}
       </LinearGradient>
     );
   }
+
   return (
     <SafeImage
       uri={imageUrl({ image_url: b.image })}
