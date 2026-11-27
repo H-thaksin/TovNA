@@ -135,8 +135,7 @@ Protected operations are handled through backend authorization.
 
 ### Web Application — Home Page
 
-![TovNa Web Homepage](docs/
-screenshots/web-home.png)
+![TovNa Web Homepage](docs/screenshots/web-home.png)
 
 ## 📌 Project Status
 
