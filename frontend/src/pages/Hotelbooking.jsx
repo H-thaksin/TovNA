@@ -236,8 +236,10 @@ export default function HotelBooking({ onLogin }) {
     );
   }
 
+  const nightsLabel = `${nights} ${nights === 1 ? "night" : "nights"}`;
+
   return (
-    <main className="container hotel-page">
+    <main className="container bk-page">
       {/* Breadcrumb navigation */}
       <nav className="tovna-breadcrumb" aria-label="Breadcrumb">
         <Link to="/hotels">Hotels</Link>
@@ -247,9 +249,9 @@ export default function HotelBooking({ onLogin }) {
         <span aria-current="page">Booking</span>
       </nav>
 
-      <header className="mb-4">
-        <h1 className="hotel-booking-title">Review your booking</h1>
-        <p className="text-secondary">
+      <header className="bk-head">
+        <h1 className="bk-title">Review your booking</h1>
+        <p>
           Check your stay details and review the total price before confirming
           your reservation.
         </p>
@@ -258,24 +260,43 @@ export default function HotelBooking({ onLogin }) {
       <div className="row g-4 g-lg-5">
         {/* Left column: Hotel and stay details */}
         <div className="col-lg-7">
-          <section className="hotel-panel hotel-summary">
-            <SafeImage src={hotel.image_url} alt={hotel.name} />
+          <section className="bk-panel bk-summary">
+            <SafeImage
+              src={hotel.image_url}
+              alt={hotel.name}
+              className="bk-thumb"
+            />
 
-            <div>
+            <div className="bk-summary-text">
               <h2>{hotel.name}</h2>
 
               {hotel.address && (
-                <p className="text-secondary small mb-2">{hotel.address}</p>
+                <p className="bk-address">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z" />
+                    <circle cx="12" cy="11" r="2" />
+                  </svg>
+                  {hotel.address}
+                </p>
               )}
 
               {hotel.rating != null && (
-                <p className="mb-0">
-                  <span className="hotel-score">{hotel.rating}</span>{" "}
+                <p className="bk-rating">
+                  <span className="bk-score">★ {hotel.rating}</span>
                   <strong>{ratingLabel(hotel.rating)}</strong>
                   {hotel.review_count != null && (
-                    <span className="text-secondary">
-                      {" "}
-                      · {hotel.review_count} reviews
+                    <span className="bk-muted">
+                      {hotel.review_count} reviews
                     </span>
                   )}
                 </p>
@@ -284,8 +305,8 @@ export default function HotelBooking({ onLogin }) {
           </section>
 
           {/* Stay details */}
-          <section className="hotel-panel">
-            <h2>Your stay</h2>
+          <section className="bk-panel">
+            <h2 className="bk-panel-title">Your stay</h2>
 
             <div className="row g-3">
               <div className="col-sm-6">
@@ -334,53 +355,64 @@ export default function HotelBooking({ onLogin }) {
               </div>
             </div>
 
-            <p className="hotel-dates">
-              {formatDay(startDate)} – {formatDay(endDate)} · {nights}{" "}
-              {nights === 1 ? "night" : "nights"}
+            <p className="bk-dates">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
+                <path d="M3.5 10h17M8 3v4M16 3v4" />
+              </svg>
+              {formatDay(startDate)} – {formatDay(endDate)} · {nightsLabel}
             </p>
           </section>
         </div>
 
         {/* Right column: Price summary */}
         <div className="col-lg-5">
-          <aside className="hotel-panel hotel-price-card">
-            <h2>Price details</h2>
+          <aside className="bk-panel bk-price" aria-label="Price details">
+            <h2 className="bk-panel-title">Price details</h2>
 
-            <dl className="hotel-rows">
-              <div>
-                <dt>
-                  1 room × {nights} {nights === 1 ? "night" : "nights"}
-                </dt>
+            <dl className="bk-rows">
+              <div className="bk-row">
+                <dt>1 room × {nightsLabel}</dt>
                 <dd>{usd(price.base)}</dd>
               </div>
 
-              <div>
+              <div className="bk-row">
                 <dt>Estimated taxes &amp; fees</dt>
                 <dd>{usd(price.taxes)}</dd>
               </div>
 
-              <div className="hotel-row-sub">
+              <div className="bk-row bk-row--sub">
                 <dt>
                   Accommodation tax ({formatPercent(TAX_RATES.accommodation)})
                 </dt>
                 <dd>{usd(price.accommodationTax)}</dd>
               </div>
 
-              <div className="hotel-row-sub">
+              <div className="bk-row bk-row--sub">
                 <dt>VAT ({formatPercent(TAX_RATES.vat)})</dt>
                 <dd>{usd(price.vat)}</dd>
               </div>
 
-              <div className="hotel-row-sub">
+              <div className="bk-row bk-row--sub">
                 <dt>Service charge ({formatPercent(TAX_RATES.service)})</dt>
                 <dd>{usd(price.service)}</dd>
               </div>
-
-              <div className="hotel-row-total">
-                <dt>Total</dt>
-                <dd>{usd(price.total)}</dd>
-              </div>
             </dl>
+
+            <div className="bk-total">
+              <span>Total</span>
+              <strong>{usd(price.total)}</strong>
+            </div>
 
             <button
               type="button"
@@ -395,6 +427,11 @@ export default function HotelBooking({ onLogin }) {
                   : "Confirm booking"}
             </button>
 
+            <p className="bk-note">
+              Your booking is submitted as pending and the TovNa team will
+              confirm it. You can pay once it is confirmed.
+            </p>
+
             {message && (
               <div
                 className={`alert alert-${messageType} small mt-3 mb-0`}
@@ -408,24 +445,29 @@ export default function HotelBooking({ onLogin }) {
           {/* Booking confirmation */}
           {createdBooking && (
             <section
-              className="alert alert-success mt-3"
+              className="bk-confirmation"
               aria-labelledby="booking-confirmation-title"
             >
-              <h2 id="booking-confirmation-title" className="h5">
-                Booking confirmation
-              </h2>
+              <h2 id="booking-confirmation-title">Booking confirmation</h2>
 
-              <p className="mb-1">
-                Reference: <strong>{createdBooking.booking_reference}</strong>
-              </p>
-
-              <p className="mb-1">Hotel: {createdBooking.hotel_name}</p>
-
-              <p className="mb-1">Total: {usd(createdBooking.total_amount)}</p>
-
-              <p className="mb-0">
-                Status: <strong>{createdBooking.status}</strong>
-              </p>
+              <dl className="bk-rows">
+                <div className="bk-row">
+                  <dt>Reference</dt>
+                  <dd>{createdBooking.booking_reference}</dd>
+                </div>
+                <div className="bk-row">
+                  <dt>Hotel</dt>
+                  <dd>{createdBooking.hotel_name}</dd>
+                </div>
+                <div className="bk-row">
+                  <dt>Total</dt>
+                  <dd>{usd(createdBooking.total_amount)}</dd>
+                </div>
+                <div className="bk-row">
+                  <dt>Status</dt>
+                  <dd>{createdBooking.status}</dd>
+                </div>
+              </dl>
             </section>
           )}
         </div>

@@ -150,17 +150,29 @@ export function Section({
   onRetry,
   tinted,
   action,
+  split,
   children,
 }) {
   return (
     <section id={id} className={`section ${tinted ? "bg-white" : ""}`}>
       <div className="container">
-        {title && (
-          <Reveal blur className="text-center mb-5">
-            <h2 className="section-title">{title}</h2>
-            {subtitle && <p className="section-subtitle mb-0">{subtitle}</p>}
-          </Reveal>
-        )}
+        {title &&
+          (split ? (
+            <Reveal className="hm-section-head">
+              <div>
+                <h2 className="section-title">{title}</h2>
+                {subtitle && (
+                  <p className="section-subtitle mb-0">{subtitle}</p>
+                )}
+              </div>
+              {status === "ready" && count > 0 && action}
+            </Reveal>
+          ) : (
+            <Reveal blur className="text-center mb-5">
+              <h2 className="section-title">{title}</h2>
+              {subtitle && <p className="section-subtitle mb-0">{subtitle}</p>}
+            </Reveal>
+          ))}
 
         {status === "loading" && (
           <div className="text-center py-5" role="status">
@@ -187,7 +199,9 @@ export function Section({
         {status === "ready" && count > 0 && (
           <>
             <div className="row g-4">{children}</div>
-            {action && <div className="text-center mt-5">{action}</div>}
+            {action && !split && (
+              <div className="text-center mt-5">{action}</div>
+            )}
           </>
         )}
       </div>

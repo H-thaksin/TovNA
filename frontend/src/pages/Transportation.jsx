@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { API_URL, TOKEN_KEY, readError } from "../lib/api";
 import { useApiList } from "../lib/hooks";
@@ -7,6 +7,10 @@ import { transportImage } from "../lib/transportImages";
 import "./Transportation.css";
 
 const MAX_PASSENGERS = 20;
+const PAGE_SIZE = 5; // services shown per page
+
+// Changing these never changes which services match, so the page stays put.
+const KEEP_PAGE_KEYS = ["page", "date", "passengers"];
 
 const todayISO = () => {
   const now = new Date();
@@ -44,8 +48,78 @@ function formatDuration(minutes) {
 
 const isActive = (item) => item.is_active !== false;
 
+// Page numbers to show, with "…" for gaps, e.g. [1, "…", 4, 5, 6, "…", 12]
+function getPageList(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages = new Set([1, total, current - 1, current, current + 1]);
+  const list = [...pages]
+    .filter((page) => page >= 1 && page <= total)
+    .sort((a, b) => a - b);
+
+  const withGaps = [];
+  list.forEach((page, index) => {
+    if (index > 0 && page - list[index - 1] > 1) withGaps.push("…");
+    withGaps.push(page);
+  });
+  return withGaps;
+}
+
+function Pagination({ current, total, onChange }) {
+  if (total <= 1) return null;
+
+  return (
+    <nav className="transport-pagination" aria-label="Transportation pages">
+      <button
+        type="button"
+        className="transport-page-btn transport-page-btn--nav"
+        disabled={current === 1}
+        onClick={() => onChange(current - 1)}
+      >
+        <span aria-hidden="true">←</span> Previous
+      </button>
+
+      <ul className="transport-page-list">
+        {getPageList(current, total).map((page, index) =>
+          page === "…" ? (
+            <li
+              key={`gap-${index}`}
+              className="transport-page-gap"
+              aria-hidden="true"
+            >
+              …
+            </li>
+          ) : (
+            <li key={page}>
+              <button
+                type="button"
+                className={`transport-page-btn ${page === current ? "is-active" : ""}`}
+                aria-label={`Page ${page}`}
+                aria-current={page === current ? "page" : undefined}
+                onClick={() => onChange(page)}
+              >
+                {page}
+              </button>
+            </li>
+          ),
+        )}
+      </ul>
+
+      <button
+        type="button"
+        className="transport-page-btn transport-page-btn--nav"
+        disabled={current === total}
+        onClick={() => onChange(current + 1)}
+      >
+        Next <span aria-hidden="true">→</span>
+      </button>
+    </nav>
+  );
+}
+
 export default function Transportation() {
   const navigate = useNavigate();
+  const topRef = useRef(null);
 
   const {
     data: transportations,
@@ -69,12 +143,14 @@ export default function Transportation() {
   const [bookingError, setBookingError] = useState("");
   const [bookingSuccess, setBookingSuccess] = useState(null);
 
+  // Changing a filter that changes the results goes back to page 1.
   const setParam = (key, value, fallback = "") => {
     setParams(
       (previous) => {
         const next = new URLSearchParams(previous);
         if (!value || value === fallback) next.delete(key);
         else next.set(key, value);
+        if (!KEEP_PAGE_KEYS.includes(key)) next.delete("page");
         return next;
       },
       { replace: true },
@@ -88,6 +164,7 @@ export default function Transportation() {
   const requestedDate = params.get("date") ?? "";
   const travelDate = requestedDate >= today ? requestedDate : "";
   const requestedPassengers = Number(params.get("passengers")) || 1;
+  const requestedPage = Math.max(1, parseInt(params.get("page"), 10) || 1);
 
   const passengers = Math.min(
     MAX_PASSENGERS,
@@ -193,6 +270,25 @@ export default function Transportation() {
     });
   }, [activeServices, fromId, toId, type, sort]);
 
+  // ----- Pagination -----
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const firstIndex = (currentPage - 1) * PAGE_SIZE;
+  const pageResults = results.slice(firstIndex, firstIndex + PAGE_SIZE);
+
+  const goToPage = (page) => {
+    setParam("page", String(page), "1");
+
+    // Bring the top of the list back into view
+    const reduceMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    topRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
   const prices = results
     .map((item) => Number(item.price))
     .filter((price) => Number.isFinite(price) && price >= 0);
@@ -226,6 +322,7 @@ export default function Transportation() {
         else next.delete("from");
         if (fromId) next.set("to", fromId);
         else next.delete("to");
+        next.delete("page");
         return next;
       },
       { replace: true },
@@ -352,7 +449,7 @@ export default function Transportation() {
 
       <section className="container transport-content">
         {/* ---------- Floating search card ---------- */}
-        <div className="transport-search">
+        <div className="transport-search" ref={topRef}>
           <div className="transport-field">
             <label htmlFor="transport-from">From</label>
             <select
@@ -478,7 +575,9 @@ export default function Transportation() {
           <div className="transport-toolbar-right">
             {!loading && !hasError && (
               <span className="transport-count" aria-live="polite">
-                {results.length} {results.length === 1 ? "service" : "services"}
+                {results.length > PAGE_SIZE
+                  ? `Showing ${firstIndex + 1}–${firstIndex + pageResults.length} of ${results.length} services`
+                  : `${results.length} ${results.length === 1 ? "service" : "services"}`}
               </span>
             )}
 
@@ -587,101 +686,115 @@ export default function Transportation() {
             </div>
           )}
 
-        {/* ---------- Results ---------- */}
+        {/* ---------- Results (one page at a time) ---------- */}
         {!loading && !hasError && results.length > 0 && (
-          <div className="transport-list">
-            {results.map((item) => {
-              const kind = String(item.type || "").toLowerCase();
-              const duration = formatDuration(item.duration_minutes);
-              const price = Number(item.price);
-              const validPrice = Number.isFinite(price) && price >= 0;
+          <>
+            <div className="transport-list">
+              {pageResults.map((item) => {
+                const kind = String(item.type || "").toLowerCase();
+                const duration = formatDuration(item.duration_minutes);
+                const price = Number(item.price);
+                const validPrice = Number.isFinite(price) && price >= 0;
 
-              const isCheapest =
-                results.length > 1 &&
-                cheapestPrice !== null &&
-                validPrice &&
-                price === cheapestPrice;
+                const isCheapest =
+                  results.length > 1 &&
+                  cheapestPrice !== null &&
+                  validPrice &&
+                  price === cheapestPrice;
 
-              const itemDuration = Number(item.duration_minutes);
+                const itemDuration = Number(item.duration_minutes);
 
-              const isFastest =
-                results.length > 1 &&
-                fastestTime !== null &&
-                Number.isFinite(itemDuration) &&
-                itemDuration > 0 &&
-                itemDuration === fastestTime;
+                const isFastest =
+                  results.length > 1 &&
+                  fastestTime !== null &&
+                  Number.isFinite(itemDuration) &&
+                  itemDuration > 0 &&
+                  itemDuration === fastestTime;
 
-              return (
-                <article className="transport-card" key={item.id}>
-                  <div className="transport-card-body">
-                    <div className="transport-operator">
-                      <div className="transport-icon">
-                        <img src={transportImage(kind)} alt="" loading="lazy" />
+                return (
+                  <article className="transport-card" key={item.id}>
+                    <div className="transport-card-body">
+                      <div className="transport-operator">
+                        <div className="transport-icon">
+                          <img
+                            src={transportImage(kind)}
+                            alt=""
+                            loading="lazy"
+                          />
+                        </div>
+
+                        <div>
+                          <strong>
+                            {item.provider || "Transport provider"}
+                          </strong>
+                          <span>{titleCase(kind) || "Transport"}</span>
+                        </div>
+
+                        <div className="transport-badges">
+                          {isCheapest && (
+                            <span className="transport-badge transport-badge--price">
+                              Lowest price
+                            </span>
+                          )}
+                          {isFastest && (
+                            <span className="transport-badge transport-badge--fast">
+                              Fastest
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      <div>
-                        <strong>{item.provider || "Transport provider"}</strong>
-                        <span>{titleCase(kind) || "Transport"}</span>
+                      <div className="transport-journey">
+                        <span className="transport-place">
+                          {nameOf(item.from_destination_id)}
+                        </span>
+                        <span className="transport-line" aria-hidden="true">
+                          {duration && <em>{duration}</em>}
+                        </span>
+                        <span className="visually-hidden">to</span>
+                        <span className="transport-place">
+                          {nameOf(item.to_destination_id)}
+                        </span>
                       </div>
 
-                      <div className="transport-badges">
-                        {isCheapest && (
-                          <span className="transport-badge transport-badge--price">
-                            Lowest price
-                          </span>
-                        )}
-                        {isFastest && (
-                          <span className="transport-badge transport-badge--fast">
-                            Fastest
-                          </span>
-                        )}
-                      </div>
+                      {item.description && (
+                        <p className="transport-description">
+                          {item.description}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="transport-journey">
-                      <span className="transport-place">
-                        {nameOf(item.from_destination_id)}
-                      </span>
-                      <span className="transport-line" aria-hidden="true">
-                        {duration && <em>{duration}</em>}
-                      </span>
-                      <span className="visually-hidden">to</span>
-                      <span className="transport-place">
-                        {nameOf(item.to_destination_id)}
-                      </span>
+                    <div className="transport-price">
+                      <small>From</small>
+                      <strong>{validPrice ? usd(price) : "N/A"}</strong>
+                      <small>per person</small>
+
+                      {passengers > 1 && validPrice && (
+                        <span className="transport-total">
+                          {usd(price * passengers)} for {passengers}
+                        </span>
+                      )}
+
+                      <button
+                        type="button"
+                        className="btn btn-primary transport-book-button"
+                        onClick={() => openBooking(item)}
+                        disabled={!validPrice}
+                      >
+                        Book now
+                      </button>
                     </div>
+                  </article>
+                );
+              })}
+            </div>
 
-                    {item.description && (
-                      <p className="transport-description">
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="transport-price">
-                    <small>From</small>
-                    <strong>{validPrice ? usd(price) : "N/A"}</strong>
-                    <small>per person</small>
-
-                    {passengers > 1 && validPrice && (
-                      <span className="transport-total">
-                        {usd(price * passengers)} for {passengers}
-                      </span>
-                    )}
-
-                    <button
-                      type="button"
-                      className="btn btn-primary transport-book-button"
-                      onClick={() => openBooking(item)}
-                      disabled={!validPrice}
-                    >
-                      Book now
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+            <Pagination
+              current={currentPage}
+              total={totalPages}
+              onChange={goToPage}
+            />
+          </>
         )}
       </section>
 

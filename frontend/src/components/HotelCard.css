@@ -1,0 +1,211 @@
+/* =========================================================
+   TovNa - Hotel card (grid card)
+   All classes start with "hc-" so they never clash with the
+   hotel-* or ht-* styles used on other pages.
+   ========================================================= */
+
+.hc-card {
+  position: relative; /* needed for the stretched link */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(14, 27, 26, 0.05);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.hc-card:hover,
+.hc-card:focus-within {
+  border-color: rgba(11, 107, 99, 0.35);
+  box-shadow: 0 18px 40px rgba(14, 27, 26, 0.14);
+  transform: translateY(-5px);
+}
+
+/* ---------- Photo ---------- */
+.hc-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #134e4a;
+}
+
+.hc-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.hc-card:hover .hc-img {
+  transform: scale(1.07);
+}
+
+/* Soft fade at the bottom of the photo */
+.hc-shade {
+  position: absolute;
+  inset: auto 0 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(8, 30, 28, 0.35), transparent);
+  pointer-events: none;
+}
+
+.hc-score {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  color: var(--tovna-ink, #0e1b1a);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.hc-score svg {
+  color: #f59e0b;
+}
+
+/* ---------- Text ---------- */
+.hc-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 20px 22px 22px;
+}
+
+.hc-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.hc-title a {
+  color: var(--tovna-text, #17202a);
+  text-decoration: none;
+}
+
+.hc-card:hover .hc-title a {
+  color: var(--tovna-primary, #0b6b63);
+}
+
+.hc-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 8px 0 0;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.hc-address svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--tovna-primary, #0b6b63);
+}
+
+.hc-address span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.hc-text {
+  display: -webkit-box;
+  margin: 12px 0 0;
+  overflow: hidden;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* ---------- Footer: price + arrow ---------- */
+.hc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.hc-body > .hc-address + .hc-foot,
+.hc-body > .hc-title + .hc-foot {
+  margin-top: 18px;
+}
+
+.hc-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.hc-price small {
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.8rem;
+}
+
+.hc-price strong {
+  color: var(--tovna-text, #17202a);
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.hc-go {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary, #0b6b63);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hc-card:hover .hc-go {
+  background: var(--tovna-primary, #0b6b63);
+  color: #fff;
+  transform: translateX(3px);
+}
+
+/* ---------- Accessibility ---------- */
+.hc-card:focus-within {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hc-card,
+  .hc-img,
+  .hc-go {
+    transition: none;
+  }
+
+  .hc-card:hover,
+  .hc-card:hover .hc-img,
+  .hc-card:hover .hc-go {
+    transform: none;
+  }
+}

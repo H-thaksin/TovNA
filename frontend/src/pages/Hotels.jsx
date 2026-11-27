@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { useApiList } from "../lib/hooks";
@@ -6,6 +6,7 @@ import { SafeImage } from "../components/ui";
 import { ratingLabel, usd } from "../lib/pricing";
 
 const PRICE_LIMITS = [25, 50, 100, 200, 500];
+const PAGE_SIZE = 6; // hotels shown per page
 
 const SORTS = {
   recommended: { label: "Recommended", fn: null },
@@ -25,6 +26,71 @@ const SORTS = {
 
 // The API may send amenities as plain strings or as objects.
 const amenityName = (item) => (typeof item === "string" ? item : item?.name);
+
+// Page numbers to show, with "…" for gaps, e.g. [1, "…", 4, 5, 6, "…", 12]
+function getPageList(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages = new Set([1, total, current - 1, current, current + 1]);
+  const list = [...pages]
+    .filter((page) => page >= 1 && page <= total)
+    .sort((a, b) => a - b);
+
+  const withGaps = [];
+  list.forEach((page, index) => {
+    if (index > 0 && page - list[index - 1] > 1) withGaps.push("…");
+    withGaps.push(page);
+  });
+  return withGaps;
+}
+
+function Pagination({ current, total, onChange }) {
+  if (total <= 1) return null;
+
+  return (
+    <nav className="ht-pagination" aria-label="Hotel pages">
+      <button
+        type="button"
+        className="ht-page-btn ht-page-btn--nav"
+        disabled={current === 1}
+        onClick={() => onChange(current - 1)}
+      >
+        <span aria-hidden="true">←</span> Previous
+      </button>
+
+      <ul className="ht-page-list">
+        {getPageList(current, total).map((page, index) =>
+          page === "…" ? (
+            <li key={`gap-${index}`} className="ht-page-gap" aria-hidden="true">
+              …
+            </li>
+          ) : (
+            <li key={page}>
+              <button
+                type="button"
+                className={`ht-page-btn ${page === current ? "is-active" : ""}`}
+                aria-label={`Page ${page}`}
+                aria-current={page === current ? "page" : undefined}
+                onClick={() => onChange(page)}
+              >
+                {page}
+              </button>
+            </li>
+          ),
+        )}
+      </ul>
+
+      <button
+        type="button"
+        className="ht-page-btn ht-page-btn--nav"
+        disabled={current === total}
+        onClick={() => onChange(current + 1)}
+      >
+        Next <span aria-hidden="true">→</span>
+      </button>
+    </nav>
+  );
+}
 
 function HotelRow({ hotel }) {
   const path = `/hotels/${hotel.id}`;
@@ -93,19 +159,23 @@ function HotelRow({ hotel }) {
 export default function Hotels() {
   const { data, status, retry } = useApiList("/hotels/");
   const [params, setParams] = useSearchParams();
+  const topRef = useRef(null);
 
   const search = params.get("q") ?? "";
   const maxPrice = PRICE_LIMITS.map(String).includes(params.get("max"))
     ? params.get("max")
     : "All";
   const sort = SORTS[params.get("sort")] ? params.get("sort") : "recommended";
+  const requestedPage = Math.max(1, parseInt(params.get("page"), 10) || 1);
 
+  // Changing a filter always goes back to page 1.
   const setParam = (key, value, fallback = "") => {
     setParams(
       (previous) => {
         const next = new URLSearchParams(previous);
         if (!value || value === fallback) next.delete(key);
         else next.set(key, value);
+        if (key !== "page") next.delete("page");
         return next;
       },
       { replace: true },
@@ -136,6 +206,25 @@ export default function Hotels() {
     return compare ? [...matches].sort(compare) : matches;
   }, [hotels, search, maxPrice, sort]);
 
+  // ----- Pagination -----
+  const totalPages = Math.max(1, Math.ceil(filteredHotels.length / PAGE_SIZE));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const firstIndex = (currentPage - 1) * PAGE_SIZE;
+  const pageHotels = filteredHotels.slice(firstIndex, firstIndex + PAGE_SIZE);
+
+  const goToPage = (page) => {
+    setParam("page", String(page), "1");
+
+    // Bring the top of the list back into view
+    const reduceMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    topRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
   const isFiltering = search.trim() !== "" || maxPrice !== "All";
   const isReady = status === "ready";
   const noMatches = isReady && hotels.length > 0 && filteredHotels.length === 0;
@@ -155,7 +244,7 @@ export default function Hotels() {
 
       <div className="container ht-content">
         {/* ---------- Floating filter bar ---------- */}
-        <div className="ht-filters">
+        <div className="ht-filters" ref={topRef}>
           <div className="ht-field ht-field--search">
             <label htmlFor="hotel-search">Search</label>
             <input
@@ -201,12 +290,13 @@ export default function Hotels() {
           </div>
         </div>
 
-        {isReady && hotels.length > 0 && (
+        {isReady && hotels.length > 0 && filteredHotels.length > 0 && (
           <p className="ht-count" aria-live="polite">
             <span>
+              Showing {firstIndex + 1}–{firstIndex + pageHotels.length} of{" "}
               {filteredHotels.length}{" "}
               {filteredHotels.length === 1 ? "hotel" : "hotels"}
-              {isFiltering && ` of ${hotels.length}`}
+              {isFiltering && ` (${hotels.length} in total)`}
             </span>
             {isFiltering && (
               <button type="button" onClick={clearFilters}>
@@ -259,13 +349,21 @@ export default function Hotels() {
           </div>
         )}
 
-        {/* ---------- Results ---------- */}
-        {isReady && filteredHotels.length > 0 && (
-          <div className="ht-list">
-            {filteredHotels.map((hotel) => (
-              <HotelRow key={hotel.id} hotel={hotel} />
-            ))}
-          </div>
+        {/* ---------- Results (one page at a time) ---------- */}
+        {isReady && pageHotels.length > 0 && (
+          <>
+            <div className="ht-list">
+              {pageHotels.map((hotel) => (
+                <HotelRow key={hotel.id} hotel={hotel} />
+              ))}
+            </div>
+
+            <Pagination
+              current={currentPage}
+              total={totalPages}
+              onChange={goToPage}
+            />
+          </>
         )}
       </div>
     </div>

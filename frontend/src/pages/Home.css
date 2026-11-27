@@ -12,20 +12,31 @@
 /* ---------- Hero search ---------- */
 .hm-search {
   display: flex;
-  max-width: 560px;
-  padding: 6px;
+  align-items: center;
+  max-width: 600px;
+  padding: 7px;
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.32),
+    0 0 0 6px rgba(255, 255, 255, 0.18);
+}
+
+.hm-search-icon {
+  display: grid;
+  place-items: center;
+  padding-left: 16px;
+  color: var(--tovna-primary, #0b6b63);
 }
 
 .hm-search input {
   flex: 1;
   min-width: 0;
-  padding: 10px 18px;
+  padding: 12px 14px;
   border: 0;
   background: transparent;
   color: var(--tovna-text, #17202a);
+  font-size: 1rem;
 }
 
 .hm-search input:focus {
@@ -38,17 +49,20 @@
 }
 
 .hm-search button {
-  padding: 10px 26px;
+  padding: 12px 30px;
   border: 0;
   border-radius: 999px;
   background: var(--tovna-accent, #f59e0b);
   color: var(--tovna-ink, #0e1b1a);
   font-weight: 700;
-  transition: background-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .hm-search button:hover {
   background: #d98a06;
+  transform: translateY(-1px);
 }
 
 .hm-quick {
@@ -56,24 +70,27 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-top: 18px;
-  color: rgba(255, 255, 255, 0.8);
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.9rem;
 }
 
 .hm-quick a {
-  padding: 5px 14px;
+  padding: 6px 15px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
-  backdrop-filter: blur(6px);
-  transition: background-color 0.15s ease;
+  backdrop-filter: blur(8px);
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .hm-quick a:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.28);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 /* ---------- Stats card ---------- */
@@ -83,12 +100,12 @@
   display: flex;
   justify-content: space-around;
   gap: 8px;
-  margin-top: -52px;
-  padding: 22px 16px;
+  margin-top: -56px;
+  padding: 24px 16px;
   border: 1px solid var(--tovna-border, #e3e9e6);
-  border-radius: 20px;
+  border-radius: 24px;
   background: #fff;
-  box-shadow: 0 20px 50px rgba(14, 27, 26, 0.12);
+  box-shadow: 0 24px 60px rgba(14, 27, 26, 0.14);
 }
 
 .hm-stat {
@@ -97,18 +114,30 @@
   flex-direction: column;
   align-items: center;
   padding: 4px 8px;
-  border-radius: 12px;
+  border-radius: 14px;
   color: var(--tovna-muted, #5b6573);
   font-size: 0.9rem;
   text-decoration: none;
+  transition: transform 0.2s ease;
 }
 
 .hm-stat + .hm-stat {
   border-left: 1px solid var(--tovna-border, #e3e9e6);
 }
 
-.hm-stat strong {
+.hm-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--tovna-primary-soft, #e6f4f1);
   color: var(--tovna-primary, #0b6b63);
+}
+
+.hm-stat strong {
+  color: var(--tovna-text, #17202a);
   font-family: var(--tovna-display, Georgia, serif);
   font-size: clamp(1.6rem, 3vw, 2.2rem);
   line-height: 1.1;
@@ -116,15 +145,201 @@
 
 .hm-stat:hover {
   color: var(--tovna-primary-dark, #084f49);
+  transform: translateY(-2px);
+}
+
+/* ---------- Section header with the "View all" link on the right ---------- */
+.hm-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 2.25rem;
+}
+
+.hm-section-head .section-title,
+.hm-section-head .section-subtitle {
+  margin-right: 0;
+  margin-left: 0;
+  text-align: left;
+}
+
+.hm-viewall {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1.5px solid var(--tovna-primary, #0b6b63);
+  border-radius: 999px;
+  color: var(--tovna-primary, #0b6b63);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    gap 0.2s ease;
+}
+
+.hm-viewall:hover {
+  gap: 12px;
+  background: var(--tovna-primary, #0b6b63);
+  color: #fff;
+}
+
+/* ---------- Featured destinations photo grid ---------- */
+.hm-bento {
+  display: grid;
+  gap: 18px;
+  grid-auto-rows: 250px;
+}
+
+.hm-bento--5,
+.hm-bento--4 {
+  grid-template-columns: 1.5fr 1fr 1fr;
+}
+
+.hm-bento--3 {
+  grid-template-columns: 1.5fr 1fr;
+}
+
+.hm-bento--2,
+.hm-bento--1 {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.hm-tile--lg {
+  grid-row: span 2;
+}
+
+.hm-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #134e4a;
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(14, 27, 26, 0.14);
+  isolation: isolate;
+}
+
+.hm-tile-img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.hm-tile:hover .hm-tile-img {
+  transform: scale(1.07);
+}
+
+.hm-tile-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to top,
+    rgba(8, 30, 28, 0.88) 0%,
+    rgba(8, 30, 28, 0.15) 55%,
+    rgba(8, 30, 28, 0.25) 100%
+  );
+}
+
+.hm-tile-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+}
+
+.hm-tile-info {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+}
+
+.hm-tile-info h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.hm-tile--lg .hm-tile-info h3 {
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+}
+
+.hm-tile-info p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.88rem;
+}
+
+/* The whole tile is clickable through the title link */
+.hm-tile-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.hm-tile-link::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+}
+
+.hm-tile-quick {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--tovna-primary, #0b6b63);
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hm-tile:hover .hm-tile-quick,
+.hm-tile-quick:focus-visible,
+.hm-tile-quick:disabled {
+  opacity: 1;
+  transform: none;
+}
+
+/* Touch screens have no hover, so keep the button visible there */
+@media (hover: none) {
+  .hm-tile-quick {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------- Shortcut cards ---------- */
 .hm-tool {
   display: flex;
   flex-direction: column;
-  padding: 26px 24px;
+  padding: 28px 26px;
   border: 1px solid var(--tovna-border, #e3e9e6);
-  border-radius: 20px;
+  border-radius: 24px;
   background: #fff;
   color: inherit;
   text-decoration: none;
@@ -136,20 +351,28 @@
 
 .hm-tool:hover {
   border-color: rgba(11, 107, 99, 0.4);
-  box-shadow: 0 14px 34px rgba(14, 27, 26, 0.1);
-  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(14, 27, 26, 0.12);
+  transform: translateY(-5px);
   color: inherit;
 }
 
 .hm-tool-icon {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 18px;
-  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 20px;
+  border-radius: 16px;
   background: var(--tovna-primary-soft, #e6f4f1);
   color: var(--tovna-primary, #0b6b63);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.hm-tool:hover .hm-tool-icon {
+  background: var(--tovna-primary, #0b6b63);
+  color: #fff;
 }
 
 .hm-tool h3 {
@@ -172,18 +395,111 @@
   font-weight: 700;
 }
 
+/* ---------- How it works ---------- */
+.hm-steps {
+  position: relative;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* A dotted line joining the three steps on desktop */
+.hm-steps::before {
+  position: absolute;
+  top: 44px;
+  right: 16%;
+  left: 16%;
+  z-index: 0;
+  border-top: 2px dashed rgba(11, 107, 99, 0.3);
+  content: "";
+}
+
+.hm-step {
+  position: relative;
+  z-index: 1;
+  padding: 0 12px;
+  text-align: center;
+}
+
+.hm-step-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 20px;
+  border: 8px solid #fff;
+  border-radius: 50%;
+  background: var(--tovna-primary-soft, #e6f4f1);
+  box-shadow: 0 12px 30px rgba(14, 27, 26, 0.1);
+  color: var(--tovna-primary, #0b6b63);
+}
+
+.hm-step-no {
+  position: absolute;
+  top: -6px;
+  left: calc(50% + 22px);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--tovna-accent, #f59e0b);
+  color: var(--tovna-ink, #0e1b1a);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.hm-step h3 {
+  margin-bottom: 8px;
+  color: var(--tovna-text, #17202a);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.hm-step p {
+  max-width: 300px;
+  margin: 0 auto;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+/* ---------- Focus rings ---------- */
 .hm-search button:focus-visible,
 .hm-quick a:focus-visible,
 .hm-stat:focus-visible,
-.hm-tool:focus-visible {
+.hm-tool:focus-visible,
+.hm-viewall:focus-visible,
+.hm-tile-link:focus-visible,
+.hm-tile-quick:focus-visible {
   outline: 3px solid rgba(245, 158, 11, 0.7);
   outline-offset: 2px;
 }
 
+/* ---------- Tablet and phone ---------- */
+@media (max-width: 991.98px) {
+  .hm-bento--5,
+  .hm-bento--4,
+  .hm-bento--3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hm-tile--lg {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+}
+
 @media (max-width: 767.98px) {
   .hm-search {
-    flex-direction: column;
-    border-radius: 20px;
+    flex-wrap: wrap;
+    border-radius: 24px;
+  }
+
+  .hm-search input {
+    flex-basis: calc(100% - 50px);
   }
 
   .hm-search button {
@@ -203,15 +519,49 @@
   .hm-stat + .hm-stat {
     border-left: 0;
   }
+
+  .hm-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hm-bento {
+    grid-auto-rows: 220px;
+    grid-template-columns: 1fr !important;
+  }
+
+  .hm-tile--lg {
+    grid-column: auto;
+    grid-row: span 1;
+    min-height: 300px;
+  }
+
+  .hm-steps {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .hm-steps::before {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hm-tool,
-  .hm-search button {
+  .hm-stat,
+  .hm-tile-img,
+  .hm-tile-quick,
+  .hm-viewall,
+  .hm-search button,
+  .hm-quick a {
     transition: none;
   }
 
-  .hm-tool:hover {
+  .hm-tool:hover,
+  .hm-stat:hover,
+  .hm-tile:hover .hm-tile-img,
+  .hm-search button:hover,
+  .hm-quick a:hover {
     transform: none;
   }
 }

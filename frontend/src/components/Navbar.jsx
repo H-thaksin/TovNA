@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import "./Navbar.css";
+import logo from "../assets/logo.png";
 
 // Main site links. Account pages live in the user menu instead.
 const NAV_LINKS = [
@@ -152,14 +153,17 @@ export default function Navbar({ user, onLogin, onSignup, onLogout }) {
   return (
     <header className={`nb-header ${scrolled ? "is-scrolled" : ""}`}>
       <nav className="container nb-inner" aria-label="Main navigation">
-        <Link className="nb-brand" to="/" onClick={close}>
-          <span className="nb-brand-mark" aria-hidden="true">
-            T
-          </span>
-          <span>
-            <span className="nb-brand-a">Tov</span>
-            <span className="nb-brand-b">Na</span>
-          </span>
+        <Link
+          className="nb-brand"
+          to="/"
+          onClick={close}
+          aria-label="TovNa home"
+        >
+          <img
+            src={logo}
+            alt="TovNa"
+            className="nb-brand-logo nb-brand-logo--full"
+          />
         </Link>
 
         <button

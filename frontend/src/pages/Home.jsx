@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import heroBackground from "../assets/hero/hero-background.jpg";
+import heroBackground from "../assets/hero/hero-background1.jpg";
 import heroFloat1 from "../assets/hero/hero-float-1.jpg";
 import heroFloat2 from "../assets/hero/hero-float-2.jpg";
 import storyBand from "../assets/hero/story-band.jpg";
@@ -8,9 +8,9 @@ import { useApiList, useDetails, useScrollProgress } from "../lib/hooks";
 import { Reveal, SafeImage, Section } from "../components/ui";
 import {
   ActivityCards,
-  DestinationCards,
   DetailsModal,
   TourCards,
+  articlePath,
 } from "../components/cards";
 import "./Home.css";
 
@@ -49,6 +49,24 @@ const QUICK_LINKS = [
   { label: "Hotels", to: "/hotels" },
 ];
 
+const STEPS = [
+  {
+    icon: "search",
+    title: "Discover",
+    text: "Browse destinations, tours and activities across Cambodia.",
+  },
+  {
+    icon: "calendar",
+    title: "Plan & book",
+    text: "Pick your dates, choose a hotel or ride and book in a few taps.",
+  },
+  {
+    icon: "sparkle",
+    title: "Enjoy the trip",
+    text: "Follow your booking, pay securely and travel with confidence.",
+  },
+];
+
 const ICONS = {
   bed: (
     <>
@@ -77,14 +95,39 @@ const ICONS = {
       <path d="M14 7v10" strokeDasharray="2 2" />
     </>
   ),
+  pin: (
+    <>
+      <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" />
+      <circle cx="12" cy="10" r="2.4" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m20 20-4.2-4.2" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </>
+  ),
+  sparkle: (
+    <>
+      <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
+      <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" />
+    </>
+  ),
+  arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
 };
 
-function Icon({ name }) {
+function Icon({ name, size = 24 }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="24"
-      height="24"
+      width={size}
+      height={size}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -153,6 +196,9 @@ function Hero() {
             style={rise(380)}
             onSubmit={handleSearch}
           >
+            <span className="hm-search-icon">
+              <Icon name="search" size={20} />
+            </span>
             <label htmlFor="home-search" className="visually-hidden">
               Search destinations, tours and activities
             </label>
@@ -188,13 +234,61 @@ function Stats({ items }) {
   return (
     <div className="container">
       <Reveal className="hm-stats">
-        {visible.map(({ label, count, to }) => (
+        {visible.map(({ label, count, to, icon }) => (
           <Link to={to} key={label} className="hm-stat">
+            <span className="hm-stat-icon">
+              <Icon name={icon} size={20} />
+            </span>
             <strong>{count}</strong>
             <span>{label}</span>
           </Link>
         ))}
       </Reveal>
+    </div>
+  );
+}
+
+// Featured destinations as a photo grid: one large tile and smaller ones.
+function FeaturedDestinations({ items, loadingId, onView }) {
+  const count = items.length >= 5 ? 5 : items.length >= 3 ? 3 : items.length;
+  const tiles = items.slice(0, count);
+
+  return (
+    <div className={`hm-bento hm-bento--${count}`}>
+      {tiles.map((d, index) => (
+        <Reveal
+          as="article"
+          key={d.id}
+          delay={index * 80}
+          className={`hm-tile ${index === 0 ? "hm-tile--lg" : ""}`}
+        >
+          <SafeImage src={d.image_url} alt="" className="hm-tile-img" />
+          <div className="hm-tile-shade" />
+
+          {d.province && <span className="hm-tile-badge">{d.province}</span>}
+
+          <div className="hm-tile-info">
+            <h3>
+              <Link
+                to={articlePath("destinations", d)}
+                className="hm-tile-link"
+              >
+                {d.name}
+              </Link>
+            </h3>
+            {d.best_time && <p>Best time: {d.best_time}</p>}
+          </div>
+
+          <button
+            type="button"
+            className="hm-tile-quick"
+            disabled={loadingId === d.id}
+            onClick={() => onView(d.id)}
+          >
+            {loadingId === d.id ? "Loading…" : "Quick view"}
+          </button>
+        </Reveal>
+      ))}
     </div>
   );
 }
@@ -223,9 +317,38 @@ function StoryBand() {
   );
 }
 
+function HowItWorks() {
+  return (
+    <section className="section bg-white">
+      <div className="container">
+        <Reveal blur className="text-center mb-5">
+          <h2 className="section-title">How TovNa works</h2>
+          <p className="section-subtitle mb-0">
+            Three simple steps from idea to adventure.
+          </p>
+        </Reveal>
+
+        <div className="hm-steps">
+          {STEPS.map(({ icon, title, text }, index) => (
+            <Reveal className="hm-step" delay={index * 120} key={title}>
+              <span className="hm-step-no">{index + 1}</span>
+              <span className="hm-step-icon">
+                <Icon name={icon} size={26} />
+              </span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const viewAll = (to, label) => (
-  <Link to={to} className="btn btn-outline-primary">
-    {label} →
+  <Link to={to} className="hm-viewall">
+    {label}
+    <Icon name="arrow" size={18} />
   </Link>
 );
 
@@ -246,14 +369,26 @@ export default function Home() {
             label: "Destinations",
             count: destinations.data.length,
             to: "/articles/destinations",
+            icon: "pin",
           },
-          { label: "Tours", count: tours.data.length, to: "/articles/tours" },
+          {
+            label: "Tours",
+            count: tours.data.length,
+            to: "/articles/tours",
+            icon: "route",
+          },
           {
             label: "Activities",
             count: activities.data.length,
             to: "/articles/activities",
+            icon: "ticket",
           },
-          { label: "Hotels", count: hotels.data.length, to: "/hotels" },
+          {
+            label: "Hotels",
+            count: hotels.data.length,
+            to: "/hotels",
+            icon: "bed",
+          },
         ]}
       />
 
@@ -269,26 +404,30 @@ export default function Home() {
         id="popular"
         title="Popular destinations"
         subtitle="Explore beautiful places and unforgettable experiences."
-        tinted
+        split
         status={destinations.status}
         count={destinations.data.length}
         onRetry={destinations.retry}
-        action={viewAll("/articles/destinations", "View all destinations")}
+        action={viewAll("/articles/destinations", "View all")}
       >
-        <DestinationCards
-          items={destinations.data.slice(0, 3)}
-          loadingId={details.loadingId}
-          onView={details.viewDestination}
-        />
+        <div className="col-12">
+          <FeaturedDestinations
+            items={destinations.data}
+            loadingId={details.loadingId}
+            onView={details.viewDestination}
+          />
+        </div>
       </Section>
 
       <Section
         title="Popular tours"
         subtitle="Find exciting tours and discover more of Cambodia."
+        tinted
+        split
         status={tours.status}
         count={tours.data.length}
         onRetry={tours.retry}
-        action={viewAll("/articles/tours", "View all tours")}
+        action={viewAll("/articles/tours", "View all")}
       >
         <TourCards items={tours.data.slice(0, 3)} onView={details.viewTour} />
       </Section>
@@ -296,11 +435,11 @@ export default function Home() {
       <Section
         title="Popular activities"
         subtitle="Enjoy exciting activities and unforgettable experiences."
-        tinted
+        split
         status={activities.status}
         count={activities.data.length}
         onRetry={activities.retry}
-        action={viewAll("/articles/activities", "View all activities")}
+        action={viewAll("/articles/activities", "View all")}
       >
         <ActivityCards items={activities.data.slice(0, 3)} />
       </Section>
@@ -338,6 +477,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <HowItWorks />
 
       {details.selected && (
         <DetailsModal selected={details.selected} onClose={details.close} />

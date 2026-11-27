@@ -2076,7 +2076,97 @@ article.tovna-card:hover .tovna-link .arrow {
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.7;
 }
+/* ---------- Pagination ---------- */
+.ht-filters {
+  scroll-margin-top: 90px; /* keeps the filter bar clear of the sticky navbar */
+}
 
+.ht-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.ht-page-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ht-page-gap {
+  padding: 0 4px;
+  color: var(--tovna-muted, #5b6573);
+}
+
+.ht-page-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--tovna-text, #17202a);
+  font-weight: 650;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.ht-page-btn--nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ht-page-btn:hover:not(:disabled):not(.is-active) {
+  border-color: var(--tovna-primary, #0f766e);
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary, #0f766e);
+}
+
+.ht-page-btn.is-active {
+  border-color: var(--tovna-primary, #0f766e);
+  background: var(--tovna-primary, #0f766e);
+  color: #fff;
+}
+
+.ht-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.ht-page-btn:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+@media (max-width: 575.98px) {
+  .ht-pagination {
+    gap: 8px;
+  }
+
+  /* On phones the page numbers go on their own row above the arrows */
+  .ht-page-list {
+    order: -1;
+    width: 100%;
+  }
+
+  .ht-page-btn--nav {
+    flex: 1;
+    justify-content: center;
+  }
+}
 /* ---------- Floating filter bar ---------- */
 .ht-filters {
   position: relative;
@@ -2463,6 +2553,271 @@ article.tovna-card:hover .tovna-link .arrow {
   .ht-skeleton-photo,
   .ht-skeleton-line {
     animation: none;
+  }
+}
+/* =========================================================
+   TovNa - Hotel booking page
+   All classes start with "bk-" so they never clash with other
+   hotel pages. The page works even if no other hotel CSS loads.
+   ========================================================= */
+
+.bk-page {
+  padding-top: 8px;
+  padding-bottom: 80px;
+}
+
+.bk-head {
+  margin: 8px 0 28px;
+}
+
+.bk-title {
+  margin: 0 0 10px;
+  color: var(--tovna-text, #17202a);
+  font-family: var(--tovna-display, Georgia, "Times New Roman", serif);
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.bk-head p {
+  max-width: 640px;
+  margin: 0;
+  color: var(--tovna-muted, #5b6573);
+  line-height: 1.65;
+}
+
+/* ---------- White cards ---------- */
+.bk-panel {
+  margin-bottom: 20px;
+  padding: 24px;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(14, 27, 26, 0.06);
+}
+
+.bk-panel-title {
+  margin: 0 0 18px;
+  color: var(--tovna-text, #17202a);
+  font-size: 1.2rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Hotel summary ---------- */
+.bk-summary {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+/* The photo has a fixed size, so it can never fill the page */
+.bk-thumb {
+  display: block;
+  flex-shrink: 0;
+  width: 180px;
+  height: 132px;
+  border-radius: 18px;
+  background: #134e4a;
+  object-fit: cover;
+}
+
+.bk-summary-text {
+  min-width: 0;
+}
+
+.bk-summary-text h2 {
+  margin: 0 0 8px;
+  color: var(--tovna-text, #17202a);
+  font-size: 1.35rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.bk-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 12px;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.bk-address svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--tovna-primary, #0b6b63);
+}
+
+.bk-rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.bk-score {
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--tovna-primary, #0b6b63);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.bk-muted {
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.9rem;
+}
+
+/* ---------- Stay form ---------- */
+.bk-panel .form-label {
+  color: var(--tovna-text, #17202a);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.bk-panel .form-control,
+.bk-panel .form-select {
+  min-height: 48px;
+  border-color: var(--tovna-border, #e3e9e6);
+  border-radius: 12px;
+}
+
+.bk-panel .form-control:focus,
+.bk-panel .form-select:focus {
+  border-color: var(--tovna-primary, #0b6b63);
+  box-shadow: 0 0 0 4px rgba(11, 107, 99, 0.15);
+}
+
+.bk-dates {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary-dark, #084f49);
+  font-weight: 650;
+}
+
+/* ---------- Price details ---------- */
+@media (min-width: 992px) {
+  .bk-price {
+    position: sticky;
+    top: 96px;
+  }
+}
+
+.bk-rows {
+  margin: 0;
+  padding: 0;
+}
+
+.bk-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+}
+
+.bk-row dt {
+  margin: 0;
+  color: var(--tovna-text, #17202a);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.bk-row dd {
+  margin: 0;
+  color: var(--tovna-text, #17202a);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* The tax lines sit under "Estimated taxes & fees" */
+.bk-row--sub {
+  padding: 4px 0 4px 16px;
+}
+
+.bk-row--sub dt,
+.bk-row--sub dd {
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.bk-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 16px 0 20px;
+  padding: 18px 0 0;
+  border-top: 1px dashed var(--tovna-border, #d5ddd9);
+}
+
+.bk-total span {
+  color: var(--tovna-text, #17202a);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bk-total strong {
+  color: var(--tovna-primary, #0b6b63);
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.bk-note {
+  margin: 14px 0 0;
+  color: var(--tovna-muted, #5b6573);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* ---------- Confirmation card ---------- */
+.bk-confirmation {
+  padding: 22px 24px;
+  border: 1px solid rgba(22, 128, 62, 0.35);
+  border-radius: 20px;
+  background: #ecf8f0;
+}
+
+.bk-confirmation h2 {
+  margin: 0 0 8px;
+  color: #146c43;
+  font-size: 1.1rem;
+  font-weight: 750;
+}
+
+.bk-confirmation .bk-row {
+  padding: 6px 0;
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 575.98px) {
+  .bk-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bk-thumb {
+    width: 100%;
+    height: 190px;
+  }
+
+  .bk-panel {
+    padding: 20px;
+    border-radius: 20px;
   }
 }
 /* =========================================================

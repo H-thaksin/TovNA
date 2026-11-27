@@ -722,7 +722,97 @@
     font-size: 1rem;
   }
 }
+/* ---------- Pagination ---------- */
+.transport-search {
+  scroll-margin-top: 90px; /* keeps the search card clear of the sticky navbar */
+}
 
+.transport-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.transport-page-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transport-page-gap {
+  padding: 0 4px;
+  color: var(--tovna-muted, #5b6573);
+}
+
+.transport-page-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--tovna-text, #17202a);
+  font-weight: 650;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.transport-page-btn--nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.transport-page-btn:hover:not(:disabled):not(.is-active) {
+  border-color: var(--tovna-primary, #0b6b63);
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary, #0b6b63);
+}
+
+.transport-page-btn.is-active {
+  border-color: var(--tovna-primary, #0b6b63);
+  background: var(--tovna-primary, #0b6b63);
+  color: #fff;
+}
+
+.transport-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.transport-page-btn:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.7);
+  outline-offset: 2px;
+}
+
+@media (max-width: 575.98px) {
+  .transport-pagination {
+    gap: 8px;
+  }
+
+  /* On phones the page numbers go on their own row above the arrows */
+  .transport-page-list {
+    order: -1;
+    width: 100%;
+  }
+
+  .transport-page-btn--nav {
+    flex: 1;
+    justify-content: center;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .transport-card,
   .transport-swap-btn,
