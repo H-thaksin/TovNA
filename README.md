@@ -133,7 +133,10 @@ Protected operations are handled through backend authorization.
 
 ## 📱 Screenshots
 
-Screenshots of the web and mobile applications will be added here to demonstrate the user interface and main features.
+### Web Application — Home Page
+
+![TovNa Web Homepage](docs/
+screenshots/web-home.png)
 
 ## 📌 Project Status
 
