@@ -16,3 +16,10 @@ frontend/dist/
 
 # VS Code
 .vscode/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Backup files
+*.save
