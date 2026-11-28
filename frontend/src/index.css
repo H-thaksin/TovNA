@@ -2039,20 +2039,39 @@ article.tovna-card:hover .tovna-link .arrow {
   }
 }
 /* =========================================================
-   TovNa - Hotels list page
-   All classes start with "ht-" so they never clash with hotel-* styles.
+   TovNa - Hotels list page   (used by Hotels.jsx)
+   =========================================================
+
+   HOW TO READ THIS FILE
+   - Every class starts with "ht-" (hotels list). That prefix means these
+     rules can never change another page by accident.
+   - Sections run from the top of the page to the bottom:
+       1. Page + hero          5. Price column
+       2. Filter bar           6. Pagination
+       3. Result count         7. Messages + loading skeleton
+       4. Hotel card           8. Focus rings, phones, reduced motion
+   - Colours come from CSS variables, for example
+       var(--tovna-primary, #0f766e)
+     This means: "use --tovna-primary if the site defines it, otherwise
+     use #0f766e". Change the variable once and the whole site follows.
+   ========================================================= */
+
+/* =========================================================
+   1. PAGE + HERO (the dark green banner at the top)
    ========================================================= */
 
 .ht-page {
-  min-height: 70vh;
+  min-height: 70vh; /* page never looks tiny while loading */
   padding-bottom: 80px;
   background: var(--tovna-bg, #f8faf9);
 }
 
-/* ---------- Hero ---------- */
 .ht-hero {
+  /* The extra bottom padding (110px) leaves room for the filter bar,
+     which is pulled up over the banner (see .ht-filters). */
   padding: 56px 0 110px;
   color: #fff;
+  /* Two backgrounds stacked: a soft amber glow on top of a green gradient */
   background:
     radial-gradient(
       ellipse 60% 120% at 85% 0%,
@@ -2065,128 +2084,46 @@ article.tovna-card:hover .tovna-link .arrow {
 .ht-hero h1 {
   margin-bottom: 12px;
   font-family: Georgia, "Times New Roman", serif;
+  /* clamp(min, preferred, max): grows with the screen but stays in range */
   font-size: clamp(2rem, 4vw, 3.1rem);
   font-weight: 600;
   letter-spacing: -0.02em;
 }
 
 .ht-hero p {
-  max-width: 600px;
+  max-width: 600px; /* keeps the line length easy to read */
   margin: 0;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.7;
 }
-/* ---------- Pagination ---------- */
-.ht-filters {
-  scroll-margin-top: 90px; /* keeps the filter bar clear of the sticky navbar */
-}
 
-.ht-pagination {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 36px;
-}
+/* =========================================================
+   2. FILTER BAR (white card that floats over the hero)
+   ========================================================= */
 
-.ht-page-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ht-page-gap {
-  padding: 0 4px;
-  color: var(--tovna-muted, #5b6573);
-}
-
-.ht-page-btn {
-  display: inline-grid;
-  place-items: center;
-  min-width: 44px;
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--tovna-border, #e3e9e6);
-  border-radius: 12px;
-  background: #fff;
-  color: var(--tovna-text, #17202a);
-  font-weight: 650;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.ht-page-btn--nav {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ht-page-btn:hover:not(:disabled):not(.is-active) {
-  border-color: var(--tovna-primary, #0f766e);
-  background: var(--tovna-primary-soft, #e6f4f1);
-  color: var(--tovna-primary, #0f766e);
-}
-
-.ht-page-btn.is-active {
-  border-color: var(--tovna-primary, #0f766e);
-  background: var(--tovna-primary, #0f766e);
-  color: #fff;
-}
-
-.ht-page-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.ht-page-btn:focus-visible {
-  outline: 3px solid rgba(245, 158, 11, 0.7);
-  outline-offset: 2px;
-}
-
-@media (max-width: 575.98px) {
-  .ht-pagination {
-    gap: 8px;
-  }
-
-  /* On phones the page numbers go on their own row above the arrows */
-  .ht-page-list {
-    order: -1;
-    width: 100%;
-  }
-
-  .ht-page-btn--nav {
-    flex: 1;
-    justify-content: center;
-  }
-}
-/* ---------- Floating filter bar ---------- */
 .ht-filters {
   position: relative;
-  z-index: 2;
+  z-index: 2; /* sits above the hero */
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr; /* search is twice as wide as the rest */
   gap: 14px;
-  margin-top: -52px;
+  margin-top: -52px; /* negative margin = pull up over the hero */
   padding: 18px 22px;
   border: 1px solid var(--tovna-border, #e5e7eb);
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 20px 50px rgba(15, 35, 33, 0.14);
+
+  /* When a page button scrolls here, stop 90px early so the sticky
+     navbar does not cover the bar. */
+  scroll-margin-top: 90px;
 }
 
 .ht-field {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* label above the input */
   gap: 7px;
-  min-width: 0;
+  min-width: 0; /* lets the field shrink inside the grid */
 }
 
 .ht-field label {
@@ -2198,7 +2135,7 @@ article.tovna-card:hover .tovna-link .arrow {
 .ht-field input,
 .ht-field select {
   width: 100%;
-  min-height: 44px;
+  min-height: 44px; /* comfortable to tap on a phone */
   padding: 9px 12px;
   border: 1px solid var(--tovna-border, #e5e7eb);
   border-radius: 10px;
@@ -2212,6 +2149,10 @@ article.tovna-card:hover .tovna-link .arrow {
   outline: 3px solid rgba(15, 118, 110, 0.18);
 }
 
+/* =========================================================
+   3. RESULT COUNT ("Showing 1-6 of 14 hotels")
+   ========================================================= */
+
 .ht-count {
   display: flex;
   align-items: center;
@@ -2221,6 +2162,7 @@ article.tovna-card:hover .tovna-link .arrow {
   font-size: 0.92rem;
 }
 
+/* The "Clear filters" button looks like a plain text link */
 .ht-count button {
   padding: 0;
   border: 0;
@@ -2233,21 +2175,27 @@ article.tovna-card:hover .tovna-link .arrow {
   text-decoration: underline;
 }
 
-/* ---------- Hotel cards (horizontal) ---------- */
+/* =========================================================
+   4. HOTEL CARD (photo | details | price)
+   ========================================================= */
+
 .ht-list {
   display: grid;
-  gap: 18px;
+  gap: 18px; /* space between cards */
   margin-top: 24px;
 }
 
+/* When the count line is above the list it already adds space, so
+   remove the list's own top margin ("+" = element right after). */
 .ht-count + .ht-list {
   margin-top: 0;
 }
 
 .ht-card {
   display: grid;
+  /* Three columns: photo 280px, details take the rest, price 200px */
   grid-template-columns: 280px 1fr 200px;
-  overflow: hidden;
+  overflow: hidden; /* clips the photo to the rounded corners */
   border: 1px solid var(--tovna-border, #e5e7eb);
   border-radius: 18px;
   background: #fff;
@@ -2257,6 +2205,7 @@ article.tovna-card:hover .tovna-link .arrow {
     box-shadow 0.2s ease;
 }
 
+/* :focus-within = also highlight when something inside is focused by keyboard */
 .ht-card:hover,
 .ht-card:focus-within {
   border-color: rgba(15, 118, 110, 0.35);
@@ -2266,31 +2215,31 @@ article.tovna-card:hover .tovna-link .arrow {
 .ht-card-photo {
   display: block;
   min-height: 210px;
-  overflow: hidden;
-  background: #0b2321;
+  overflow: hidden; /* hides the photo while it zooms */
+  background: #0b2321; /* shown if the photo fails to load */
 }
 
 .ht-card-img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* fill the box, crop instead of stretch */
   transition: transform 0.5s ease;
 }
 
 .ht-card:hover .ht-card-img {
-  transform: scale(1.04);
+  transform: scale(1.04); /* gentle zoom on hover */
 }
 
 .ht-card-body {
-  min-width: 0;
+  min-width: 0; /* allows long text to wrap, not overflow */
   padding: 20px 24px;
 }
 
 .ht-card-top {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: space-between; /* name on the left, rating on the right */
   gap: 16px;
 }
 
@@ -2312,7 +2261,7 @@ article.tovna-card:hover .tovna-link .arrow {
 
 .ht-rating {
   display: flex;
-  flex-shrink: 0;
+  flex-shrink: 0; /* never squeeze the rating */
   align-items: center;
   gap: 10px;
   text-align: right;
@@ -2330,12 +2279,13 @@ article.tovna-card:hover .tovna-link .arrow {
   font-size: 0.78rem;
 }
 
+/* The green rating box, with one sharp corner like a speech bubble */
 .ht-score {
   display: inline-grid;
   place-items: center;
   min-width: 38px;
   padding: 6px 8px;
-  border-radius: 10px 10px 10px 2px;
+  border-radius: 10px 10px 10px 2px; /* top-left, top-right, bottom-right, bottom-left */
   background: var(--tovna-primary, #0f766e);
   color: #fff;
   font-weight: 800;
@@ -2347,6 +2297,7 @@ article.tovna-card:hover .tovna-link .arrow {
   font-size: 0.88rem;
 }
 
+/* Cut the description after 2 lines and add "..." */
 .ht-text {
   display: -webkit-box;
   margin: 12px 0 0;
@@ -2360,7 +2311,7 @@ article.tovna-card:hover .tovna-link .arrow {
 
 .ht-amenities {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* chips move to the next line if needed */
   gap: 8px;
   margin: 14px 0 0;
   padding: 0;
@@ -2375,7 +2326,10 @@ article.tovna-card:hover .tovna-link .arrow {
   font-size: 0.8rem;
 }
 
-/* Price column, like the transportation ticket stub */
+/* =========================================================
+   5. PRICE COLUMN (looks like a ticket stub on the right)
+   ========================================================= */
+
 .ht-card-price {
   display: flex;
   flex-direction: column;
@@ -2383,7 +2337,7 @@ article.tovna-card:hover .tovna-link .arrow {
   justify-content: center;
   gap: 3px;
   padding: 20px;
-  border-left: 2px dashed var(--tovna-border, #e5e7eb);
+  border-left: 2px dashed var(--tovna-border, #e5e7eb); /* the "tear" line */
   background: #fafcfb;
   text-align: center;
 }
@@ -2406,7 +2360,85 @@ article.tovna-card:hover .tovna-link .arrow {
   font-weight: 650;
 }
 
-/* ---------- Messages and loading ---------- */
+/* =========================================================
+   6. PAGINATION (← Previous  1 2 3  Next →)
+   ========================================================= */
+
+.ht-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.ht-page-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none; /* remove the bullet points */
+}
+
+/* The "..." between page numbers */
+.ht-page-gap {
+  padding: 0 4px;
+  color: var(--tovna-muted, #5b6573);
+}
+
+/* Every page button (numbers and Previous / Next) */
+.ht-page-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--tovna-border, #e3e9e6);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--tovna-text, #17202a);
+  font-weight: 650;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* Previous / Next hold an arrow and a word side by side.
+   This comes AFTER .ht-page-btn so its display value wins. */
+.ht-page-btn--nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Hover effect, but not on a disabled button or the current page */
+.ht-page-btn:hover:not(:disabled):not(.is-active) {
+  border-color: var(--tovna-primary, #0f766e);
+  background: var(--tovna-primary-soft, #e6f4f1);
+  color: var(--tovna-primary, #0f766e);
+}
+
+/* The page you are on is filled with green */
+.ht-page-btn.is-active {
+  border-color: var(--tovna-primary, #0f766e);
+  background: var(--tovna-primary, #0f766e);
+  color: #fff;
+}
+
+.ht-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* =========================================================
+   7. MESSAGES (error / empty) AND LOADING SKELETON
+   ========================================================= */
+
 .ht-message {
   margin-top: 24px;
   padding: 52px 20px;
@@ -2426,12 +2458,13 @@ article.tovna-card:hover .tovna-link .arrow {
 .ht-btn {
   padding: 9px 22px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 999px; /* huge radius = fully rounded pill */
   background: var(--tovna-primary, #0f766e);
   color: #fff;
   font-weight: 650;
 }
 
+/* The grey placeholder card shown while hotels load */
 .ht-skeleton {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -2442,6 +2475,7 @@ article.tovna-card:hover .tovna-link .arrow {
   background: #fff;
 }
 
+/* A light stripe that slides across to show "loading" */
 .ht-skeleton-photo,
 .ht-skeleton-line {
   background: linear-gradient(90deg, #eef1ef 25%, #f7f9f8 50%, #eef1ef 75%);
@@ -2469,23 +2503,33 @@ article.tovna-card:hover .tovna-link .arrow {
   }
 }
 
+/* =========================================================
+   8. FOCUS RINGS (for people using the keyboard)
+   ========================================================= */
+
 .ht-field input:focus-visible,
 .ht-field select:focus-visible,
 .ht-card-photo:focus-visible,
 .ht-btn:focus-visible,
-.ht-count button:focus-visible {
+.ht-count button:focus-visible,
+.ht-page-btn:focus-visible {
   outline: 3px solid rgba(245, 158, 11, 0.7);
   outline-offset: 2px;
 }
 
-/* ---------- Responsive ---------- */
+/* =========================================================
+   9. RESPONSIVE (smaller screens)
+   Later rules override earlier ones, so these stay at the end.
+   ========================================================= */
+
+/* Tablets: the card becomes photo + details, price goes underneath */
 @media (max-width: 991px) {
   .ht-card {
     grid-template-columns: 240px 1fr;
   }
 
   .ht-card-price {
-    grid-column: 1 / -1;
+    grid-column: 1 / -1; /* span all columns */
     flex-direction: row;
     flex-wrap: wrap;
     align-items: baseline;
@@ -2501,6 +2545,7 @@ article.tovna-card:hover .tovna-link .arrow {
   }
 }
 
+/* Phones: everything stacks in one column */
 @media (max-width: 640px) {
   .ht-hero {
     padding: 40px 0 96px;
@@ -2518,7 +2563,7 @@ article.tovna-card:hover .tovna-link .arrow {
 
   .ht-card-photo {
     min-height: 0;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 10; /* photo keeps a fixed shape */
   }
 
   .ht-skeleton {
@@ -2540,6 +2585,29 @@ article.tovna-card:hover .tovna-link .arrow {
   }
 }
 
+/* Small phones: page numbers on their own row, arrows share the row below */
+@media (max-width: 575.98px) {
+  .ht-pagination {
+    gap: 8px;
+  }
+
+  .ht-page-list {
+    order: -1; /* move above the arrows */
+    width: 100%;
+  }
+
+  .ht-page-btn--nav {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* =========================================================
+   10. REDUCED MOTION
+   People who turn off animations in their system settings
+   get no hover zoom and no shimmer.
+   ========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
   .ht-card,
   .ht-card-img {
@@ -2556,9 +2624,27 @@ article.tovna-card:hover .tovna-link .arrow {
   }
 }
 /* =========================================================
-   TovNa - Hotel booking page
-   All classes start with "bk-" so they never clash with other
-   hotel pages. The page works even if no other hotel CSS loads.
+   TovNa - Hotel booking page   (used by HotelBooking.jsx)
+   =========================================================
+
+   HOW TO READ THIS FILE
+   - Every class starts with "bk-" (booking). The prefix keeps these rules
+     from touching any other page, and means this page keeps its styling
+     even if no other hotel CSS is loaded.
+   - Sections run from the top of the page to the bottom:
+       1. Page heading         4. Stay form (dates and nights)
+       2. White cards          5. Price details card
+       3. Hotel summary        6. Confirmation card + phones
+   - Colours use CSS variables with a fallback, for example
+       var(--tovna-primary, #0b6b63)
+     = "use --tovna-primary if defined, otherwise #0b6b63".
+   - Bootstrap classes (form-control, form-select, form-label) are used for
+     the inputs. The rules under ".bk-panel .form-control" only restyle
+     them inside the booking cards.
+   ========================================================= */
+
+/* =========================================================
+   1. PAGE HEADING
    ========================================================= */
 
 .bk-page {
@@ -2574,19 +2660,23 @@ article.tovna-card:hover .tovna-link .arrow {
   margin: 0 0 10px;
   color: var(--tovna-text, #17202a);
   font-family: var(--tovna-display, Georgia, "Times New Roman", serif);
+  /* clamp(min, preferred, max): grows with the screen, within limits */
   font-size: clamp(1.9rem, 4vw, 2.8rem);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .bk-head p {
-  max-width: 640px;
+  max-width: 640px; /* keeps the line length easy to read */
   margin: 0;
   color: var(--tovna-muted, #5b6573);
   line-height: 1.65;
 }
 
-/* ---------- White cards ---------- */
+/* =========================================================
+   2. WHITE CARDS (shared by every block on the page)
+   ========================================================= */
+
 .bk-panel {
   margin-bottom: 20px;
   padding: 24px;
@@ -2604,26 +2694,30 @@ article.tovna-card:hover .tovna-link .arrow {
   letter-spacing: -0.01em;
 }
 
-/* ---------- Hotel summary ---------- */
+/* =========================================================
+   3. HOTEL SUMMARY (photo + name + address + rating)
+   ========================================================= */
+
 .bk-summary {
-  display: flex;
+  display: flex; /* photo and text side by side */
   align-items: center;
   gap: 22px;
 }
 
-/* The photo has a fixed size, so it can never fill the page */
+/* A fixed size means the photo can never grow to fill the page.
+   (That was the bug in your screenshot.) */
 .bk-thumb {
   display: block;
-  flex-shrink: 0;
+  flex-shrink: 0; /* keep the size even when space is tight */
   width: 180px;
   height: 132px;
   border-radius: 18px;
-  background: #134e4a;
-  object-fit: cover;
+  background: #134e4a; /* shown if the photo fails to load */
+  object-fit: cover; /* crop to fit, never stretch */
 }
 
 .bk-summary-text {
-  min-width: 0;
+  min-width: 0; /* lets long names wrap instead of overflow */
 }
 
 .bk-summary-text h2 {
@@ -2646,7 +2740,7 @@ article.tovna-card:hover .tovna-link .arrow {
 
 .bk-address svg {
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 2px; /* lines the pin icon up with the first line */
   color: var(--tovna-primary, #0b6b63);
 }
 
@@ -2660,7 +2754,7 @@ article.tovna-card:hover .tovna-link .arrow {
 
 .bk-score {
   padding: 4px 11px;
-  border-radius: 999px;
+  border-radius: 999px; /* huge radius = fully rounded pill */
   background: var(--tovna-primary, #0b6b63);
   color: #fff;
   font-size: 0.85rem;
@@ -2672,7 +2766,10 @@ article.tovna-card:hover .tovna-link .arrow {
   font-size: 0.9rem;
 }
 
-/* ---------- Stay form ---------- */
+/* =========================================================
+   4. STAY FORM (check-in date, nights, date strip)
+   ========================================================= */
+
 .bk-panel .form-label {
   color: var(--tovna-text, #17202a);
   font-size: 0.88rem;
@@ -2681,17 +2778,19 @@ article.tovna-card:hover .tovna-link .arrow {
 
 .bk-panel .form-control,
 .bk-panel .form-select {
-  min-height: 48px;
+  min-height: 48px; /* comfortable to tap on a phone */
   border-color: var(--tovna-border, #e3e9e6);
   border-radius: 12px;
 }
 
+/* A soft green ring appears around the field you are typing in */
 .bk-panel .form-control:focus,
 .bk-panel .form-select:focus {
   border-color: var(--tovna-primary, #0b6b63);
   box-shadow: 0 0 0 4px rgba(11, 107, 99, 0.15);
 }
 
+/* The green strip: "Fri, Nov 28 - Sat, Nov 29 · 1 night" */
 .bk-dates {
   display: flex;
   align-items: center;
@@ -2704,19 +2803,26 @@ article.tovna-card:hover .tovna-link .arrow {
   font-weight: 650;
 }
 
-/* ---------- Price details ---------- */
+/* =========================================================
+   5. PRICE DETAILS CARD
+   ========================================================= */
+
+/* On desktop the card stays in view while you scroll the form.
+   Phones skip this, because the card sits below the form there. */
 @media (min-width: 992px) {
   .bk-price {
     position: sticky;
-    top: 96px;
+    top: 96px; /* gap below the sticky navbar */
   }
 }
 
+/* <dl> is a list of "term + value" pairs: here, label + amount */
 .bk-rows {
   margin: 0;
   padding: 0;
 }
 
+/* One line of the price list: label on the left, amount on the right */
 .bk-row {
   display: flex;
   align-items: baseline;
@@ -2726,6 +2832,7 @@ article.tovna-card:hover .tovna-link .arrow {
 }
 
 .bk-row dt {
+  /* the label */
   margin: 0;
   color: var(--tovna-text, #17202a);
   font-size: 0.95rem;
@@ -2733,15 +2840,16 @@ article.tovna-card:hover .tovna-link .arrow {
 }
 
 .bk-row dd {
+  /* the amount */
   margin: 0;
   color: var(--tovna-text, #17202a);
   font-size: 0.95rem;
   font-weight: 700;
   text-align: right;
-  white-space: nowrap;
+  white-space: nowrap; /* never split "$54.90" across two lines */
 }
 
-/* The tax lines sit under "Estimated taxes & fees" */
+/* The three tax lines are indented and lighter, under "taxes & fees" */
 .bk-row--sub {
   padding: 4px 0 4px 16px;
 }
@@ -2753,6 +2861,7 @@ article.tovna-card:hover .tovna-link .arrow {
   font-weight: 500;
 }
 
+/* The big "Total  $54.90" line under a dashed divider */
 .bk-total {
   display: flex;
   align-items: center;
@@ -2784,7 +2893,10 @@ article.tovna-card:hover .tovna-link .arrow {
   text-align: center;
 }
 
-/* ---------- Confirmation card ---------- */
+/* =========================================================
+   6. CONFIRMATION CARD (after booking) + PHONES
+   ========================================================= */
+
 .bk-confirmation {
   padding: 22px 24px;
   border: 1px solid rgba(22, 128, 62, 0.35);
@@ -2803,7 +2915,7 @@ article.tovna-card:hover .tovna-link .arrow {
   padding: 6px 0;
 }
 
-/* ---------- Phones ---------- */
+/* Phones: photo goes on top, full width; cards get a little tighter */
 @media (max-width: 575.98px) {
   .bk-summary {
     flex-direction: column;
